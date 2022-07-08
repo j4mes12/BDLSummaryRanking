@@ -1,0 +1,160 @@
+% The document class supplies options to control rendering of some standard
+% features in the result.  The goal is for uniform style, so some attention 
+% to detail is *vital* with all fields.  Each field (i.e., text inside the
+% curly braces below, so the MEng text inside {MEng} for instance) should 
+% take into account the following:
+%
+% - author name       should be formatted as "FirstName LastName"
+%   (not "Initial LastName" for example),
+% - supervisor name   should be formatted as "Title FirstName LastName"
+%   (where Title is "Dr." or "Prof." for example),
+% - degree programme  should be "BSc", "MEng", "MSci", "MSc" or "PhD",
+% - dissertation title should be correctly capitalised (plus you can have
+%   an optional sub-title if appropriate, or leave this field blank),
+% - dissertation type should be formatted as one of the following:
+%   * for the MEng degree programme either "enterprise" or "research" to
+%     reflect the stream,
+%   * for the MSc  degree programme "$X/Y/Z$" for a project deemed to be
+%     X%, Y% and Z% of type I, II and III.
+% - year              should be formatted as a 4-digit year of submission
+%   (so 2014 rather than the academic year, say 2013/14 say).
+
+\documentclass[ % the name of the author
+                    author={James Stephenson},
+                % the name of the supervisor
+                supervisor={Dr. Edwin Simpson},
+                % the degree programme
+                    degree={MSc},
+                % the dissertation    title (which cannot be blank)
+                     title={Project Plan: Bayesian Deep Learning For Extractive Test Summarisation},
+                % the dissertation subtitle (which can    be blank)
+                  subtitle={},
+                % the dissertation     type
+                      type={},
+                % the year of submission
+                      year={2022}]{../additions/dissertation}
+
+\begin{document}
+
+	% =============================================================================
+	
+	
+	% =============================================================================
+	
+	% This macro creates the standard UoB title page by using information drawn
+	% from the document class (meaning it is vital you select the correct degree 
+	% title and so on).
+	
+	
+	\maketitle
+	
+	% After the title page (which is a special case in that it is not numbered)
+	% comes the front matter or preliminaries; this macro signals the start of
+	% such content, meaning the pages are numbered with Roman numerals.
+	
+	\frontmatter
+	
+	% This macro creates the standard UoB declaration; on the printed hard-copy,
+	% this must be physically signed by the author in the space indicated.
+	
+	\makedecl
+	
+	% LaTeX automatically generates a table of contents, plus associated lists 
+	% of figures, tables and algorithms.  The former is a compulsory part of the
+	% dissertation, but if you do not require the latter they can be suppressed
+	% by simply commenting out the associated macro.
+	
+	\tableofcontents
+	
+	% The following sections are part of the front matter, but are not generated
+	% automatically by LaTeX; the use of \chapter* means they are not numbered.
+	
+	% -----------------------------------------------------------------------------
+	
+	\chapter*{Abstract}
+	
+		{\bf A compulsory section, of at most $1$ page} 
+		\vspace{1cm} 
+		
+		\noindent
+		This section should summarise the project context, aims and objectives,
+		and main contributions (e.g., deliverables) and achievements.  The goal is to ensure that the 
+		reader is clear about what the topic is, what you have done within this 
+		topic, {\em and}\/ {\bf what your view of the outcome is.}
+		
+		Essentially 
+		this section is a (very) short version of what is typically covered in more depth in the first 
+		chapter.  If appropriate, you should include here  
+		a clear statement of your research hypothesis.  This will obviously differ significantly
+		for each project, but an example might be as follows:
+		
+		\begin{quote}
+			My research hypothesis is that a suitable genetic algorithm will yield
+			more accurate results (when applied to the standard ACME data set) than 
+			the algorithm proposed by Jones and Smith, while also executing in less
+			time.
+		\end{quote}
+		
+		\noindent
+		The latter aspects should (ideally) be presented as a concise, factual 
+		list of the main points of achievement.  Again the points will differ for each project, but 
+		an might be as follows:
+	
+	\mainmatter
+	
+	% -----------------------------------------------------------------------------
+	
+	\chapter{Two Pages of Coherent Text: An Introduction}
+	\label{chap:introduction}
+		
+		It should include at least two pages of coherent text (i.e., of the form you intend to write for your thesis, not rough-notes) that could be used as the opening pages of your Introduction/Overview chapter (Chapter 1 of your thesis). 
+		
+		% -----------------------------------------------------------------------------
+	
+	\chapter{Three Pages of Coherent Test: Literature Review}
+	\label{chap:literaturereview}
+		
+		It should include at least three pages of coherent text forming an initial survey/summary of relevant literature, that could be used as the basis of your Contextual Background or Literature Review chapter (typically Chapter 2 and/or 3 of your thesis). 
+		
+		% ----------------------------------------------------------------------------	
+	
+	% =============================================================================
+	
+	% Finally, after the main matter, the back matter is specified.  This is
+	% typically populated with just the bibliography.  LaTeX deals with these
+	% in one of two ways, namely
+	%
+	% - inline, which roughly means the author specifies entries using the 
+	%   \bibitem macro and typesets them manually, or
+	% - using BiBTeX, which means entries are contained in a separate file
+	%   (which is essentially a database) then imported; this is the 
+	%   approach used below, with the databased being dissertation.bib.
+	%
+	% Either way, the each entry has a key (or identifier) which can be used
+	% in the main matter to cite it, e.g., \cite{X}, \cite[Chapter 2}{Y}.
+	
+	\backmatter
+	
+	\bibliography{bibtex.bib}
+	
+	% -----------------------------------------------------------------------------
+	
+	% The dissertation concludes with a set of (optional) appendices; these are 
+	% the same as chapters in a sense, but once signalled as being appendices via
+	% the associated macro, LaTeX manages them appropriately.
+	
+	\appendix
+	
+	\chapter{One-Page Time-plan}
+		\label{appx:timeplan}
+		
+		It should include as an Appendix a one-page time-plan for your project, which you may choose to format as a week-by-week bullet-list, or possibly as a Gantt Chart. 
+		
+	\chapter{One-Page Risk Assessment}
+		\label{appx:riskassessment}
+		
+		It should include as an Appendix a one-page risk assessment for your project, talking about the major risks you can foresee that might plausibly occur and interfere with your plans. For each risk, state clearly what it is, what its likelihood is, what its effects/impact would be on the project, and what your intended mitigation or risk-reduction involves.
+		
+		% =============================================================================
+
+\end{document}

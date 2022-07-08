@@ -149,7 +149,7 @@
 
   \vspace*{\fill}
   \begin{center}
-                \includegraphics[scale=0.3]{logo_uob_color}                \\
+                \includegraphics[scale=0.3]{../additions/logo_uob_color}                \\
                               \vspace*{1.0cm}
                           DEPARTMENT OF ENGINEERING MATHEMATICS                        \\
                               \vspace*{2.0cm}
