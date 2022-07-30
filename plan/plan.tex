@@ -83,9 +83,9 @@
 		
 		It should include at least two pages of coherent text (i.e., of the form you intend to write for your thesis, not rough-notes) that could be used as the opening pages of your Introduction/Overview chapter (Chapter 1 of your thesis). 
 		
-		% -----------------------------------------------------------------------------
+	% -----------------------------------------------------------------------------
 	
-	\chapter{Background}
+	\chapter{Subject Background}
 	\label{chap:literaturereview}
 		
 	Since the crux of this project is to assess the suitability of applying Bayesian deep learning (BDL) techniques to passage ranking (PR) problems, this chapter explores the relevant literature that discusses previous approaches to passage ranking solutions. Once this assessment has been done, we will then also examine literature that assesses BDL as opposed to classical deep learning techniques.
@@ -116,17 +116,17 @@
 		
 	%% [NN Deep Learning Image]
 
-In classical training, one typically uses maximum a-posteriori (MAP) optimisation to choose the set of parameters, $\hat{w}$, for our model that maximises the posterior probability from our parameter distribution \cite{Wilson20}. MAP does not require the computationally-costly calculation of the marginal distribution \cite{Hero14}; however, since MAP is a point estimate, it cannot be fully considered a Bayesian approach \cite{Hero15}.
+In classical training, one typically uses maximum a-posteriori (MAP) optimisation to choose the set of parameters, $\hat{w}$, for our model that maximises the posterior probability from our parameter distribution \cite{Wilson20}. MAP does not require the computationally-costly calculations of the marginal distribution; however, since MAP is a point estimate, it cannot be fully considered a Bayesian approach \cite{Hero15}.
 	
-	%% [Hero14 plot]
+	%% [Hero15 plot]
 
 		
 			\subsection{Pre-trained Models}
 			\label{chap:literaturereview:deep:pretrained}
 			
-			Pre-trained, deep learning, language models are useful in unsupervised learning problems due to the lack of major architectural modifications required and the high performance levels that are delivered \cite{Mridha19}. One popular pre-trained language model is the Bidirectional Encoder Representations from Transformers (BERT) which takes an entire sequence of words at once to produce significantly improved results; with some minor fine-tuning, it can be applied to many NLP tasks \cite{Mridha19}.
+			Pre-trained, deep learning, language models are useful in unsupervised learning problems due to the lack of major architectural modifications required and the high performance levels that are delivered \cite{Mridha21}. One popular pre-trained language model is the Bidirectional Encoder Representations from Transformers (BERT) which takes an entire sequence of words at once to produce significantly improved results; with some minor fine-tuning, it can be applied to many NLP tasks \cite{Mridha21}.
 
-Recent publications have found BERT-based models \cite{Devlin18} to be extremely effective when tasked with passage ranking situations across the question answering and text summarisation disciplines \cite{Xu19}, \cite{Qiao19}. Xu et al. \cite{Xu19} explored a query-passage set up when applying BERT to cQA such that the BERT final hidden state fed into an MLP module to produce relevance scores in a supervised way. Since this technique outperformed the baseline, it may be a useful structure to consider adapting to the text summarisation domain.
+Recent publications have found BERT-based models \cite{Devlin18} to be extremely effective when tasked with passage ranking situations across the question answering and text summarisation disciplines \cite{Xu19, Qiao19}. Xu et al. \cite{Xu19} explored a query-passage set up when applying BERT to cQA such that the BERT final hidden state fed into an MLP module to produce relevance scores in a supervised way. Since this technique outperformed the baseline, it may be a useful structure to consider adapting to the text summarisation domain.
 
 The limitation of utilising an interactive learning framework such as one outlined by Simpson et al. \cite{Simpson19} as that it does not utilise the vast performance capabilities of newer, pre-trained techniques such as BERT. Although the framework presented does limit the number of interactions required from a user – allowing the user to tailor the summary – Ein-Dor et al. \cite{EinDor20} look to take this idea further with the incorporation of a BERT component in an AL framework. 
 
@@ -139,7 +139,7 @@ The limitation of utilising an interactive learning framework such as one outlin
 		\section{Deep Active Learning}
 		\label{chap:literaturereview:deepactive}
 		
-		Ein-Dor et al. \cite{EinDor20} developed a framework that used an AL approach with BERT-based classification. Zhang and Zhang also explored an alike ensemble of AL strategies \cite{Zhang19}; however, the task is less relatable to PR since framework proposed by Ein-Dor et al. had experimentation on data with high class imbalance, scarce labelling and a small annotation budget \cite{EinDor20}, attributes of an interactive PR context.  This structure consisted of pool-based AL \cite{Settles09} in batch mode in conjunction with BERT as the classification scheme. Different AL strategies were examined – Monte-Carlo Dropout (MCD) \cite{Gal15}, a Bayesian approach, and Discriminative Active Learning (DAL) \cite{Gissin19} – with Al proving an excellent boost to helping BERT emerge from its poor initial model \cite{EinDor19}. Although DAL would not be appropriate for the PR context due to its focus on querying batches, using MCD as a strategy is a technique we could consider.
+		Ein-Dor et al. \cite{EinDor20} developed a framework that used an AL approach with BERT-based classification. Zhang and Zhang also explored an alike ensemble of AL strategies \cite{Zhang19}; however, the task is less relatable to PR since framework proposed by Ein-Dor et al. had experimentation on data with high class imbalance, scarce labelling and a small annotation budget \cite{EinDor20}, attributes of an interactive PR context.  This structure consisted of pool-based AL \cite{Settles09} in batch mode in conjunction with BERT as the classification scheme. Different AL strategies were examined – Monte-Carlo Dropout (MCD) \cite{Gal15}, a Bayesian approach, and Discriminative Active Learning (DAL) \cite{Gissin19} – with Al proving an excellent boost to helping BERT emerge from its poor initial model \cite{EinDor20}. Although DAL would not be appropriate for the PR context due to its focus on querying batches, using MCD as a strategy is a technique we could consider.
 		
 		\section{Bayesian Deep Learning}
 		\label{chap:literaturereview:deepbayes}
@@ -171,7 +171,7 @@ The limitation of utilising an interactive learning framework such as one outlin
 	
 	\backmatter
 	
-	\bibliography{bibtex.bib}
+	\bibliography{bibtex}
 	
 	% -----------------------------------------------------------------------------
 	
@@ -181,10 +181,12 @@ The limitation of utilising an interactive learning framework such as one outlin
 	
 	\appendix
 	
-	\chapter{One-Page Time-plan}
+	\chapter{Time-plan}
 		\label{appx:timeplan}
 		
-		It should include as an Appendix a one-page time-plan for your project, which you may choose to format as a week-by-week bullet-list, or possibly as a Gantt Chart. 
+		\begin{center}
+			\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{Gantt.png}
+		\end{center}
 		
 	\chapter{One-Page Risk Assessment}
 		\label{appx:riskassessment}

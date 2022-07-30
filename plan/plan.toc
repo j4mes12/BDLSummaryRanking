@@ -1,5 +1,5 @@
 \contentsline {chapter}{\numberline {1}Two Pages of Coherent Text: An Introduction}{1}{chapter.1}%
-\contentsline {chapter}{\numberline {2}Background}{3}{chapter.2}%
+\contentsline {chapter}{\numberline {2}Subject Background}{3}{chapter.2}%
 \contentsline {section}{\numberline {2.1}Interactive Learning}{3}{section.2.1}%
 \contentsline {section}{\numberline {2.2}Active Learning}{3}{section.2.2}%
 \contentsline {subsection}{\numberline {2.2.1}Active Learning Strategies}{3}{subsection.2.2.1}%
@@ -9,5 +9,5 @@
 \contentsline {section}{\numberline {2.5}Deep Active Learning}{4}{section.2.5}%
 \contentsline {section}{\numberline {2.6}Bayesian Deep Learning}{4}{section.2.6}%
 \contentsline {subsection}{\numberline {2.6.1}Bayesian Deep Learning Strategies}{4}{subsection.2.6.1}%
-\contentsline {chapter}{\numberline {A}One-Page Time-plan}{5}{appendix.A}%
-\contentsline {chapter}{\numberline {B}One-Page Risk Assessment}{7}{appendix.B}%
+\contentsline {chapter}{\numberline {A}Time-plan}{7}{appendix.A}%
+\contentsline {chapter}{\numberline {B}One-Page Risk Assessment}{9}{appendix.B}%
