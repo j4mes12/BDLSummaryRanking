@@ -29,6 +29,12 @@ Siddhartha Bhattacharyya, Vaclav Snasel, Aboul~Ella Hassanien, Satadal Saha,
 \newblock {\em Deep Learning: Research and Applications}.
 \newblock De Gruyter, 2020.
 
+\bibitem{Bradley52}
+Ralph~Allan Bradley and Milton~E. Terry.
+\newblock Rank analysis of incomplete block designs: I. the method of paired
+  comparisons.
+\newblock {\em Biometrika}, 39(3/4):324--345, 1952.
+
 \bibitem{Brooks11}
 Steve Brooks, Andrew Gelman, Galin Jones, and Xiao-Li Meng.
 \newblock {\em Handbook of Markov Chain Monte Carlo}.
@@ -99,6 +105,14 @@ Yang Gao, Christian~M. Meyer, and Iryna Gurevych.
 \newblock In {\em Proceedings of the 2018 Conference on Empirical Methods in
   Natural Language Processing}, pages 4120--4130, Brussels, Belgium,
   October-November 2018. Association for Computational Linguistics.
+
+\bibitem{Gao20}
+Yang Gao, Wei Zhao, and Steffen Eger.
+\newblock {SUPERT}: Towards new frontiers in unsupervised evaluation metrics
+  for multi-document summarization.
+\newblock In {\em Proceedings of the 58th Annual Meeting of the Association for
+  Computational Linguistics}, pages 1347--1354, Online, July 2020. Association
+  for Computational Linguistics.
 
 \bibitem{Gissin19}
 Daniel Gissin and Shai Shalev-Shwartz.
@@ -192,10 +206,22 @@ J.~Mo{\v{c}}kus.
   Conference Novosibirsk, July 1--7, 1974}, pages 400--404, Berlin, Heidelberg,
   1975. Springer Berlin Heidelberg.
 
+\bibitem{Mosteller51}
+Frederick Mosteller.
+\newblock Remarks on the method of paired comparisons: I. the least squares
+  solution assuming equal standard deviations and equal correlations.
+\newblock {\em Psychometrika}, 16(1):3--9, 1951.
+
 \bibitem{Neal95}
 Radford~M. Neal.
 \newblock Bayesian learning for neural networks.
 \newblock In {\em Bayesian Learning for Neural Networks}, 1995.
+
+\bibitem{Nenkova11}
+Ani Nenkova and Kathleen McKeown.
+\newblock Automatic summarization.
+\newblock {\em Foundations and Trends in Information Retrieval}, 5:103--233, 06
+  2011.
 
 \bibitem{Peris18}
 {\'A}lvaro Peris and Francisco Casacuberta.
@@ -304,6 +330,11 @@ Cynthia~A. Thompson, Mary~Elaine Califf, and Raymond~J. Mooney.
   extraction.
 \newblock In {\em Proceedings of the Sixteenth International Conference on
   Machine Learning (ICML-99)}, pages 406--414, Bled, Slovenia, June 1999.
+
+\bibitem{Thurstone27}
+Louis~Leon Thurstone.
+\newblock A law of comparative judgement.
+\newblock {\em Psychological Review}, 34:278--286, 1927.
 
 \bibitem{Tur05}
 Gokhan Tur, Dilek Hakkani-T{\"u}r, and Robert~E. Schapire.

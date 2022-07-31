@@ -26,9 +26,9 @@
                 % the degree programme
                     degree={MSc},
                 % the dissertation    title (which cannot be blank)
-                     title={Project Plan: Bayesian Deep Learning For Extractive Test Summarisation},
+                     title={PROJECT PLAN},
                 % the dissertation subtitle (which can    be blank)
-                  subtitle={},
+                  subtitle={ Bayesian Deep Learning For Extractive Test Summarisation},
                 % the dissertation     type
                       type={},
                 % the year of submission
@@ -59,7 +59,7 @@
 	% dissertation, but if you do not require the latter they can be suppressed
 	% by simply commenting out the associated macro.
 	
-	\tableofcontents
+	%% \tableofcontents
 	
 	% The following sections are part of the front matter, but are not generated
 	% automatically by LaTeX; the use of \chapter* means they are not numbered.
@@ -86,10 +86,49 @@
 	
 	% -----------------------------------------------------------------------------
 	 
-	\chapter{Two Pages of Coherent Text: An Introduction}
+	\chapter{Introduction}
 	\label{chap:introduction}
 		
-		It should include at least two pages of coherent text (i.e., of the form you intend to write for your thesis, not rough-notes) that could be used as the opening pages of your Introduction/Overview chapter (Chapter 1 of your thesis). 
+		Text summarisation is the process of condensing a passage of text into a shorter version whilst retaining the necessary information in the text. This is a valuable research area since summarisation massively reduces the comprehension time of large pieces of text. Moreover, it has applications in many different domains, both public and professional: academics are required to read extensive research papers, individuals read long articles to keep up to date with the world news, and individuals read books to learn about various topics from history to science.
+
+		\medbreak
+		There are two approaches to text summarisation: extractive and abstractive summarisation. Extractive summarisation is a summarisation technique which focuses on selecting particular words and sentences to convey the meaning of the original text.  Whereas abstractive summarisation techniques look to understand the semantics of the text before generating text to summarise what the model has learnt.
+
+		\medbreak
+		Extractive summarisation models are more common as most practical text summarisation models are extractive. The basic structure of these models is made up of three stages \cite{Nenkova11}: first, capturing the key aspects of the text; secondly, using these aspects to score sentences; thirdly, to create a summary using the highest scoring sentences. Abstractive summarisation is, naturally, harder, and more computationally costly to perform. The difficulty is centred on learning the semantics of the text; different texts can have many different structures and models find it difficult to learn such variety.
+
+		\medbreak
+		This project focuses on developing an approach that ranks proposed text summaries. It is necessary for our approach to achieve the following requirements:
+
+		\begin{itemize}
+			\item {It has the ability to tailor summaries to the user’s preference since there is a range of requirements that different users have.}
+			\item{The highest-ranked summary suitably conveys the information in the original text.}
+			\item {The framework should be used in an interactive setting, so rankings must be generated without extensive computational cost.}
+		\end{itemize}
+		
+		\section{Current Approaches}
+		\label{chap:introduction:curr_appraoches}
+		
+			From current literature, models have been proposed to capture the preference of one summary to another such as the Bradley-Terry model \cite{Bradley52} and the Thurstone-Mosteller model \cite{Thurstone27, Mosteller51}. These models provide good solutions; however, they fail to differentiate between aleatoric and epistemic uncertainty. This limits the models’ ability to determine where there is weakness in the model and lead to a reduced performance. Alternative approaches use deep learning techniques to rank passages which beat state-of-the-art performance \cite{Xu19}. However, such models are limited by their requirement of large training data which, in the context of text summarisation, comes at high cost as human annotators are required to manually produce and evaluate summaries. Moreover, these models are unable to account for user preferences which really limits the model’s ability to tailor summaries to the user.
+		
+		\section{Proposed Approch}
+		\label{chap:introduction:prop_approach}
+		
+			\subsection{Research Aim}
+			\label{chap:introduction:prop_approach:aim}
+			
+				Our aim is to develop and evaluate a Bayesian deep learning framework for passage ranking text summaries which incorporates an active learning component to allow for user influence on the summary rankings. Typical deep learning approaches demand vast amounts of training data; however, the active learning component will minimise the number of user interactions required, whilst maintaining high-performance. During iterations within the active learning component, we use a stream-based strategy to minimise the amount of overhead processing as, for this strategy, summary instances are evaluated sequentially by the active learner as opposed to requiring a pool of unlabelled instances. As initiated by Simpson et al. \cite{Simpson19}, we will use a Bayesian optimisation acquisition function to determine if an unlabelled instance should be queried by the oracle. We also aim to use Monte Carlo Dropout \cite{Gal15} to approximate the posterior distribution across the model weights and calibrate our model.
+
+				\medbreak
+				Within our framework development and evaluation, we wish to establish if the proposed Bayesian deep learning approach provide a sufficient passage ranking solution in comparison to a classical deep learning model. Moreover, we aim to determine if a stream-based active learning strategy is appropriate for such a problem.
+				
+			\subsection{Research Concerns}
+			\label{chap:introduction:prop_approach:concerns}
+
+				The central challenge within the project is effectively combining a Bayesian deep learning model with an active learning component. Firstly, it is a concern as to whether stream-based learning is an appropriate active learning strategy for this task since there is minimal current documentation; pool-based active learning the most common strategy used \cite{Settles09}. Secondly, consideration needs to be made with regards to the number of user interactions. It is necessary for the model to be interactive; thus, it is important to explore the number of interactions that are required and if this is a reasonable level for an interactive setting.
+		
+		
+
 		
 	% -----------------------------------------------------------------------------
 	
@@ -98,14 +137,6 @@
 		
 	Since the crux of this project is to assess the suitability of applying Bayesian deep learning (BDL) techniques to passage ranking (PR) problems, this chapter explores the relevant literature that discusses previous approaches to passage ranking solutions. Once this assessment has been done, we will then also examine literature that assesses BDL as opposed to classical deep learning techniques.
 		
-		\section{Interactive Learning}
-		\label{chap:literaturereview:interactive}
-		
-		Interactive learning is a machine learning workflow involving directed experimentation with inputs and output \cite{Amershi14}. A rapid change in response to user input facilitates interactive inspection of the impact of the user’s input.  This workflow format is commonly used to solve NLP problems; related works include literature in passage ranking (PR) of generated text in the context of translations, question answering and text summarisation \cite{Peris18, Lin17, PVS17}. These works had a focus on interactionally-expensive uncertainty sampling to learn the rankings of \emph{all} candidate passages \cite{Simpson19}. Gao et al. \cite{Gao18} researched how to reduce the number of user interactions for uncertainty sampling techniques with some success using an active learner. A positive step towards reasonable interactive learning.
-
-\medbreak
-Simpson et al \cite{Simpson19} take an alternative approach to uncertainty sampling by proposing a Bayesian optimisation (BO) strategy instead \cite{Simpson19}. With Gaussian process (GPs) displaying some success in error reduction for NLP tasks with noisy labels \cite{Cohn13, Beck14}, Simpson and Gurevych \cite{Simpson18} proposed using Gaussian process preference learning (GPPL) with uncertainty sampling. This approach has been further built upon by Simpson et al. \cite{Simpson19} to a BO framework. This approach showed a markable improvement in the accuracy of chosen answers in a community question answering (cQA) task with a small number of interactions required \cite{Simpson19}. The methodology used Expected Improvement (IMP) as the acquisition function for AL which twisted the focus of optimisation to find the best candidate, as opposed to the ranks of all candidates \cite{Simpson19}. The switch to the exploitation of promising candidates showed to be massively influential on performance \cite{Simpson19}. Simpson et al. \cite{Simpson19} furthered the performance enhancement gained from using the BO framework by using prior predictions from a deep learner as an informative prior for GPPL \cite{Simpson19} to address the cold-start problem for recommender systems \cite{Bobadilla12}.
-
 		
 		\section{Active Learning}
 		\label{chap:literaturereview:active}
@@ -123,8 +154,8 @@ Simpson et al \cite{Simpson19} take an alternative approach to uncertainty sampl
 
 			\paragraph{Pool-based active learning.} A common approach for many real-world examples such as text classification \cite{Lewis94}, information extraction \cite{Thompson99} and speech recognition \cite{Tur05} since it is common to find large groups of unlabelled data collected at once. The \emph{pool-based active learning} workflow starts with a learner trained on a small set of labelled data, $ \mathcal{D}_{lab} $, which is then used to \emph{greedily} rank instances in a large collection of unlabelled instances, $\mathcal{D}_{unlab} $ \cite{Lewis94}. The highest-ranked instance is then labelled by an oracle and then used within the learner retrain. In comparison to a stream-based active learner, a greater computational cost is associated with a pool-based learner since it ranks the entire set $\mathcal{D}_{unlab}$ before making a query as opposed to making sequential decisions.
 	
-		\subsection{Acquisition Functions}
-		\label{chap:literaturereview:active:acquisition}
+			\subsection{Acquisition Functions}
+			\label{chap:literaturereview:active:acquisition}
 		
 			Whilst introducing \emph{active learning}, a lot is spoken about measuring the usefulness of each instance and whether to query it or not. We measure how informative an instance is using \emph{acquisition functions}. Naturally, there is a trade-off between two types of approaches: exploration and exploitation. Exploitative strategies search the area of the current best instances; whereas exploration strategies look at instances that have greater levels of uncertainty. As expected, there are many acquisition functions currently researched; we will cover a few important ones from the areas of uncertainty sampling and Bayesian optimisation.
 
@@ -168,7 +199,14 @@ where $\omega^{(c)}$ represents the parameters of a particular model in the comm
 
 \medbreak
 Average KL divergence is known to miss some instances when committee members disagree where VE does not whereas, a limitation of VE is that it can miss informative instances \cite{Li06}. A shared weakness is that both metrics often fail to select enough valuable instances to achieve the same classification accuracy as passive learning.
+		
+		\section{Interactive Learning}
+		\label{chap:literaturereview:interactive}
+		
+			Interactive learning is a machine learning workflow involving directed experimentation with inputs and output \cite{Amershi14}. A rapid change in response to user input facilitates interactive inspection of the impact of the user’s input.  This workflow format is commonly used to solve NLP problems; related works include literature in passage ranking (PR) of generated text in the context of translations, question answering and text summarisation \cite{Peris18, Lin17, PVS17}. These works had a focus on interactionally-expensive uncertainty sampling to learn the rankings of \emph{all} candidate passages \cite{Simpson19}. Gao et al. \cite{Gao18} researched how to reduce the number of user interactions for uncertainty sampling techniques with some success using an active learner. A positive step towards reasonable interactive learning.
 
+			\medbreak
+			Simpson et al \cite{Simpson19} take an alternative approach to uncertainty sampling by proposing a Bayesian optimisation (BO) strategy instead . With Gaussian process (GPs) displaying some success in error reduction for NLP tasks with noisy labels \cite{Cohn13, Beck14}, Simpson and Gurevych \cite{Simpson18} proposed using Gaussian process preference learning (GPPL) with uncertainty sampling. This approach has been further built upon by Simpson et al. \cite{Simpson19} to a BO framework. This approach showed a markable improvement in the accuracy of chosen answers in a community question answering (cQA) task with a small number of interactions required. The methodology used Expected Improvement (IMP) as the acquisition function for AL which twisted the focus of optimisation to find the best candidate, as opposed to the ranks of all candidates . The switch to the exploitation of promising candidates showed to be massively influential on performance . Simpson et al. \cite{Simpson19} furthered the performance enhancement gained from using the BO framework by using prior predictions from a state-of-the-art scoring method, SUPERT \cite{Gao20}, as an informative prior for GPPL to address the cold-start problem for recommender systems \cite{Bobadilla12}.
 		
 		
 		\section{Deep Learning}
@@ -211,7 +249,7 @@ Average KL divergence is known to miss some instances when committee members dis
 		$$
 		
 		\noindent
-		This integral is called \emph{Bayesian Model Averaging (BMA)} and can be thought of as the weighted average (using probability distributions) of all parameters and defines the probability for label $y$ given input $x$ and data $\mathcal{D}$ \cite{Izmailov20}. Wilson and Izmailov \cite{Izmailov20} argue that using a BMA increases accuracy as well as obtaining a realistic expression of uncertainty with classical neural networks exhibiting overconfident predictions \cite{Xu19}. Unfortunately, calculating the posterior distribution is a computationally expensive task, due to the marginalisation step in the denominator, so approximate posterior distributions are used.
+		This integral is called the \emph{Bayesian Model Average (BMA)} and can be thought of as the weighted average (using probability distributions) of all parameters and defines the probability for label $y$ given input $x$ and data $\mathcal{D}$ \cite{Izmailov20}. Wilson and Izmailov \cite{Izmailov20} argue that using a BMA increases accuracy as well as obtaining a realistic expression of uncertainty with classical neural networks exhibiting overconfident predictions \cite{Xu19}. Unfortunately, calculating the posterior distribution is a computationally expensive task, due to the marginalisation step in the denominator, so approximate posterior distributions are used.
 		
 			\subsection{Bayesian Deep Learning Strategies}
 			\label{chap:literaturereview:deepbayes:strategies}
@@ -221,16 +259,15 @@ Average KL divergence is known to miss some instances when committee members dis
 			\medbreak
 			A common practical method is using Monte Carlo Markov Chains (MCMC) to approximate the posterior \cite{Izmailov20}. MCMCs are used to approximate variable distributions for an idealised system \cite{Brooks11} and two common algorithms have been tailored to approximate posterior distributions: Gibbs Sampling and the Metropolis-Hastings Algorithm. However, Gibbs Sampling is not appropriate for neural networks with conditional posterior distributions due to the interdependency of parameters \cite{Neal95}. Simple forms of the Metropolis-Hasting algorithm (MH) can be more appropriate; however, again due to the high interdependence of states, MH can be costly and prone to random walks. Duane et al. \cite{Duane87} propose an alternative \emph{hybrid Monte Carlo} which is a combination of MH with sampling techniques from dynamical simulation.
 			
-			\medbreak
-			Second, Graves \cite{Graves11} proposed fitting a Gaussian variational posterior approximation over the parameters of neural networks and optimising over the parameters to ensure the variational distribution is as good an estimate of the posterior distribution as possible. This method works well for networks of moderate size, but supplies training difficulties when working with larger architectures \cite{He15}.
-Thirdly, Gal and Ghahramani \cite{Gal15} present Monte Carlo Dropout (MC Dropout); a dropout framework which integrates stochasticity into a neural network, by randomly removing parameters \emph{during training}. We can interpret dropout as approximate Bayesian inference, leading to a range of difference parameters. It is intuitive to see the link between this and sampling parameters from a posterior to approximate a predictive distribution.
-		
-			\begin{figure}
+			\begin{figure}[h]
 				\centering
 				\includegraphics[width=0.5\linewidth]{../additions/figures/Srivastava14_MCDropout}
 				\caption{Neural Network undergoing Monte Carlo Dropout \cite{Srivastava14}}
 				\label{fig:MC_dropout}
 			\end{figure}
+			
+			Second, Graves \cite{Graves11} proposed fitting a Gaussian variational posterior approximation over the parameters of neural networks and optimising over the parameters to ensure the variational distribution is as good an estimate of the posterior distribution as possible. This method works well for networks of moderate size, but supplies training difficulties when working with larger architectures \cite{He15}.
+Thirdly, Gal and Ghahramani \cite{Gal15} present Monte Carlo Dropout (MC Dropout); a dropout framework which integrates stochasticity into a neural network, by randomly removing parameters \emph{during training}. We can interpret dropout as approximate Bayesian inference, leading to a range of difference parameters. It is intuitive to see the link between this and sampling parameters from a posterior to approximate a predictive distribution.
 			
 			\medbreak
 			Denoting the neural network parameter matrices for layer $i$ as $W_i$ alongside input and output sets $\mathcal{D}_{in}, \mathcal{D}_{out}$, we again suffer from an intractable posterior distribution $p(y \mid x, \mathcal{D}_{out}, \mathcal{D}_{in})$. Thus $q(\omega)$ is an approximation defined below
@@ -241,10 +278,7 @@ Thirdly, Gal and Ghahramani \cite{Gal15} present Monte Carlo Dropout (MC Dropout
 			\end{align*}
 			
 			\noindent
-			A simple Bernoulli distribution is used to determine which states are set to zero given some probability $p_i$ and variational parameters $M_i$. Note here that $z_{i,j}$ denotes unit $j$ in layer $i-1$.
-			
-			\medbreak
-			To obtain the model uncertainty obtained through dropout in neural networks, we take our approximate predictive distribution. Through $T$ sample sets of realisations from our posterior distribution $z_{i,j}$, we get $T$ parameter matrices $\{W^{t}_{1}, W^{t}_{2}, \ldots W^{t}_{L}\}^{T}_{t=1}$, we get the following estimate by which we call our Monte Carlo Dropout.
+			A simple Bernoulli distribution is used to determine which states are set to zero given some probability $p_i$ and variational parameters $M_i$. Note here that $z_{i,j}$ denotes unit $j$ in layer $i-1$. To obtain the model uncertainty obtained through dropout in neural networks, we take our approximate predictive distribution. Through $T$ sample sets of realisations from our posterior distribution $z_{i,j}$, we get $T$ parameter matrices $\{W^{t}_{1}, W^{t}_{2}, \ldots W^{t}_{L}\}^{T}_{t=1}$ and the following estimate by which we call our Monte Carlo Dropout.
 			
 			$$
 				\mathbb{E}_{q(y^\ast \mid x^\ast)}(y^\ast) \approx \frac{1}{T} \sum_{t=1}^{T} \hat{y}^\ast(x^\ast, W_{1}^{t}, \ldots, W_{L}^{t})
