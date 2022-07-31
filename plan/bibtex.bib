@@ -1,12 +1,113 @@
 %% This BibTeX bibliography file was created using BibDesk.
 %% https://bibdesk.sourceforge.io/
 
-%% Created for James Stephenson at 2022-07-29 16:05:19 +0100 
+%% Created for James Stephenson at 2022-07-30 22:58:13 +0100 
 
 
 %% Saved with string encoding Unicode (UTF-8) 
 
 
+
+@article{Tur05,
+	abstract = {In this paper, we describe active and semi-supervised learning methods for reducing the labeling effort for spoken language understanding. In a goal-oriented call routing system, understanding the intent of the user can be framed as a classification problem. State of the art statistical classification systems are trained using a large number of human-labeled utterances, preparation of which is labor intensive and time consuming. Active learning aims to minimize the number of labeled utterances by automatically selecting the utterances that are likely to be most informative for labeling. The method for active learning we propose, inspired by certainty-based active learning, selects the examples that the classifier is the least confident about. The examples that are classified with higher confidence scores (hence not selected by active learning) are exploited using two semi-supervised learning methods. The first method augments the training data by using the machine-labeled classes for the unlabeled utterances. The second method instead augments the classification model trained using the human-labeled utterances with the machine-labeled ones in a weighted manner. We then combine active and semi-supervised learning using selectively sampled and automatically labeled data. This enables us to exploit all collected data and alleviates the data imbalance problem caused by employing only active or semi-supervised learning. We have evaluated these active and semi-supervised learning methods with a call classification system used for AT&T customer care. Our results indicate that it is possible to reduce human labeling effort significantly.},
+	author = {Gokhan Tur and Dilek Hakkani-T{\"u}r and Robert E. Schapire},
+	date-added = {2022-07-30 22:55:59 +0100},
+	date-modified = {2022-07-30 22:56:06 +0100},
+	doi = {https://doi.org/10.1016/j.specom.2004.08.002},
+	issn = {0167-6393},
+	journal = {Speech Communication},
+	keywords = {Active learning, Semi-supervised learning, Spoken language understanding, Call classification},
+	number = {2},
+	pages = {171-186},
+	title = {Combining active and semi-supervised learning for spoken language understanding},
+	url = {https://www.sciencedirect.com/science/article/pii/S0167639304000962},
+	volume = {45},
+	year = {2005},
+	Bdsk-Url-1 = {https://www.sciencedirect.com/science/article/pii/S0167639304000962},
+	Bdsk-Url-2 = {https://doi.org/10.1016/j.specom.2004.08.002}}
+
+@inproceedings{Thompson99,
+	address = {Bled, Slovenia},
+	author = {Cynthia A. Thompson and Mary Elaine Califf and Raymond J. Mooney},
+	booktitle = {Proceedings of the Sixteenth International Conference on Machine Learning (ICML-99)},
+	key = {RAPIER WOLFIE},
+	month = {June},
+	pages = {406-414},
+	title = {Active Learning for Natural Language Parsing and Information Extraction},
+	url = {http://www.cs.utexas.edu/users/ai-lab?thompson:ml99},
+	year = {1999},
+	Bdsk-Url-1 = {http://www.cs.utexas.edu/users/ai-lab?thompson:ml99}}
+
+@incollection{Dagan95,
+	abstract = {In many real-world learning tasks, it is expensive to acquire a sufficient number of labeled examples for training. This paper proposes a general method for efficiently training probabilistic classifiers, by selecting for training only the more informative examples in a stream of unlabeled examples. The method, committee-based sampling, evaluates the informativeness of an example by measuring the degree of disagreement between several model variants. These variants (the committee) are drawn randomly from a probability distribution conditioned by the training set selected so far (Monte-Carlo sampling). The method is particularly attractive because it evaluates the expected information gain from a training example implicitly, making the model both easy to implement and generally applicable. We further show how to apply committee-based sampling for training Hidden Markov Model classifiers, which are commonly used for complex classification tasks. The method was implemented and tested for the task of tagging words in natural language sentences with parts-of-speech. Experimental evaluation of committee-based sampling versus standard sequential training showed a substantial improvement in training efficiency.},
+	address = {San Francisco (CA)},
+	author = {Ido Dagan and Sean P. Engelson},
+	booktitle = {Machine Learning Proceedings 1995},
+	date-added = {2022-07-30 22:50:51 +0100},
+	date-modified = {2022-07-30 22:50:57 +0100},
+	doi = {https://doi.org/10.1016/B978-1-55860-377-6.50027-X},
+	editor = {Armand Prieditis and Stuart Russell},
+	isbn = {978-1-55860-377-6},
+	pages = {150-157},
+	publisher = {Morgan Kaufmann},
+	title = {Committee-Based Sampling For Training Probabilistic Classifiers},
+	url = {https://www.sciencedirect.com/science/article/pii/B978155860377650027X},
+	year = {1995},
+	Bdsk-Url-1 = {https://www.sciencedirect.com/science/article/pii/B978155860377650027X},
+	Bdsk-Url-2 = {https://doi.org/10.1016/B978-1-55860-377-6.50027-X}}
+
+@book{Li06,
+	author = {Li, X. and Zaiane, O.R. and Li, Z.},
+	date-added = {2022-07-30 17:33:21 +0100},
+	date-modified = {2022-07-30 17:33:26 +0100},
+	isbn = {9783540370260},
+	publisher = {Springer Berlin Heidelberg},
+	series = {Lecture Notes in Computer Science},
+	title = {Advanced Data Mining and Applications: Second International Conference, ADMA 2006, Xi'an, China, August 14-16, 2006, Proceedings},
+	url = {https://books.google.co.uk/books?id=DfmSBQAAQBAJ},
+	year = {2006},
+	Bdsk-Url-1 = {https://books.google.co.uk/books?id=DfmSBQAAQBAJ}}
+
+@article{Kullback51,
+	author = {S. Kullback and R. A. Leibler},
+	date-added = {2022-07-30 17:24:27 +0100},
+	date-modified = {2022-07-30 17:24:34 +0100},
+	doi = {10.1214/aoms/1177729694},
+	journal = {The Annals of Mathematical Statistics},
+	number = {1},
+	pages = {79 -- 86},
+	publisher = {Institute of Mathematical Statistics},
+	title = {{On Information and Sufficiency}},
+	url = {https://doi.org/10.1214/aoms/1177729694},
+	volume = {22},
+	year = {1951},
+	Bdsk-Url-1 = {https://doi.org/10.1214/aoms/1177729694}}
+
+@inproceedings{Qin17,
+	author = {Qin, Chao and Klabjan, Diego and Russo, Daniel},
+	booktitle = {Advances in Neural Information Processing Systems},
+	date-added = {2022-07-30 16:37:19 +0100},
+	date-modified = {2022-07-30 16:37:25 +0100},
+	editor = {I. Guyon and U. Von Luxburg and S. Bengio and H. Wallach and R. Fergus and S. Vishwanathan and R. Garnett},
+	publisher = {Curran Associates, Inc.},
+	title = {Improving the Expected Improvement Algorithm},
+	url = {https://proceedings.neurips.cc/paper/2017/file/b19aa25ff58940d974234b48391b9549-Paper.pdf},
+	volume = {30},
+	year = {2017},
+	Bdsk-Url-1 = {https://proceedings.neurips.cc/paper/2017/file/b19aa25ff58940d974234b48391b9549-Paper.pdf}}
+
+@inproceedings{Mockus75,
+	address = {Berlin, Heidelberg},
+	author = {Mo{\v{c}}kus, J.},
+	booktitle = {Optimization Techniques IFIP Technical Conference Novosibirsk, July 1--7, 1974},
+	date-added = {2022-07-30 16:12:41 +0100},
+	date-modified = {2022-07-30 16:12:54 +0100},
+	editor = {Marchuk, G. I.},
+	isbn = {978-3-540-37497-8},
+	pages = {400--404},
+	publisher = {Springer Berlin Heidelberg},
+	title = {On bayesian methods for seeking the extremum},
+	year = {1975}}
 
 @inproceedings{Graves11,
 	author = {Graves, Alex},
@@ -209,9 +310,11 @@
 	year = {2012},
 	Bdsk-Url-1 = {https://oa.upm.es/15302/}}
 
-@article{Zhu05,
+@phdthesis{Zhu05,
 	author = {Zhu, Xiaojin},
+	date-modified = {2022-07-30 22:57:27 +0100},
 	month = {01},
+	school = {Carnegie Mellon University},
 	title = {Semi-Supervised Learning With Graphs},
 	year = {2005}}
 
@@ -382,11 +485,13 @@
 	title = {STATISTICAL METHODS FOR SIGNAL PROCESSING},
 	year = {2005}}
 
-@article{Navin21,
+@book{Navin21,
 	author = {Sabharwal, Navin and Agrawal, Amit},
+	date-modified = {2022-07-30 22:58:12 +0100},
 	doi = {10.1007/978-1-4842-6664-9},
 	isbn = {978-1-4842-6663-2},
 	month = {01},
+	publisher = {Apress Berkeley, CA},
 	title = {Hands-on Question Answering Systems with BERT, Applications in Neural Networks and Natural Language Processing},
 	year = {2021},
 	Bdsk-Url-1 = {https://doi.org/10.1007/978-1-4842-6664-9}}
@@ -556,8 +661,7 @@
 	publisher = {JMLR.org},
 	title = {Dropout: A Simple Way to Prevent Neural Networks from Overfitting},
 	volume = {15},
-	year = {2014}
-}
+	year = {2014}}
 
 @misc{Dmitrii18,
 	author = {Izmailov, Pavel and Podoprikhin, Dmitrii and Garipov, Timur and Vetrov, Dmitry and Wilson, Andrew Gordon},
@@ -569,17 +673,158 @@
 	url = {https://arxiv.org/abs/1803.05407},
 	year = {2018},
 	Bdsk-Url-1 = {https://arxiv.org/abs/1803.05407},
-	Bdsk-Url-2 = {https://doi.org/10.48550/ARXIV.1803.05407}
-}
-
+	Bdsk-Url-2 = {https://doi.org/10.48550/ARXIV.1803.05407}}
 
 @misc{He15,
-	doi = {10.48550/ARXIV.1512.03385},
-	url = {https://arxiv.org/abs/1512.03385},
 	author = {He, Kaiming and Zhang, Xiangyu and Ren, Shaoqing and Sun, Jian},
+	copyright = {arXiv.org perpetual, non-exclusive license},
+	doi = {10.48550/ARXIV.1512.03385},
 	keywords = {Computer Vision and Pattern Recognition (cs.CV), FOS: Computer and information sciences, FOS: Computer and information sciences},
-	title = {Deep Residual Learning for Image Recognition},
 	publisher = {arXiv},
+	title = {Deep Residual Learning for Image Recognition},
+	url = {https://arxiv.org/abs/1512.03385},
 	year = {2015},
-	copyright = {arXiv.org perpetual, non-exclusive license}
-}
+	Bdsk-Url-1 = {https://arxiv.org/abs/1512.03385},
+	Bdsk-Url-2 = {https://doi.org/10.48550/ARXIV.1512.03385}}
+
+@misc{Lewis94,
+	author = {Lewis, David D. and Gale, William A.},
+	copyright = {Assumed arXiv.org perpetual, non-exclusive license to distribute this article for submissions made before January 2004},
+	doi = {10.48550/ARXIV.CMP-LG/9407020},
+	keywords = {Computation and Language (cs.CL), FOS: Computer and information sciences, FOS: Computer and information sciences},
+	publisher = {arXiv},
+	title = {A Sequential Algorithm for Training Text Classifiers},
+	url = {https://arxiv.org/abs/cmp-lg/9407020},
+	year = {1994},
+	Bdsk-Url-1 = {https://arxiv.org/abs/cmp-lg/9407020},
+	Bdsk-Url-2 = {https://doi.org/10.48550/ARXIV.CMP-LG/9407020}}
+
+@article{Shannon48,
+	added-at = {2021-09-19T18:40:37.000+0200},
+	author = {Shannon, Claude Elwood},
+	biburl = {https://www.bibsonomy.org/bibtex/29f88587b33c82f692b61d129eb2f2517/steschum},
+	interhash = {754130207906fcec16a53d330eeff348},
+	intrahash = {9f88587b33c82f692b61d129eb2f2517},
+	journal = {The Bell System Technical Journal},
+	keywords = {imported},
+	pages = {379--423},
+	timestamp = {2021-09-19T18:41:56.000+0200},
+	title = {A Mathematical Theory of Communication},
+	url = {http://plan9.bell-labs.com/cm/ms/what/shannonday/shannon1948.pdf},
+	urldate = {2003-04-22},
+	volume = 27,
+	year = 1948,
+	Bdsk-Url-1 = {http://plan9.bell-labs.com/cm/ms/what/shannonday/shannon1948.pdf}}
+
+@inproceedings{Craven08,
+	abstract = {Active learning is well-suited to many problems in natural language processing, where unlabeled data may be abundant but annotation is slow and expensive. This paper aims to shed light on the best active learning approaches for sequence labeling tasks such as information extraction and document segmentation. We survey previously used query selection strategies for sequence models, and propose several novel algorithms to address their shortcomings. We also conduct a large-scale empirical comparison using multiple corpora, which demonstrates that our proposed methods advance the state of the art.},
+	address = {USA},
+	author = {Settles, Burr and Craven, Mark},
+	booktitle = {Proceedings of the Conference on Empirical Methods in Natural Language Processing},
+	location = {Honolulu, Hawaii},
+	numpages = {10},
+	pages = {1070--1079},
+	publisher = {Association for Computational Linguistics},
+	series = {EMNLP '08},
+	title = {An Analysis of Active Learning Strategies for Sequence Labeling Tasks},
+	year = {2008}}
+
+@article{Hwa04,
+	author = {Hwa, Rebecca},
+	doi = {10.1162/0891201041850894},
+	journal = {Computational Linguistics},
+	number = {3},
+	pages = {253--276},
+	title = {Sample Selection for Statistical Parsing},
+	url = {https://aclanthology.org/J04-3001},
+	volume = {30},
+	year = {2004},
+	Bdsk-Url-1 = {https://aclanthology.org/J04-3001},
+	Bdsk-Url-2 = {https://doi.org/10.1162/0891201041850894}}
+
+@article{Sharma17,
+	author = {Sharma, Manali and Bilgic, Mustafa},
+	doi = {10.1007/s10618-016-0460-3},
+	issn = {1573-756X},
+	journal = {Data Mining and Knowledge Discovery},
+	number = {1},
+	pages = {164--202},
+	title = {Evidence-based uncertainty sampling for active learning},
+	url = {http://www.cs.iit.edu/~ml/pdfs/sharma-dmkd17.pdf},
+	volume = {31},
+	year = {2017},
+	Bdsk-Url-1 = {http://www.cs.iit.edu/~ml/pdfs/sharma-dmkd17.pdf},
+	Bdsk-Url-2 = {https://doi.org/10.1007/s10618-016-0460-3}}
+
+@inproceedings{Nigam98,
+	added-at = {2008-10-07T16:03:39.000+0200},
+	author = {McCallum, A. and Nigam, K.},
+	biburl = {https://www.bibsonomy.org/bibtex/2fbfb7ca3e92332e6566b27bdc70e9090/brefeld},
+	booktitle = {Proceedings of the International Conference on Machine Learning},
+	date-modified = {2022-07-30 22:51:19 +0100},
+	interhash = {6ac097d12ca056b9831ce361d5b06299},
+	intrahash = {fbfb7ca3e92332e6566b27bdc70e9090},
+	keywords = {imported},
+	timestamp = {2008-10-07T16:03:42.000+0200},
+	title = {Employing EM and Pool-Based Active learning for Text Classification},
+	year = 1998}
+
+@misc{Zhao19,
+	archiveprefix = {arXiv},
+	author = {Jingqing Zhang and Yao Zhao and Mohammad Saleh and Peter J. Liu},
+	eprint = {1912.08777},
+	primaryclass = {cs.CL},
+	title = {PEGASUS: Pre-training with Extracted Gap-sentences for Abstractive Summarization},
+	year = {2019}}
+
+@article{Lewis19,
+	author = {Mike Lewis and Yinhan Liu and Naman Goyal and Marjan Ghazvininejad and Abdelrahman Mohamed and Omer Levy and Veselin Stoyanov and Luke Zettlemoyer},
+	bibsource = {dblp computer science bibliography, https://dblp.org},
+	biburl = {https://dblp.org/rec/journals/corr/abs-1910-13461.bib},
+	eprint = {1910.13461},
+	eprinttype = {arXiv},
+	journal = {CoRR},
+	timestamp = {Thu, 31 Oct 2019 14:02:26 +0100},
+	title = {{BART:} Denoising Sequence-to-Sequence Pre-training for Natural Language Generation, Translation, and Comprehension},
+	url = {http://arxiv.org/abs/1910.13461},
+	volume = {abs/1910.13461},
+	year = {2019},
+	Bdsk-Url-1 = {http://arxiv.org/abs/1910.13461}}
+
+@inproceedings{Gal17,
+	abstract = {Even though active learning forms an important pillar of machine learning, deep learning tools are not prevalent within it. Deep learning poses several difficulties when used in an active learning setting. First, active learning (AL) methods generally rely on being able to learn and update models from small amounts of data. Recent advances in deep learning, on the other hand, are notorious for their dependence on large amounts of data. Second, many AL acquisition functions rely on model uncertainty, yet deep learning methods rarely represent such model uncertainty. In this paper we combine recent advances in Bayesian deep learning into the active learning framework in a practical way. We develop an active learning framework for high dimensional data, a task which has been extremely challenging so far, with very sparse existing literature. Taking advantage of specialised models such as Bayesian convolutional neural networks, we demonstrate our active learning techniques with image data, obtaining a significant improvement on existing active learning approaches. We demonstrate this on both the MNIST dataset, as well as for skin cancer diagnosis from lesion images (ISIC2016 task).},
+	author = {Yarin Gal and Riashat Islam and Zoubin Ghahramani},
+	booktitle = {Proceedings of the 34th International Conference on Machine Learning},
+	editor = {Precup, Doina and Teh, Yee Whye},
+	month = {06--11 Aug},
+	pages = {1183--1192},
+	pdf = {http://proceedings.mlr.press/v70/gal17a/gal17a.pdf},
+	publisher = {PMLR},
+	series = {Proceedings of Machine Learning Research},
+	title = {Deep {B}ayesian Active Learning with Image Data},
+	url = {https://proceedings.mlr.press/v70/gal17a.html},
+	volume = {70},
+	year = {2017},
+	Bdsk-Url-1 = {https://proceedings.mlr.press/v70/gal17a.html}}
+
+@inproceedings{Tong01,
+	author = {Daphne Koller and Simon Tong},
+	booktitle = {Active learning: theory and applications},
+	title = {Active learning: theory and applications},
+	year = {2001}}
+
+@article{Houlsby11,
+	added-at = {2018-08-13T00:00:00.000+0200},
+	author = {Houlsby, Neil and Huszar, Ferenc and Ghahramani, Zoubin and Lengyel, M{\'a}t{\'e}},
+	biburl = {https://www.bibsonomy.org/bibtex/25608791e0d0e2e7c3cd72a91ea3eb931/dblp},
+	ee = {http://arxiv.org/abs/1112.5745},
+	interhash = {ca9810b9189e9c2b90f5d99a3ebd12cf},
+	intrahash = {5608791e0d0e2e7c3cd72a91ea3eb931},
+	journal = {CoRR},
+	keywords = {dblp},
+	timestamp = {2018-08-14T14:26:21.000+0200},
+	title = {Bayesian Active Learning for Classification and Preference Learning},
+	url = {http://dblp.uni-trier.de/db/journals/corr/corr1112.html#abs-1112-5745},
+	volume = {abs/1112.5745},
+	year = 2011,
+	Bdsk-Url-1 = {http://dblp.uni-trier.de/db/journals/corr/corr1112.html#abs-1112-5745}}

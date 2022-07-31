@@ -6,12 +6,38 @@ Saleema Amershi, Maya Cakmak, W.~Bradley Knox, and Todd Kulesza.
   learning.
 \newblock {\em AI Magazine}, December 2014.
 
+\bibitem{Angluin88}
+Dana Angluin.
+\newblock Queries and concept learning.
+\newblock {\em Machine Learning}, 2(4):319--342, 1988.
+
+\bibitem{Baum92}
+E.B. Baum and K~Lang.
+\newblock Query learning can work poorly when a human oracle is used.
+\newblock In {\em IEEE Interational Join Conference of Neural Networks}, 1992.
+
 \bibitem{Beck14}
 Daniel Beck, Trevor Cohn, and Lucia Specia.
 \newblock Joint emotion analysis via multi-task {G}aussian processes.
 \newblock In {\em Proceedings of the 2014 Conference on Empirical Methods in
   Natural Language Processing ({EMNLP})}, pages 1798--1803, Doha, Qatar,
   October 2014. Association for Computational Linguistics.
+
+\bibitem{Bhattacharyya20}
+Siddhartha Bhattacharyya, Vaclav Snasel, Aboul~Ella Hassanien, Satadal Saha,
+  and B.~K. Tripathy, editors.
+\newblock {\em Deep Learning: Research and Applications}.
+\newblock De Gruyter, 2020.
+
+\bibitem{Brooks11}
+Steve Brooks, Andrew Gelman, Galin Jones, and Xiao-Li Meng.
+\newblock {\em Handbook of Markov Chain Monte Carlo}.
+\newblock CRC press, 2011.
+
+\bibitem{Cohn94}
+David Cohn, Les Atlas, and Richard Ladner.
+\newblock Improving generalization with active learning.
+\newblock {\em Machine Learning}, 15(2):201--221, 1994.
 
 \bibitem{Cohn13}
 Trevor Cohn and Lucia Specia.
@@ -21,10 +47,29 @@ Trevor Cohn and Lucia Specia.
   Computational Linguistics (Volume 1: Long Papers)}, pages 32--42, Sofia,
   Bulgaria, August 2013. Association for Computational Linguistics.
 
+\bibitem{Dagan95}
+Ido Dagan and Sean~P. Engelson.
+\newblock Committee-based sampling for training probabilistic classifiers.
+\newblock In Armand Prieditis and Stuart Russell, editors, {\em Machine
+  Learning Proceedings 1995}, pages 150--157. Morgan Kaufmann, San Francisco
+  (CA), 1995.
+
+\bibitem{Dasgupta07}
+Sanjoy Dasgupta, Daniel~J Hsu, and Claire Monteleoni.
+\newblock A general agnostic active learning algorithm.
+\newblock In J.~Platt, D.~Koller, Y.~Singer, and S.~Roweis, editors, {\em
+  Advances in Neural Information Processing Systems}, volume~20. Curran
+  Associates, Inc., 2007.
+
 \bibitem{Devlin18}
 Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova.
 \newblock Bert: Pre-training of deep bidirectional transformers for language
   understanding, 2018.
+
+\bibitem{Duane87}
+Simon Duane, A.~D. Kennedy, Brian~J. Pendleton, and Duncan Roweth.
+\newblock Hybrid monte carlo.
+\newblock {\em Physics Letters B}, 195(2):216 -- 222, 1987.
 
 \bibitem{EinDor20}
 Liat Ein-Dor, Alon Halfon, Ariel Gera, Eyal Shnarch, Lena Dankin, Leshem
@@ -39,6 +84,14 @@ Yarin Gal and Zoubin Ghahramani.
 \newblock Dropout as a bayesian approximation: Representing model uncertainty
   in deep learning, 2015.
 
+\bibitem{Gal17}
+Yarin Gal, Riashat Islam, and Zoubin Ghahramani.
+\newblock Deep {B}ayesian active learning with image data.
+\newblock In Doina Precup and Yee~Whye Teh, editors, {\em Proceedings of the
+  34th International Conference on Machine Learning}, volume~70 of {\em
+  Proceedings of Machine Learning Research}, pages 1183--1192. PMLR, 06--11 Aug
+  2017.
+
 \bibitem{Gao18}
 Yang Gao, Christian~M. Meyer, and Iryna Gurevych.
 \newblock {APRIL}: Interactively learning to summarise by combining active
@@ -51,20 +104,98 @@ Yang Gao, Christian~M. Meyer, and Iryna Gurevych.
 Daniel Gissin and Shai Shalev-Shwartz.
 \newblock Discriminative active learning, 2019.
 
+\bibitem{Graves11}
+Alex Graves.
+\newblock Practical variational inference for neural networks.
+\newblock In J.~Shawe-Taylor, R.~Zemel, P.~Bartlett, F.~Pereira, and K.Q.
+  Weinberger, editors, {\em Advances in Neural Information Processing Systems},
+  volume~24. Curran Associates, Inc., 2011.
+
+\bibitem{He15}
+Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun.
+\newblock Deep residual learning for image recognition, 2015.
+
 \bibitem{Hero15}
 Alfred~O. Hero.
 \newblock Statistical methods for signal processing.
 \newblock In {\em STATISTICAL METHODS FOR SIGNAL PROCESSING}, 2005.
+
+\bibitem{Houlsby11}
+Neil Houlsby, Ferenc Huszar, Zoubin Ghahramani, and M{\'a}t{\'e} Lengyel.
+\newblock Bayesian active learning for classification and preference learning.
+\newblock {\em CoRR}, abs/1112.5745, 2011.
+
+\bibitem{Hwa04}
+Rebecca Hwa.
+\newblock Sample selection for statistical parsing.
+\newblock {\em Computational Linguistics}, 30(3):253--276, 2004.
+
+\bibitem{Dmitrii18}
+Pavel Izmailov, Dmitrii Podoprikhin, Timur Garipov, Dmitry Vetrov, and
+  Andrew~Gordon Wilson.
+\newblock Averaging weights leads to wider optima and better generalization,
+  2018.
+
+\bibitem{Tong01}
+Daphne Koller and Simon Tong.
+\newblock Active learning: theory and applications.
+\newblock In {\em Active learning: theory and applications}, 2001.
+
+\bibitem{Kullback51}
+S.~Kullback and R.~A. Leibler.
+\newblock {On Information and Sufficiency}.
+\newblock {\em The Annals of Mathematical Statistics}, 22(1):79 -- 86, 1951.
 
 \bibitem{Lecun15}
 Yann LeCun, Y.~Bengio, and Geoffrey Hinton.
 \newblock Deep learning.
 \newblock {\em Nature}, 521:436--44, 05 2015.
 
+\bibitem{Lewis94}
+David~D. Lewis and William~A. Gale.
+\newblock A sequential algorithm for training text classifiers, 1994.
+
+\bibitem{Li06}
+X.~Li, O.R. Zaiane, and Z.~Li.
+\newblock {\em Advanced Data Mining and Applications: Second International
+  Conference, ADMA 2006, Xi'an, China, August 14-16, 2006, Proceedings}.
+\newblock Lecture Notes in Computer Science. Springer Berlin Heidelberg, 2006.
+
 \bibitem{Lin17}
 Xiao Lin and Devi Parikh.
 \newblock Active learning for visual question answering: An empirical study,
   2017.
+
+\bibitem{Maddox19}
+Wesley~J Maddox, Pavel Izmailov, Timur Garipov, Dmitry~P Vetrov, and
+  Andrew~Gordon Wilson.
+\newblock A simple baseline for bayesian uncertainty in deep learning.
+\newblock In H.~Wallach, H.~Larochelle, A.~Beygelzimer, F.~d\textquotesingle
+  Alch\'{e}-Buc, E.~Fox, and R.~Garnett, editors, {\em Advances in Neural
+  Information Processing Systems}, volume~32. Curran Associates, Inc., 2019.
+
+\bibitem{Nigam98}
+A.~McCallum and K.~Nigam.
+\newblock Employing em and pool-based active learning for text classification.
+\newblock In {\em Proceedings of the International Conference on Machine
+  Learning}, 1998.
+
+\bibitem{Mitchell82}
+Tom~M. Mitchell.
+\newblock Generalization as search.
+\newblock {\em Artificial Intelligence}, 18(2):203--226, 1982.
+
+\bibitem{Mockus75}
+J.~Mo{\v{c}}kus.
+\newblock On bayesian methods for seeking the extremum.
+\newblock In G.~I. Marchuk, editor, {\em Optimization Techniques IFIP Technical
+  Conference Novosibirsk, July 1--7, 1974}, pages 400--404, Berlin, Heidelberg,
+  1975. Springer Berlin Heidelberg.
+
+\bibitem{Neal95}
+Radford~M. Neal.
+\newblock Bayesian learning for neural networks.
+\newblock In {\em Bayesian Learning for Neural Networks}, 1995.
 
 \bibitem{Peris18}
 {\'A}lvaro Peris and Francisco Casacuberta.
@@ -93,6 +224,19 @@ Avinesh P.V.S and Christian~M. Meyer.
 Yifan Qiao, Chenyan Xiong, Zhenghao Liu, and Zhiyuan Liu.
 \newblock Understanding the behaviors of bert in ranking, 2019.
 
+\bibitem{Qin17}
+Chao Qin, Diego Klabjan, and Daniel Russo.
+\newblock Improving the expected improvement algorithm.
+\newblock In I.~Guyon, U.~Von Luxburg, S.~Bengio, H.~Wallach, R.~Fergus,
+  S.~Vishwanathan, and R.~Garnett, editors, {\em Advances in Neural Information
+  Processing Systems}, volume~30. Curran Associates, Inc., 2017.
+
+\bibitem{Navin21}
+Navin Sabharwal and Amit Agrawal.
+\newblock {\em Hands-on Question Answering Systems with BERT, Applications in
+  Neural Networks and Natural Language Processing}.
+\newblock Apress Berkeley, CA, 01 2021.
+
 \bibitem{Bobadilla12}
 Jesus~Bobadilla Sancho, Fernando~Ortega Requena, Antonio~Hernando Esteban, and
   Jes{\'u}s~Bernal Berm{\'u}dez.
@@ -105,6 +249,31 @@ Burr Settles.
 \newblock Active learning literature survey.
 \newblock Computer Sciences Technical Report 1648, University of
   Wisconsin--Madison, 2009.
+
+\bibitem{Craven08}
+Burr Settles and Mark Craven.
+\newblock An analysis of active learning strategies for sequence labeling
+  tasks.
+\newblock In {\em Proceedings of the Conference on Empirical Methods in Natural
+  Language Processing}, EMNLP '08, pages 1070--1079, USA, 2008. Association for
+  Computational Linguistics.
+
+\bibitem{Seung92}
+H.~S. Seung, M.~Opper, and H.~Sompolinsky.
+\newblock Query by committee.
+\newblock In {\em Proceedings of the Fifth Annual Workshop on Computational
+  Learning Theory}, COLT '92, pages 287--294, New York, NY, USA, 1992.
+  Association for Computing Machinery.
+
+\bibitem{Shannon48}
+Claude~Elwood Shannon.
+\newblock A mathematical theory of communication.
+\newblock {\em The Bell System Technical Journal}, 27:379--423, 1948.
+
+\bibitem{Sharma17}
+Manali Sharma and Mustafa Bilgic.
+\newblock Evidence-based uncertainty sampling for active learning.
+\newblock {\em Data Mining and Knowledge Discovery}, 31(1):164--202, 2017.
 
 \bibitem{Sharma18}
 Yashvardhan Sharma and Sahil Gupta.
@@ -123,9 +292,33 @@ Edwin Simpson and Iryna Gurevych.
 \newblock {\em Transactions of the Association for Computational Linguistics},
   6:357--371, 2018.
 
+\bibitem{Srivastava14}
+Nitish Srivastava, Geoffrey Hinton, Alex Krizhevsky, Ilya Sutskever, and Ruslan
+  Salakhutdinov.
+\newblock Dropout: A simple way to prevent neural networks from overfitting.
+\newblock {\em J. Mach. Learn. Res.}, 15(1):1929--1958, jan 2014.
+
+\bibitem{Thompson99}
+Cynthia~A. Thompson, Mary~Elaine Califf, and Raymond~J. Mooney.
+\newblock Active learning for natural language parsing and information
+  extraction.
+\newblock In {\em Proceedings of the Sixteenth International Conference on
+  Machine Learning (ICML-99)}, pages 406--414, Bled, Slovenia, June 1999.
+
+\bibitem{Tur05}
+Gokhan Tur, Dilek Hakkani-T{\"u}r, and Robert~E. Schapire.
+\newblock Combining active and semi-supervised learning for spoken language
+  understanding.
+\newblock {\em Speech Communication}, 45(2):171--186, 2005.
+
 \bibitem{Wilson20}
 Andrew~Gordon Wilson.
 \newblock The case for bayesian deep learning, January 2020.
+
+\bibitem{Izmailov20}
+Andrew~Gordon Wilson and Pavel Izmailov.
+\newblock Bayesian deep learning and a probabilistic perspective of
+  generalization, 2020.
 
 \bibitem{Xu19}
 Peng Xu, Xiaofei Ma, Ramesh Nallapati, and Bing Xiang.
@@ -137,10 +330,20 @@ Mahmood Yousefi-Azar and Len Hamey.
 \newblock Text summarization using unsupervised deep learning.
 \newblock {\em Expert Systems with Applications}, 68:93--105, 2017.
 
+\bibitem{Zhao19}
+Jingqing Zhang, Yao Zhao, Mohammad Saleh, and Peter~J. Liu.
+\newblock Pegasus: Pre-training with extracted gap-sentences for abstractive
+  summarization, 2019.
+
 \bibitem{Zhang19}
 Leihan Zhang and Le~Zhang.
 \newblock An ensemble deep active learning method for intent classification.
 \newblock In {\em An Ensemble Deep Active Learning Method for Intent
   Classification}, pages 107--111, 12 2019.
+
+\bibitem{Zhu05}
+Xiaojin Zhu.
+\newblock {\em Semi-Supervised Learning With Graphs}.
+\newblock PhD thesis, Carnegie Mellon University, 01 2005.
 
 \end{thebibliography}
