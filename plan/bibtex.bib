@@ -1,12 +1,128 @@
 %% This BibTeX bibliography file was created using BibDesk.
 %% https://bibdesk.sourceforge.io/
 
-%% Created for James Stephenson at 2022-07-31 16:43:56 +0100 
+%% Created for James Stephenson at 2022-08-02 23:48:34 +0100 
 
 
 %% Saved with string encoding Unicode (UTF-8) 
 
+@inproceedings{Roush20,
+    title = "{D}ebate{S}um: A large-scale argument mining and summarization dataset",
+    author = "Roush, Allen  and Balaji, Arvind",
+    booktitle = "Proceedings of the 7th Workshop on Argument Mining",
+    month = dec,
+    year = "2020",
+    address = "Online",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2020.argmining-1.1",
+    pages = "1--7",
+    abstract = "Prior work in Argument Mining frequently alludes to its potential applications in automatic debating systems. Despite this focus, almost no datasets or models exist which apply natural language processing techniques to problems found within competitive formal debate. To remedy this, we present the DebateSum dataset. DebateSum consists of 187,386 unique pieces of evidence with corresponding argument and extractive summaries. DebateSum was made using data compiled by competitors within the National Speech and Debate Association over a 7year period. We train several transformer summarization models to benchmark summarization performance on DebateSum. We also introduce a set of fasttext word-vectors trained on DebateSum called debate2vec. Finally, we present a search engine for this dataset which is utilized extensively by members of the National Speech and Debate Association today. The DebateSum search engine is available to the public here: http://www.debate.cards",
+}
 
+@inproceedings{Jia20,
+    title = "Neural Extractive Summarization with Hierarchical Attentive Heterogeneous Graph Network",
+    author = "Jia, Ruipeng  and Cao, Yanan  and Tang, Hengzhu  and Fang, Fang  and Cao, Cong  and Wang, Shi",
+    booktitle = "Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing (EMNLP)",
+    month = nov,
+    year = "2020",
+    address = "Online",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2020.emnlp-main.295",
+    doi = "10.18653/v1/2020.emnlp-main.295",
+    pages = "3622--3631",
+    abstract = "Sentence-level extractive text summarization is substantially a node classification task of network mining, adhering to the informative components and concise representations. There are lots of redundant phrases between extracted sentences, but it is difficult to model them exactly by the general supervised methods. Previous sentence encoders, especially BERT, specialize in modeling the relationship between source sentences. While, they have no ability to consider the overlaps of the target selected summary, and there are inherent dependencies among target labels of sentences. In this paper, we propose HAHSum (as shorthand for Hierarchical Attentive Heterogeneous Graph for Text Summarization), which well models different levels of information, including words and sentences, and spotlights redundancy dependencies between sentences. Our approach iteratively refines the sentence representations with redundancy-aware graph and delivers the label dependencies by message passing. Experiments on large scale benchmark corpus (CNN/DM, NYT, and NEWSROOM) demonstrate that HAHSum yields ground-breaking performance and outperforms previous extractive summarizers.",
+}
+
+@inproceedings{Gu22,
+    title = "{M}em{S}um: Extractive Summarization of Long Documents Using Multi-Step Episodic {M}arkov Decision Processes",
+    author = "Gu, Nianlong  and Ash, Elliott  and Hahnloser, Richard",
+    booktitle = "Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+    month = may,
+    year = "2022",
+    address = "Dublin, Ireland",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2022.acl-long.450",
+    doi = "10.18653/v1/2022.acl-long.450",
+    pages = "6507--6522",
+    abstract = "We introduce MemSum (Multi-step Episodic Markov decision process extractive SUMmarizer), a reinforcement-learning-based extractive summarizer enriched at each step with information on the current extraction history. When MemSum iteratively selects sentences into the summary, it considers a broad information set that would intuitively also be used by humans in this task: 1) the text content of the sentence, 2) the global text context of the rest of the document, and 3) the extraction history consisting of the set of sentences that have already been extracted. With a lightweight architecture, MemSum obtains state-of-the-art test-set performance (ROUGE) in summarizing long documents taken from PubMed, arXiv, and GovReport. Ablation studies demonstrate the importance of local, global, and history information. A human evaluation confirms the high quality and low redundancy of the generated summaries, stemming from MemSum{'}s awareness of extraction history.",
+}
+
+@misc{Seround21,
+	author = {Barry Schwartz},
+	date-added = {2022-08-02 21:06:21 +0100},
+	date-modified = {2022-08-02 23:48:22 +0100},
+	howpublished = {Url},
+	lastchecked = {2022-08-02},
+	month = {February},
+	title = {Google Passage Ranking Is Live In The US English Results},
+	url = {https://www.seroundtable.com/google-passage-ranking-live-30920.html},
+	urldate = {2021-02-12},
+	year = {2021},
+	Bdsk-Url-1 = {https://www.seroundtable.com/google-passage-ranking-live-30920.html}}
+
+@book{Chang20,
+	author = {Chang, Y. and Deng, H.},
+	date-added = {2022-08-02 21:01:15 +0100},
+	date-modified = {2022-08-02 21:01:22 +0100},
+	isbn = {9783030583347},
+	publisher = {Springer International Publishing},
+	series = {The Information Retrieval Series},
+	title = {Query Understanding for Search Engines},
+	url = {https://books.google.co.uk/books?id=MFQMEAAAQBAJ},
+	year = {2020},
+	Bdsk-Url-1 = {https://books.google.co.uk/books?id=MFQMEAAAQBAJ}}
+
+@inproceedings{Handley01,
+	author = {John C. Handley},
+	booktitle = {PICS},
+	date-added = {2022-08-02 19:20:40 +0100},
+	date-modified = {2022-08-02 19:20:49 +0100},
+	title = {Comparative Analysis of Bradley-Terry and Thurstone-Mosteller Paired Comparison Models for Image Quality Assessment},
+	year = {2001}}
+
+@article{Hunter04,
+	author = {David R. Hunter},
+	date-added = {2022-08-02 18:53:27 +0100},
+	date-modified = {2022-08-02 18:53:34 +0100},
+	doi = {10.1214/aos/1079120141},
+	journal = {The Annals of Statistics},
+	keywords = {Bradley-Terry model, Luce's choice axiom, maximum likelihood estimation, MM algorithm, Newton-Raphson, Plackett-Luce model},
+	number = {1},
+	pages = {384 -- 406},
+	publisher = {Institute of Mathematical Statistics},
+	title = {{MM algorithms for generalized Bradley-Terry models}},
+	url = {https://doi.org/10.1214/aos/1079120141},
+	volume = {32},
+	year = {2004},
+	Bdsk-Url-1 = {https://doi.org/10.1214/aos/1079120141}}
+
+@book{Zhu21,
+	author = {Chenguang Zhu},
+	date-added = {2022-08-02 18:48:44 +0100},
+	date-modified = {2022-08-02 18:49:53 +0100},
+	publisher = {Amsterdam : Elsevier, 2021},
+	title = {Machine reading comprehension: algorithms and practice},
+	year = {2021}}
+
+@incollection{Gudivada15,
+	abstract = {Due to the inherent complexity of natural languages, many natural language tasks are ill-posed for mathematically precise algorithmic solutions. To circumvent this problem, statistical machine learning approaches are used for natural language processing (NLP) tasks. The emergence of Big Data enables a new paradigm for solving NLP problems---managing the complexity of the problem domain by harnessing the power of data for building high quality models. This chapter provides an introduction to various core NLP tasks and highlights their data-driven solutions. Second, a few representative NLP applications, which are built using the core NLP tasks as the underlying infrastructure, are described. Third, various sources of Big Data for NLP research are discussed. Fourth, Big Data driven NLP research and applications are outlined. Finally, the chapter concludes by indicating trends and future research directions.},
+	author = {Venkat N. Gudivada and Dhana Rao and Vijay V. Raghavan},
+	booktitle = {Big Data Analytics},
+	date-added = {2022-08-02 18:44:27 +0100},
+	date-modified = {2022-08-02 18:44:42 +0100},
+	doi = {https://doi.org/10.1016/B978-0-444-63492-4.00009-5},
+	editor = {Venu Govindaraju and Vijay V. Raghavan and C.R. Rao},
+	issn = {0169-7161},
+	keywords = {Big data, Natural language processing, Statistical models},
+	pages = {203-238},
+	publisher = {Elsevier},
+	series = {Handbook of Statistics},
+	title = {Chapter 9 - Big Data Driven Natural Language Processing Research and Applications},
+	url = {https://www.sciencedirect.com/science/article/pii/B9780444634924000095},
+	volume = {33},
+	year = {2015},
+	Bdsk-Url-1 = {https://www.sciencedirect.com/science/article/pii/B9780444634924000095},
+	Bdsk-Url-2 = {https://doi.org/10.1016/B978-0-444-63492-4.00009-5}}
 
 @article{Mosteller51,
 	abstract = {Thurstone's Case V of the method of paired comparisons assumes equal standard deviations of sensations corresponding to stimuli and zero correlations between pairs of stimuli sensations. It is shown that the assumption of zero correlations can be relaxed to an assumption of equal correlations between pairs with no change in method. Further the usual approach to the method of paired comparisons Case V is shown to lead to a least squares estimate of the stimulus positions on the sensation scale.},
