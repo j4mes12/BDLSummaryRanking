@@ -25,10 +25,10 @@
                 supervisor={Dr. Edwin Simpson},
                 % the degree programme
                     degree={MSc},
-                % the dissertation    title (which cannot be blank)
+                % the dissertation title (which cannot be blank)
                      title={PROJECT PLAN},
-                % the dissertation subtitle (which can    be blank)
-                  subtitle={ Bayesian Deep Learning For Extractive Test Summarisation},
+                % the dissertation subtitle (which can be blank)
+                  subtitle={Bayesian Deep Learning For Extractive Test Summarisation},
                 % the dissertation     type
                       type={},
                 % the year of submission
@@ -71,7 +71,7 @@
 		Text summarisation is a valuable technique that facilitates the computational processing of documents, saving users hours in manual processing. Users have different summary requirements; however, current extractive summarisation systems construct generic summaries that are not tailored to the user's needs. Asking users for feedback is one solution to combat this problem. Thus we aim to find an approach that allows the summary to be tailored to the users whilst minimising requests for user feedback.
 
 		\medbreak	
-		Legacy approaches use Bayesian optimisation \cite{Simpson19} strategies to achieve minimal user feedback; however, this strategy is blocked since modern summarisation techniques involve deep neural networks which cannot effectively express uncertainty and are typically overconfident when encountered by new topics \cite{Xu19}. This poses an issue in utilising the feedback strength of Bayesian optimisation. This project will investigate the feasibility of applying newly-developed techniques from Bayesian deep learning \cite{Wilson20} to rank summary instances or \emph{passages}. Bayesian deep learning allows us to generate significant estimates of the model confidence, so we can ask the user for more explanatory feedback through Bayesian optimisation.
+		Legacy approaches use Bayesian optimisation \cite{Simpson19} strategies to achieve minimal user feedback; however, this strategy is blocked since modern summarisation techniques involve deep neural networks which cannot effectively express uncertainty and are typically overconfident when encountered by new topics \cite{Xu19}. This poses an issue in utilising the feedback strength of Bayesian optimisation. This project will investigate the feasibility of applying newly-developed techniques from Bayesian deep learning \cite{Wilson20} to rank summary instances or \emph{passages}. Bayesian deep learning allows us to generate significant estimates of the model confidence, so we can use Bayesian optimisation to determine which instances to ask the user for feedback on.
 
 		\medbreak		
 		Specifically, we look to utilise pre-trained deep learning models such as BERT \cite{Navin21} to ascertain instances in a vector format to be used in an active learning component. Monte-Carlo Dropout \cite{Gal15} techniques appear to be proficient approximations for parameter posterior distributions. Thus, we will look to utilise this approach to calibrate our model.
@@ -101,7 +101,7 @@
 		Passage ranking is a popular technique that is used in various natural language processing (NLP) domains, such as search engine queries \cite{Chang20}, community question answering models \cite{Lin17} and text summarisation models \cite{Simpson19}. In fact, on the 10\textsuperscript{th} of February 2021, Google introduced an update to Google Search which moved their algorithm from a passage indexing approach to a passage ranking approach \cite{Seround21}. We will be utilising this powerful approach to rank summaries by how appropriate they are for the user's requirements. We intend to build up the passage ranking mindset outlined by Simpson et al. \cite{Simpson19} who found this approach useful, but established that a complete ranking was not required. Instead, they concluded that an iterative comparison between the current best summary and a suitable proposed summary was all that was required.
 
 		\medbreak
-		This project focuses on assessing a new approach that ranks proposed text summaries using Bayesian deep learning techniques. It is necessary for our approach to achieve the following requirements:
+		This project focuses on assessing a new approach that uses Bayesian deep learning techniques to rank text summaries generated using extractive text summarisation models. It is necessary for our approach to achieve the following requirements:
 
 		\begin{itemize}
 			\item {The ability to tailor summaries to the user’s preference since there is a range of requirements that different users have.}
@@ -131,17 +131,20 @@
 				\medbreak
 				Within our framework development and evaluation, we wish to establish if the proposed Bayesian deep learning approach provides a sufficient passage ranking solution in comparison to a classical deep learning model. Moreover, we aim to determine if a stream-based active learning strategy is appropriate for such a problem.
 				
+				\medbreak
+				This research project will include an experimentation stage; whereby we test the proposed framework, discuss the results and draw conclusions. A range of data sets that have been used for experimentation in summary passage ranking literature: Simpson et al. use the DUC 2001, 2002 and 2004 datasets \cite{Simpson19}; whereas, common benchmarking datasets are the CNN/Daily Mail and GovReport datasets \cite{Nallapati16, Huang21}. We will use one of these datasets to benchmark our results based on which extractive text summarisation model we choose - this will be discussed in Section \ref{chap:literaturereview:summodels}. Since we aim to utilise an active learning component, we will use a noisy random selector to mimic user summary preferences and provide answers to queries; a similar approach was taken by Simpson et al. to provide similar results \cite{Simpson19}.
+				
 			\subsection{Research Concerns}
 			\label{chap:introduction:prop_approach:concerns}
 
-				The central challenge within the project is effectively combining a Bayesian deep learning model with an active learning component. Firstly, it is a concern as to whether stream-based learning is an appropriate active learning strategy for a passage ranking problem since there is minimal current documentation; pool-based active learning is the most common strategy used \cite{Settles09}. Secondly, consideration needs to be made with regard to the number of user interactions. It is necessary for the model to be interactive; thus, it is important to examine the number of interactions that are required and if this is a reasonable level for an interactive setting.
+				The central challenge within the project is effectively combining a Bayesian deep learning model with an active learning component. Firstly, it is a concern as to whether stream-based learning is an appropriate active learning strategy for a passage ranking problem since there is minimal current documentation; pool-based active learning is the most common strategy used \cite{Settles09}. Secondly, consideration needs to be made with regard to the number of user interactions. It is necessary for the model to be interactive; thus, it is important to examine the number of interactions that are required and if this is a reasonable level for an interactive setting. Finally, it is a concern as to whether the noisy random simulator effectively represents a human annotator in experimentations. As it will not have a preference towards a particular type of summary, it provides little information on whether the framework learns the attributes of a preferred summary and starts to regularly produce summaries of such a nature.
 		
 		
 
 		
 	% -----------------------------------------------------------------------------
 	
-	\chapter{Subject Background}
+	\chapter{Background}
 	\label{chap:literaturereview}
 		
 	Since the crux of this project is to assess the suitability of applying Bayesian deep learning (BDL) techniques to passage ranking (PR) problems, this chapter starts by defining the key concepts that underpin BDL techniques before exploring the relevant literature that discusses previous approaches to passage ranking solutions. Once this assessment has been done, we will then also examine literature that assesses BDL as opposed to classical deep learning techniques.
@@ -168,16 +171,16 @@
 		
 				Whilst introducing \emph{AL}, we have spoken about measuring the usefulness of each instance and whether to query it or not. We measure how informative an instance is using \emph{acquisition functions}. Naturally, there is a trade-off between two types of approaches: exploration and exploitation. Exploitative strategies search the area of the current best instances; whereas exploration strategies look at instances that have greater levels of uncertainty. As expected, there are many acquisition functions currently researched; we will cover a few important ones from the areas of uncertainty sampling and Bayesian optimisation.
 
-				\paragraph{Uncertainty Sampling.} Posed by Lewis and Gale \cite{Lewis94}, it is an explorative query framework which focuses on querying instances that have the most uncertainty. A common strategy used to calculate uncertainty for binary, probabilistic learning models is by using Shannon’s entropy \cite{Shannon48} given by the formula below.
+				\paragraph{Uncertainty Sampling.} Posed by Lewis and Gale \cite{Lewis94}, it is an explorative query framework which focuses on querying instances that have the most uncertainty. A common strategy used to calculate uncertainty for probabilistic learning models is by using Shannon’s entropy \cite{Shannon48} given by the formula below.
 
 				$$
 					x^{\ast}_{ENT} = argmax_{x} - \sum_i \mathbb{P}(y_i \mid x; \omega) log \left[ \mathbb{P}(y_i \mid x; \omega) \right]
 				$$
 	
 				\noindent
-				for $y_i$ across the range of possible labels; in the context of whether to query or not, $y_i \in {0,1}$ since we have a binary decision to make. Entropy-based acquisition functions have been generalised for more complex models so they are suitable for tree-based or multi-label classification models \cite{Craven08, Hwa04}. However, uncertainty sampling suffers from a lack of sensitivity to noise and outliers as it can get very easily distracted. Uncertainty sampling also does not consider why the model holds uncertainty for a particular instance \cite{Sharma17}.
+				for $y_i$ across the range of possible labels; in the context of whether to query or not, $y_i \in \{0,1\}$ since we have a binary decision to make. Entropy-based acquisition functions have been generalised for more complex models so they are suitable for tree-based or multi-label classification models \cite{Craven08, Hwa04}. However, uncertainty sampling suffers from a lack of sensitivity to noise and outliers as it can get very easily distracted. Uncertainty sampling also does not consider \emph{why} the model holds uncertainty for a particular instance \cite{Sharma17}.
 
-				\paragraph{Expected Improvement (EI).} This is an alternative, Bayesian optimisation approach that has a deeper focus on the exploitation of good instances \cite{Mockus75}. The basic idea is that it provides an estimation of the \emph{expected improvement} of a proposed candidate over our current best candidate. Simpson et all \cite{Simpson19} find this an effective acquisition function for their interactive PR model with a minimal number of user interactions. To outline how we calculate EI, we must first define \emph{improvement} as $max\{0, f_a - f_b\}$ with $a$ our candidate instance, $b$ our current best instance, and $f$ the utility of a given instance \cite{Simpson19}. The first assumption we make is that $\mathcal{N}(\hat{f}, \mathcal{C})$ is a good estimate for the posterior distribution of candidate utilities; second that the difference in utilities $f_a - f_b$ is Gaussian-distributed. With these assumptions, we can derive the following equation for expected improvement with $z = \frac{\hat{f}_a - \hat{f}_b}{\sqrt{v}}$ and posterior standard deviation $\sqrt{v}$:
+				\paragraph{Expected Improvement (EI).} This is an alternative, Bayesian optimisation, approach that has a strong focus on the exploitation of good instances \cite{Mockus75}. The basic idea is that it provides an estimation of the \emph{expected improvement} of a proposed candidate over our current best candidate. Simpson et al. \cite{Simpson19} find this an effective acquisition function for their interactive PR model with a minimal number of user interactions. To outline how we calculate EI, we must first define \emph{improvement} as $max\{0, f_a - f_b\}$ with $a$ our candidate instance, $b$ our current best instance, and $f$ the utility of a given instance \cite{Simpson19}. The first assumption we make is that $\mathcal{N}(\hat{f}, \mathcal{C})$ is a good estimate for the posterior distribution of candidate utilities; second that the difference in utilities $f_a - f_b$ is Gaussian-distributed. With these assumptions, we can derive the following equation for expected improvement with $z = \frac{\hat{f}_a - \hat{f}_b}{\sqrt{v}}$ and posterior standard deviation $\sqrt{v}$:
 
 				$$
 					Imp(a; \mathcal{D}) = \sqrt{v}\left[z \Phi(z) + \mathcal{N}(z; 0, 1)\right]
@@ -188,7 +191,7 @@
 
 				\paragraph{Query-By-Committee (QBC).} This acquisition function utilises a committee of models with different parameters, ${\omega^1, \ldots, \omega^{c}}$, that are all trained on the same labelled dataset \cite{Seung92}. Optimal research size has been researched; however, even a committee size of two or three models has shown positive results in practice \cite{Seung92, Craven08, Nigam98} providing no agreement on an appropriate committee size. QBC looks for instances that the models disagree on, making this acquisition function have a strong emphasis on exploration. It is a common acquisition function for stream-based learning \cite{Settles09} as it does not require a batch of unlabelled instances to make a decision. QBC does require a measure of disagreement among committee models. The two main approaches are \emph{vote entropy} and \emph{average Kullback-Leibler (KL) divergence}. 
 
-				\paragraph{Vote Entropy.} is a QBC generalisation of entropy-based uncertainty sampling, defined by the following structure \cite{Dagan95}:
+				\paragraph{Vote Entropy.} This is a QBC generalisation of entropy-based uncertainty sampling, defined by the following structure \cite{Dagan95}:
 
 				$$
 					x^\ast_{VE} = argmax_x - \sum_i \frac{V(y_i)}{\mathcal{C}} log \left[\frac{V(y_i)}{\mathcal{C}}\right]
@@ -197,7 +200,7 @@
 				\noindent
 				where $y_i$ ranges across all possible labels and $V(y_i)$ is the number of votes that the instance receives to be assigned label $i$.
 
-				\paragraph{Average KL divergence} is built on KL divergence \cite{Kullback51} to measure the average difference between two probability distributions as detailed below \cite{Nigam98}:
+				\paragraph{Average KL divergence.} This is built on KL divergence \cite{Kullback51} to measure the average difference between two probability distributions as detailed below \cite{Nigam98}:
 
 				$$
 					x^\ast_KL = argmax_x \frac{1}{\mathcal{C}} \sum_{c=1}^{\mathcal{C}} \sum_i \mathbb{P}(y_i \mid x; \omega^{c}) log \left[\frac{\mathbb{P}(y_i \mid x; \omega^{c})}{\mathbb{P}(y_i \mid x; \mathcal{C}}\right]
@@ -276,10 +279,12 @@
 			\end{figure}
 			
 			Second, Graves \cite{Graves11} proposed fitting a Gaussian variational posterior approximation over the parameters of neural networks and optimising over the parameters to ensure the variational distribution is as good an estimate of the posterior distribution as possible. This method works well for networks of moderate size, but supplies training difficulties when working with larger architectures \cite{He15}.
-Thirdly, Gal and Ghahramani \cite{Gal15} present Monte Carlo Dropout (MC Dropout); a dropout framework which integrates stochasticity into a neural network, by randomly removing parameters \emph{during training}. We can interpret dropout as approximate Bayesian inference, leading to a range of different parameters. It is intuitive to see the link between this and sampling parameters from a posterior to approximate a predictive distribution.
 			
 			\medbreak
-			Denoting the neural network parameter matrices for layer $i$ as $W_i$ alongside input and output sets $\mathcal{D}_{in}, \mathcal{D}_{out}$, we again suffer from an intractable posterior distribution $p(y \mid x, \mathcal{D}_{out}, \mathcal{D}_{in})$. Thus $q(\omega)$ is an approximation defined below
+			Thirdly, Gal and Ghahramani \cite{Gal15} present Monte Carlo Dropout (MC Dropout); a dropout framework which integrates stochasticity into a neural network, by randomly removing parameters \emph{during training}. We can interpret dropout as approximate Bayesian inference, leading to a range of different parameters. It is intuitive to see the link between this and sampling parameters from a posterior to approximate a predictive distribution.
+			
+			\medbreak
+			Denoting the neural network parameter matrices for layer $i$ as $W_i$ alongside input and output sets $\mathcal{D}_{in}$ and $\mathcal{D}_{out}$, we again suffer from an intractable posterior distribution: $p(y \mid x, \mathcal{D}_{out}, \mathcal{D}_{in})$. Thus $q(\omega)$ is an approximation defined below
 			
 			\begin{align*}
 				z_{i, j} &\sim Bernoulli(p_i) \\
@@ -305,7 +310,7 @@ Thirdly, Gal and Ghahramani \cite{Gal15} present Monte Carlo Dropout (MC Dropout
 		Zhang and Zhang also explored an ensemble of AL strategies to build a deep active learning framework \cite{Zhang19}. This was a composition of a BERT-based classifier and an ensemble sampling method to choose valuable data for training. They found that this alternative approach only required half the training data to attain state-of-the-art performance. However, the framework proposed by Ein-Dor et al. \cite{EinDor20} may be of more use since experimentation was constructed on data with high class imbalance, scarce labelling and a small annotation budget: attributes of an interactive PR context.  
 		
 		\medbreak
-		Ein-Dor et al. \cite{EinDor20} developed a framework that used an AL approach with BERT-based classification. This structure consisted of pool-based AL in batch mode in conjunction with BERT as the classification scheme. Different AL strategies were examined – Monte-Carlo Dropout (MC DROPOUT) \cite{Gal15}, a Bayesian approach and Discriminative Active Learning (DAL) \cite{Gissin19} – with Al proving an excellent boost to helping BERT emerge from its poor initial model \cite{EinDor20}. Although DAL would not be appropriate for the PR context due to its focus on querying batches, using MC Dropout as a strategy seems to be effective for PR.
+		Ein-Dor et al. \cite{EinDor20} developed a framework that used an AL approach with BERT-based classification. This structure consisted of pool-based AL in batch mode in conjunction with BERT as the classification scheme. Different AL strategies were examined – MC Dropout, a Bayesian approach, and Discriminative Active Learning (DAL) \cite{Gissin19} – with Al proving an excellent boost to helping BERT emerge from its poor initial model \cite{EinDor20}. Although DAL would not be appropriate for the PR context due to its focus on querying batches, using MC Dropout as a strategy seems to be effective for PR.
 		
 		\medbreak
 		Gal and Ghahramani \cite{Gal17} also present an AL framework which incorporates recent BDL techniques. AL is limited by its ability to scale to high-dimensional datasets \cite{Tong01}, key for deep learning scenarios. Thus, Gal and Ghahramani proposed an approach that used specialised Bayesian convolutional neural networks (BCNNs) whereby Gaussian, prior probability distributions are used to describe a set of parameters as a basepoint to start inference. Like Ein-Dor et al., they also introduce MC Dropout to sample the approximate posteriors; however, Gal and Ghahramani do take a different approach by using the BALD acquisition function \cite{Houlsby11}. BALD chooses pool sizes with the greatest expectation of the information gained from the model parameters \cite{Gal17}; chosen since it demonstrates a small test error in experimentation.
@@ -313,10 +318,10 @@ Thirdly, Gal and Ghahramani \cite{Gal15} present Monte Carlo Dropout (MC Dropout
 		\section{Text Summarisation Models}
 		\label{chap:literaturereview:summodels}
 		
-		Since a text summarisation method to generate candidate summaries is not the central focus of our research, it suffices to use an off-the-shelf solution. Simpson et al. \cite{Simpson19} simply take random sentences from the base text to create summaries which they found to be a sufficient approach to test their proposed PR framework since it is lightweight and can produce test summaries quickly. However, a modern, abstractive model that is likely to produce more realistic summaries for popular use such as Google’s Pegasus model \cite{Zhao19} would be a positive alternative. The final model we mention is MemSum: an extractive text summarisation model proposed by Gu et al. \cite{Gu22} which provides us with a compromise between the two alternative models.
+		Since an extractive text summarisation method to generate candidate summaries is not the central focus of our research, it suffices to use an off-the-shelf solution. Simpson et al. \cite{Simpson19} simply take random sentences from the base text to create summaries which they found to be a sufficient approach to test their proposed PR framework since it is lightweight and can produce test summaries quickly. However, a modern, alternative model such as MemSum, proposed by Gu et al. \cite{Gu22} is likely to produce more realistic summaries for popular use would be a positive replacement. The final model to mention is HAHSum: an extractive text summarisation model proposed by Jia et al. \cite{Jia20} which provides us with a different option to the two alternative models since it is trained on shorter documents and so is likely to produce practical summaries for a different context.
 		
 		\medbreak
-		Each approach has its strengths and limitations. Namely, the approach that takes sentences randomly is unlikely to produce a practically useful summary as there is no analysis, and subsequent weighting, into the importance of each sentence. Nonetheless, it will produce a range of different summaries to test our PR framework with low computational cost \cite{Simpson19}. Contrastingly, using a model such as Google's Pegasus model gives us the opposite situation to consider; this model produces more accurate summaries, but with greater computational cost \cite{Zhao19}. MemSum sits in the middle between these two models; it will create practical summaries with a smaller computational cost than Pegasus \cite{Gu22}. The key limitation of MemSum is that it is trained to summarise \emph{long} documents such as ones taken from PubMed, arXiv and GovReport so its viability will depend on the data we use in experimentation. If MemSum does not prove viable, there are comparable extractive models trained on shorter documents such as HAHSum \cite{Jia20} and Longformer-Base \cite{Roush20}.
+		Each approach has its strengths and limitations. Namely, the approach that takes sentences randomly is unlikely to produce a practically useful summary as there is no analysis, and subsequent weighting, into the importance of each sentence. Nonetheless, it will produce a range of different summaries to test our PR framework with low computational cost \cite{Simpson19}. Contrastingly, using a model such as MemSum gives us the opposite situation to consider; this model produces more accurate summaries, but with greater computational cost \cite{Gu22}. The key limitation of MemSum is that it is trained to summarise \emph{long} documents such as ones taken from PubMed, arXiv and GovReport so its viability will depend on the data we use in experimentation. If MemSum does not prove viable, there are comparable extractive models trained on shorter documents such as HAHSum \cite{Jia20}. Unfortunately, since MemSum and HAHSum were trained on different datasets, we do not have a direct performance comparison; however, HAHSum outperforms previous extractive summarisers on the CNN/Daily Mail dataset \cite{Nallapati16, Jia20} so is likely to provide suitable summaries to rank.
 		
 		% ----------------------------------------------------------------------------	
 	
@@ -350,6 +355,9 @@ Thirdly, Gal and Ghahramani \cite{Gal15} present Monte Carlo Dropout (MC Dropout
 	\chapter{Time-plan}
 		\label{appx:timeplan}
 		
+		The following Gantt Chart displays my time plan for the course of this research project. Please note that this project will be completed part-time, alongside a full-time job.
+		\bigbreak
+		
 		\begin{center}
 			\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{Gantt.png}
 		\end{center}
@@ -365,7 +373,7 @@ Thirdly, Gal and Ghahramani \cite{Gal15} present Monte Carlo Dropout (MC Dropout
  			\hline
  			Insufficient processing power for timely training on deep learning techniques   & 75\%    &50\%&  We will ensure a Virtual Machine is built to utilise the high-processing capabilities that exist virtually. We also aim to minimise the computational cost in the chosen framework. This is essential as we want the solution to be interactive. For example, using a frozen BERT model would help alleviate concerns. \\
 			\hline
- 			Insufficient data availability.&10\% & 90\%  & We will use publicly available data, previously used for text summarisation and PR research. This is a low likelihood situation since there are many data sources available that are in common use. \\
+ 			Insufficient data availability.&10\% & 90\%  & We will use publicly available data, previously used for text summarisation and PR research. This is a low likelihood situation since there are many data sources available that are in common use. We will also be using a noisy random selector to simulate user preferences to limit the risk we have to available data.\\
 			\hline
  			Change in research direction leads to ethical concerns since the research is active learning based. &25\% & 90\%& To evade using human annotators, we will be using noisy random selectors as our oracle. This means that an ethics review is not required; however, if there is a change in direction, we will undergo an ethics review where the time taken will be accounted for in the decision-making process.\\
 			\hline

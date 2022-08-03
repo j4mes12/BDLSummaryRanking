@@ -167,6 +167,10 @@ Neil Houlsby, Ferenc Huszar, Zoubin Ghahramani, and M{\'a}t{\'e} Lengyel.
 \newblock Bayesian active learning for classification and preference learning.
 \newblock {\em CoRR}, abs/1112.5745, 2011.
 
+\bibitem{Huang21}
+Luyang Huang, Shuyang Cao, Nikolaus Parulian, Heng Ji, and Lu~Wang.
+\newblock Efficient attentions for long document summarization, 2021.
+
 \bibitem{Hunter04}
 David~R. Hunter.
 \newblock {MM algorithms for generalized Bradley-Terry models}.
@@ -253,6 +257,14 @@ Frederick Mosteller.
   solution assuming equal standard deviations and equal correlations.
 \newblock {\em Psychometrika}, 16(1):3--9, 1951.
 
+\bibitem{Nallapati16}
+Ramesh Nallapati, Bowen Zhou, Cicero Nogueira~dos santos, Caglar Gulcehre, and
+  Bing Xiang.
+\newblock Abstractive text summarization using sequence-to-sequence rnns and
+  beyond.
+\newblock {\em The SIGNLL Conference on Computational Natural Language Learning
+  (CoNLL), 2016}, 2016.
+
 \bibitem{Neal95}
 Radford~M. Neal.
 \newblock Bayesian learning for neural networks.
@@ -297,13 +309,6 @@ Chao Qin, Diego Klabjan, and Daniel Russo.
 \newblock In I.~Guyon, U.~Von Luxburg, S.~Bengio, H.~Wallach, R.~Fergus,
   S.~Vishwanathan, and R.~Garnett, editors, {\em Advances in Neural Information
   Processing Systems}, volume~30. Curran Associates, Inc., 2017.
-
-\bibitem{Roush20}
-Allen Roush and Arvind Balaji.
-\newblock {D}ebate{S}um: A large-scale argument mining and summarization
-  dataset.
-\newblock In {\em Proceedings of the 7th Workshop on Argument Mining}, pages
-  1--7, Online, December 2020. Association for Computational Linguistics.
 
 \bibitem{Navin21}
 Navin Sabharwal and Amit Agrawal.
