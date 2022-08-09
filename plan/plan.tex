@@ -25,10 +25,10 @@
                 supervisor={Dr. Edwin Simpson},
                 % the degree programme
                     degree={MSc},
-                % the dissertation    title (which cannot be blank)
-                     title={Project Plan: Bayesian Deep Learning For Extractive Test Summarisation},
-                % the dissertation subtitle (which can    be blank)
-                  subtitle={},
+                % the dissertation title (which cannot be blank)
+                     title={PROJECT PLAN},
+                % the dissertation subtitle (which can be blank)
+                  subtitle={Bayesian Deep Learning For Extractive Test Summarisation},
                 % the dissertation     type
                       type={},
                 % the year of submission
@@ -54,73 +54,280 @@
 	
 	\frontmatter
 	
-	% This macro creates the standard UoB declaration; on the printed hard-copy,
-	% this must be physically signed by the author in the space indicated.
-	
-	\makedecl
-	
 	% LaTeX automatically generates a table of contents, plus associated lists 
 	% of figures, tables and algorithms.  The former is a compulsory part of the
 	% dissertation, but if you do not require the latter they can be suppressed
 	% by simply commenting out the associated macro.
 	
-	\tableofcontents
+	%% \tableofcontents
 	
 	% The following sections are part of the front matter, but are not generated
 	% automatically by LaTeX; the use of \chapter* means they are not numbered.
 	
 	% -----------------------------------------------------------------------------
 	
-	\chapter*{Abstract}
-	
-		{\bf A compulsory section, of at most $1$ page} 
-		\vspace{1cm} 
+	\chapter*{Abstract}		
+
+		Text summarisation is a valuable technique that facilitates the computational processing of documents, saving users hours in manual processing. Users have different summary requirements; however, current extractive summarisation systems construct generic summaries that are not tailored to the user's needs. Asking users for feedback is one solution to combat this problem. Thus we aim to find an approach that allows the summary to be tailored to the users whilst minimising requests for user feedback.
+
+		\medbreak	
+		Legacy approaches use Bayesian optimisation \cite{Simpson19} strategies to achieve minimal user feedback; however, this strategy is blocked since modern summarisation techniques involve deep neural networks which cannot effectively express uncertainty and are typically overconfident when encountered by new topics \cite{Xu19}. This poses an issue in utilising the feedback strength of Bayesian optimisation. This project will investigate the feasibility of applying newly-developed techniques from Bayesian deep learning \cite{Wilson20} to rank summary instances or \emph{passages}. Bayesian deep learning allows us to generate significant estimates of the model confidence, so we can use Bayesian optimisation to determine which instances to ask the user for feedback on.
+
+		\medbreak		
+		Specifically, we look to utilise pre-trained deep learning models such as BERT \cite{Navin21} to ascertain instances in a vector format to be used in an active learning component. Monte-Carlo Dropout \cite{Gal15} techniques appear to be proficient approximations for parameter posterior distributions. Thus, we will look to utilise this approach to calibrate our model.
+
+		\medbreak
+		It is common in passage ranking active learning solutions to use a pool-based strategy to query unlabelled instances \cite{EinDor20}. However, this requires excess computational processing. Thus, we will examine using a stream-based approach to identify instances to query since it provides a computationally-cheaper framework for an interactive setting. Query-by-committee acquisition functions are popular for stream-based active learning; however, since Simpson et al. \cite{Simpson19} found Bayesian optimisation strategies effectively minimised user feedback, we will look to utilise strategies such as expected improvement since Bayesian deep learning will provide a higher level of model confidence. 
+
 		
-		\noindent
-		This section should summarise the project context, aims and objectives,
-		and main contributions (e.g., deliverables) and achievements.  The goal is to ensure that the 
-		reader is clear about what the topic is, what you have done within this 
-		topic, {\em and}\/ {\bf what your view of the outcome is.}
 		
-		Essentially 
-		this section is a (very) short version of what is typically covered in more depth in the first 
-		chapter.  If appropriate, you should include here  
-		a clear statement of your research hypothesis.  This will obviously differ significantly
-		for each project, but an example might be as follows:
-		
-		\begin{quote}
-			My research hypothesis is that a suitable genetic algorithm will yield
-			more accurate results (when applied to the standard ACME data set) than 
-			the algorithm proposed by Jones and Smith, while also executing in less
-			time.
-		\end{quote}
-		
-		\noindent
-		The latter aspects should (ideally) be presented as a concise, factual 
-		list of the main points of achievement.  Again the points will differ for each project, but 
-		an might be as follows:
 	
 	\mainmatter
 	
 	% -----------------------------------------------------------------------------
-	
-	\chapter{Two Pages of Coherent Text: An Introduction}
-	\label{chap:introduction}
+	 
+	\chapter{Introduction}
+	\label{chap:introduction} 
 		
-		It should include at least two pages of coherent text (i.e., of the form you intend to write for your thesis, not rough-notes) that could be used as the opening pages of your Introduction/Overview chapter (Chapter 1 of your thesis). 
+		Text summarisation is the process of condensing a passage of text into a shorter version whilst retaining the necessary information in the text. This is a valuable research area since summarisation massively reduces the comprehension time of large pieces of text. Moreover, it has applications in many different domains, both public and professional: academics are required to read extensive research papers, individuals read long articles to keep up to date with the world news, and individuals read books to learn about various topics from history to science.
+
+		\medbreak
+		There are two approaches to text summarisation: extractive and abstractive summarisation. Extractive summarisation is a summarisation technique which focuses on selecting particular words and sentences to convey the meaning of the original text; one would consider a system whereby several sentences are randomly selected to generate summaries an extractive model, albeit not a smart one. Whereas abstractive summarisation techniques look to understand the semantics of the text before generating text to summarise what the model has learnt; an example of such a model is Google's Pegasus text summarisation model \cite{Zhao19}.
+
+		\medbreak
+		Extractive summarisation models are more common as most practical text summarisation models are extractive \cite{Gudivada15}. The basic structure of these models is made up of three stages \cite{Nenkova11}: first, capturing the key aspects of the text; secondly, using these aspects to score the importance of each sentence; thirdly, to create a summary using the highest scoring sentences. Abstractive summarisation is, naturally, harder, and more computationally costly to perform \cite{Gudivada15}. The difficulty is centred on learning the semantics of the text; different texts can have many different structures and models find it difficult to learn such variety \cite{Zhu21}.
 		
-		% -----------------------------------------------------------------------------
+		\medbreak
+		Passage ranking is a popular technique that is used in various natural language processing (NLP) domains, such as search engine queries \cite{Chang20}, community question answering models \cite{Lin17} and text summarisation models \cite{Simpson19}. In fact, on the 10\textsuperscript{th} of February 2021, Google introduced an update to Google Search which moved their algorithm from a passage indexing approach to a passage ranking approach \cite{Seround21}. We will be utilising this powerful approach to rank summaries by how appropriate they are for the user's requirements. We intend to build up the passage ranking mindset outlined by Simpson et al. \cite{Simpson19} who found this approach useful, but established that a complete ranking was not required. Instead, they concluded that an iterative comparison between the current best summary and a suitable proposed summary was all that was required.
+
+		\medbreak
+		This project focuses on assessing a new approach that uses Bayesian deep learning techniques to rank text summaries generated using extractive text summarisation models. It is necessary for our approach to achieve the following requirements:
+
+		\begin{itemize}
+			\item {The ability to tailor summaries to the user’s preference since there is a range of requirements that different users have.}
+			\item{Of all proposed summaries, the highest-ranked summary should be the most effective at conveying the information in the original text.}
+			\item {The framework should be used in an interactive setting which minimises user interactions and a timely processing speed.}
+		\end{itemize}
+		
+		\section{Current Approaches}
+		\label{chap:introduction:curr_approaches}
+		
+			From current literature, models have been proposed to capture the preference of one summary to another such as the Bradley-Terry model \cite{Bradley52} and the Thurstone-Mosteller model \cite{Thurstone27, Mosteller51}. Both the Bradley-Terry and Thurstone-Mosteller models are linear models that takes the "value" of two instances, $a$ and $b$ and represents the probability that $a$ is more comparative than $b$ using a monotonic., increasing function: $\mathcal{P}(a > b) = H(V_a - V_b) $ for "value" variable $V_i$ \cite{Handley01}. These models differ in the functions that are used. The Bradley-Terry model uses a simple additive fraction, $\mathcal{P}(a > b) = \frac{p_a}{p_a + p_b}$ \cite{Hunter04}; whereas the Thurstone-Mosteller model uses  the normal cumulative distribution function for comparison \cite{Handley01}.
+		
+		\medbreak
+		These models provide good solutions; however, they fail to differentiate between aleatoric and epistemic uncertainty. This limits the models’ ability to determine where there is weakness in the model and leads to reduced performance. Alternative approaches use deep learning techniques to rank passages which beat state-of-the-art performance \cite{Xu19}. However, such models are limited by their requirement of large training data. Which, in the context of text summarisation, comes at a high cost as human annotators are required to manually produce and evaluate summaries. Moreover, these models are unable to account for user preferences which limit the models' ability to tailor summaries to the user.
+		
+		\section{Proposed Approach}
+		\label{chap:introduction:prop_approach}
+		
+			\subsection{Research Aim}
+			\label{chap:introduction:prop_approach:aim}
+			
+				We aim to develop and evaluate a Bayesian deep learning framework for passage ranking text summaries which incorporates an active learning component to allow for user influence on the summary rankings.
+				
+				\medbreak
+				Typical deep learning approaches demand vast amounts of training data; however, the active learning component will minimise the number of user interactions required, whilst maintaining high performance. During iterations within the active learning component, we use a stream-based strategy to minimise the amount of overhead processing as, for this strategy, summary instances are evaluated sequentially by the active learner as opposed to requiring a pool of unlabelled instances. As initiated by Simpson et al. \cite{Simpson19}, we will use a Bayesian optimisation acquisition function to determine if an unlabelled instance should be queried by an oracle - an all-knowing information source - or not. We also aim to use Monte Carlo Dropout \cite{Gal15} to approximate the posterior distribution across the model weights and calibrate our model.
+
+				\medbreak
+				Within our framework development and evaluation, we wish to establish if the proposed Bayesian deep learning approach provides a sufficient passage ranking solution in comparison to a classical deep learning model. Moreover, we aim to determine if a stream-based active learning strategy is appropriate for such a problem.
+				
+				\medbreak
+				This research project will include an experimentation stage; whereby we test the proposed framework, discuss the results and draw conclusions. A range of data sets that have been used for experimentation in summary passage ranking literature: Simpson et al. use the DUC 2001, 2002 and 2004 datasets \cite{Simpson19}; whereas, common benchmarking datasets are the CNN/Daily Mail and GovReport datasets \cite{Nallapati16, Huang21}. We will use one of these datasets to benchmark our results based on which extractive text summarisation model we choose - this will be discussed in Section \ref{chap:literaturereview:summodels}. Since we aim to utilise an active learning component, we will use a noisy random selector to mimic user summary preferences and provide answers to queries; a similar approach was taken by Simpson et al. \cite{Simpson19}.
+				
+			\subsection{Research Concerns}
+			\label{chap:introduction:prop_approach:concerns}
+
+				The central challenge within the project is effectively combining a Bayesian deep learning model with an active learning component. Firstly, it is a concern as to whether stream-based learning is an appropriate active learning strategy for a passage ranking problem since there is minimal current documentation; pool-based active learning is the most common strategy used \cite{Settles09}. Secondly, consideration needs to be made with regard to the number of user interactions. It is necessary for the model to be interactive; thus, it is important to examine the number of interactions that are required and if this is a reasonable level for an interactive setting. Finally, it is a concern as to whether the noisy random simulator effectively represents a human annotator in experimentations. As it will not have a preference for a particular type of summary, it provides little information on whether the framework learns the attributes of a preferred summary and starts to regularly produce summaries of such a nature.
+		
+		
+
+		
+	% -----------------------------------------------------------------------------
 	
-	\chapter{Three Pages of Coherent Test: Literature Review}
+	\chapter{Background}
 	\label{chap:literaturereview}
 		
-		It should include at least three pages of coherent text forming an initial survey/summary of relevant literature, that could be used as the basis of your Contextual Background or Literature Review chapter (typically Chapter 2 and/or 3 of your thesis). 
+	Since the crux of this project is to assess the suitability of applying Bayesian deep learning (BDL) techniques to passage ranking (PR) problems, this chapter starts by defining the key concepts that underpin BDL techniques before exploring the relevant literature that discusses previous approaches to passage ranking solutions. Once this assessment has been done, we will then also examine literature that assesses BDL as opposed to classical deep learning techniques.
+		
+		
+		\section{Active Learning}
+		\label{chap:literaturereview:active}
+		
+		Alongside unsupervised and supervised learning, active learning (AL) is a machine learning framework whereby queries are asked of an oracle – such as a human annotator – in the form of labelling unlabelled observations \cite{Settles09}. The active interactions with oracles allow better performance with few labelled data points. AL is beneficial in the cases where labelled data is scarce due to high costs; for speech recognition problems \cite{Zhu05} details a scale factor of ten times between the length of a speech extract and the time taken to annotate such as extract.
+		
+			\subsection{Active Learning Strategies}
+			\label{chap:literaturereview:active:strategies}
+			
+				Settles \cite{Settles09} describes three scenarios that are considered in the literature to categorise AL problems: membership query synthesis, stream-based selective sampling and pool-based active learning.
+
+				\paragraph{Membership query synthesis.}  Labels are requested by the learner for any unlabelled instance in the input space. This includes queries that are generated as if for the first time rather than from some causal distribution \cite{Angluin88}. A considerable limitation of this scenario occurs when the oracle is a human annotator. Baum and Lang \cite{Baum92} employed membership query learning to classify handwritten characters using a human oracle. They found that many query images that were generated were unrecognisable symbols. This limitation could feasibly produce nonsense summaries when tasked with a PR situation; something we should be cautious of.
+
+				\paragraph{Stream-based selective sampling.} In this setting, unlabelled observations are selected sequentially and the learner determines if to query or discard each instance; this is done to reduce annotation effort \cite{Cohn94}. This is under the major assumption that acquiring unlabelled instances is low-cost since the learner needs to be able to decide it can discard the unlabelled observation with minimal opportunity cost. The most common way of defining if a sample should be queried or discarded is by creating a \emph{version space} \cite{Mitchell82} using two models with different parameter choices; for those instances that the models agree on, we can discard as there is little uncertainty. However, with regards to the cases of disagreement, these unlabelled instances fall in the region of uncertainty \cite{Settles09}. This region of uncertainty is computationally expensive to calculate; thus, it is common to use approximations in practice \cite{Seung92, Cohn94, Dasgupta07}.
+
+				\paragraph{Pool-based active learning.} A common approach for many real-world examples such as text classification \cite{Lewis94}, information extraction \cite{Thompson99} and speech recognition \cite{Tur05} since it is common to find large groups of unlabelled data collected at once. The \emph{pool-based active learning} workflow starts with a learner trained on a small set of labelled data, $ \mathcal{D}_{lab} $, which is then used to \emph{greedily} rank instances in a large collection of unlabelled instances, $\mathcal{D}_{unlab} $ \cite{Lewis94}. The highest-ranked instance is then labelled by an oracle and then used within the learner retrain. In comparison to a stream-based active learner, a greater computational cost is associated with a pool-based learner since it ranks the entire set $\mathcal{D}_{unlab}$ before making a query as opposed to making sequential decisions.
+	
+			\subsection{Acquisition Functions}
+			\label{chap:literaturereview:active:acquisition}
+		
+				Whilst introducing \emph{AL}, we have spoken about measuring the usefulness of each instance and whether to query it or not. We measure how informative an instance is using \emph{acquisition functions}. Naturally, there is a trade-off between two types of approaches: exploration and exploitation. Exploitative strategies search the area of the current best instances; whereas exploration strategies look at instances that have greater levels of uncertainty. As expected, there are many acquisition functions currently researched; we will cover a few important ones from the areas of uncertainty sampling and Bayesian optimisation.
+
+				\paragraph{Uncertainty Sampling.} Posed by Lewis and Gale \cite{Lewis94}, it is an explorative query framework which focuses on querying instances that have the most uncertainty. A common strategy used to calculate uncertainty for probabilistic learning models is by using Shannon’s entropy \cite{Shannon48} given by the formula below.
+
+				$$
+					x^{\ast}_{ENT} = argmax_{x} - \sum_i \mathbb{P}(y_i \mid x; \omega) log \left[ \mathbb{P}(y_i \mid x; \omega) \right]
+				$$
+	
+				\noindent
+				for $y_i$ across the range of possible labels; in the context of whether to query or not, $y_i \in \{0,1\}$ since we have a binary decision to make. Entropy-based acquisition functions have been generalised for more complex models so they are suitable for tree-based or multi-label classification models \cite{Craven08, Hwa04}. However, uncertainty sampling suffers from a lack of sensitivity to noise and outliers as it can get very easily distracted. Uncertainty sampling also does not consider \emph{why} the model holds uncertainty for a particular instance \cite{Sharma17}.
+
+				\paragraph{Expected Improvement (EI).} This is an alternative, Bayesian optimisation, approach that has a strong focus on the exploitation of good instances \cite{Mockus75}. The basic idea is that it provides an estimation of the \emph{expected improvement} of a proposed candidate over our current best candidate. Simpson et al. \cite{Simpson19} find this an effective acquisition function for their interactive PR model with a minimal number of user interactions. To outline how we calculate EI, we must first define \emph{improvement} as $max\{0, f_a - f_b\}$ with $a$ our candidate instance, $b$ our current best instance, and $f$ the utility of a given instance \cite{Simpson19}. The first assumption we make is that $\mathcal{N}(\hat{f}, \mathcal{C})$ is a good estimate for the posterior distribution of candidate utilities; second that the difference in utilities $f_a - f_b$ is Gaussian-distributed. With these assumptions, we can derive the following equation for expected improvement with $z = \frac{\hat{f}_a - \hat{f}_b}{\sqrt{v}}$ and posterior standard deviation $\sqrt{v}$:
+
+				$$
+					Imp(a; \mathcal{D}) = \sqrt{v}\left[z \Phi(z) + \mathcal{N}(z; 0, 1)\right]
+				$$	
+
+				\noindent
+				Some limitations of EI is that it has been found to over-exploit in some cases \cite{Qin17}; since it takes a very exploitative sample, if there are inaccuracies in the estimation of the mean or variance, it does not have the explorative capabilities to find the optimal instance area.
+
+				\paragraph{Query-By-Committee (QBC).} This acquisition function utilises a committee of models with different parameters, ${\omega^1, \ldots, \omega^{c}}$, that are all trained on the same labelled dataset \cite{Seung92}. Optimal research size has been researched; however, even a committee size of two or three models has shown positive results in practice \cite{Seung92, Craven08, Nigam98} providing no agreement on an appropriate committee size. QBC looks for instances that the models disagree on, making this acquisition function have a strong emphasis on exploration. It is a common acquisition function for stream-based learning \cite{Settles09} as it does not require a batch of unlabelled instances to make a decision. QBC does require a measure of disagreement among committee models. The two main approaches are \emph{vote entropy} and \emph{average Kullback-Leibler (KL) divergence}. 
+
+				\paragraph{Vote Entropy.} This is a QBC generalisation of entropy-based uncertainty sampling, defined by the following structure \cite{Dagan95}:
+
+				$$
+					x^\ast_{VE} = argmax_x - \sum_i \frac{V(y_i)}{\mathcal{C}} log \left[\frac{V(y_i)}{\mathcal{C}}\right]
+				$$
+		
+				\noindent
+				where $y_i$ ranges across all possible labels and $V(y_i)$ is the number of votes that the instance receives to be assigned label $i$.
+
+				\paragraph{Average KL divergence.} This is built on KL divergence \cite{Kullback51} to measure the average difference between two probability distributions as detailed below \cite{Nigam98}:
+
+				$$
+					x^\ast_KL = argmax_x \frac{1}{\mathcal{C}} \sum_{c=1}^{\mathcal{C}} \sum_i \mathbb{P}(y_i \mid x; \omega^{c}) log \left[\frac{\mathbb{P}(y_i \mid x; \omega^{c})}{\mathbb{P}(y_i \mid x; \mathcal{C}}\right]
+				$$
+
+				\noindent
+				where $\omega^{(c)}$ represents the parameters of a particular model in the committee, $\mathcal{C}$ represents the committee as a whole.
+
+				\medbreak
+				Unlike vote entropy, Average KL divergence is known to miss instances when committee members disagree; whereas, a limitation of vote entropy is that it can miss informative instances since it is rooted in uncertainty sampling \cite{Li06}. A shared weakness is that both metrics often fail to select enough valuable instances to achieve the same classification accuracy as passive learning.
+		
+		\section{Interactive Learning}
+		\label{chap:literaturereview:interactive}
+		
+			Interactive learning is a machine learning workflow involving directed experimentation with inputs and output \cite{Amershi14}. A rapid change in response to user input facilitates interactive inspection of the impact of the user’s input.  This workflow format is commonly used to solve NLP problems; related works include literature in PR in the context of translations, question answering and text summarisation \cite{Peris18, Lin17, PVS17}. These works had a focus on interactionally-expensive uncertainty sampling to learn the rankings of \emph{all} candidate passages \cite{Simpson19}. Gao et al. \cite{Gao18} researched how to reduce the number of user interactions for uncertainty sampling techniques with some success using an active learner. A positive step towards reasonable interactive learning.
+
+			\medbreak
+			Simpson et al. \cite{Simpson19} take an alternative approach to uncertainty sampling by proposing a Bayesian optimisation (BO) strategy instead. With Gaussian process (GPs) displaying some success in error reduction for NLP tasks with noisy labels \cite{Cohn13, Beck14}, Simpson and Gurevych \cite{Simpson18} proposed using Gaussian process preference learning (GPPL) with uncertainty sampling. This approach has been further built upon by Simpson et al. \cite{Simpson19} to a BO framework. This approach showed a marked improvement in the accuracy of chosen answers in a community question answering (cQA) task with a small number of interactions required. The methodology used Expected Improvement (IMP) as the acquisition function for AL which twisted the focus of optimisation to find the best candidate, as opposed to the ranks of all candidates. The switch to the exploitation of promising candidates showed to be massively influential on performance. Simpson et al. \cite{Simpson19} furthered the performance enhancement gained from using the BO framework by using prior predictions from a state-of-the-art scoring method, SUPERT \cite{Gao20}, as an informative prior for GPPL to address the cold-start problem for recommender systems \cite{Bobadilla12}.
+		
+		
+		\section{Deep Learning}
+		\label{chap:literaturereview:deep}
+		
+		Deep learning methods form a subset of machine learning, based on neural networks with at least three hidden layers. These techniques have dramatically increased the capabilities of model recognition in many domains including visual object recognition, question answering and text summarisation \cite{Lecun15, Sharma18, Azar17}. In classical training, one typically uses maximum a-posteriori (MAP) optimisation to choose the set of parameters, $\hat{w}$, for our model that maximises the posterior probability from our parameter distribution \cite{Wilson20}. MAP does not require computationally-costly calculations of the marginal distribution \cite{Hero15}; however, since MAP is a point estimate, it cannot be fully considered a Bayesian approach \cite{Hero15}.
+
+		\begin{figure}
+			\centering
+			\includegraphics[width=0.5\linewidth]{../additions/figures/Bhattacharyya20_plot_Deep}
+			\caption{Typical deep learning architecture \cite{Bhattacharyya20}}
+			\label{fig:deep_architecture}
+		\end{figure}
+		
+			\subsection{Pre-trained Models}
+			\label{chap:literaturereview:deep:pretrained}
+			
+			Pre-trained, deep learning, language models are useful in unsupervised learning problems due to the lack of major architectural modifications required and the high-performance levels that are delivered \cite{Mridha21}. One popular pre-trained language model is the Bidirectional Encoder Representations from Transformers (BERT) which takes an entire sequence of words, bidirectionally, to produce significantly improved results. The input is augmented by three embeddings – position, segment and token embeddings – and padded by a [CLS] token at the beginning of the first sentence to ensure BERT has lots of useful information \cite{Navin21}.
+			
+			\medbreak
+			BERT is trained on two tasks in parallel: Masked Language Modelling, prediction of hidden words in sentences, and Next Sentence Prediction \cite{Navin21}. However, BERT can be applied to many NLP tasks \cite{Mridha21} such as question answering and text classification tasks with some minor fine-tuning; we add a small layer on the top of the transformer output for the [CLS] token \cite{Navin21} to adapt the core model to different tasks. Recent publications have found BERT-based models \cite{Devlin18} to be extremely effective when tasked with PR situations across the question answering and text summarisation disciplines \cite{Xu19, Qiao19}. Xu et al. \cite{Xu19} explored a query-passage set-up when applying BERT to cQA such that the BERT final hidden state fed into an MLP module to produce relevance scores in a supervised way. Since finding this technique outperformed the baseline, it may be a useful structure to consider adapting to the text summarisation domain.
+			
+			\medbreak
+			The limitation of utilising an interactive learning framework such as one outlined by Simpson et al. \cite{Simpson19} is that it does not utilise the vast performance capabilities of newer, pre-trained techniques such as BERT. Although the framework presented does limit the number of interactions required from a user – allowing the user to tailor the summary – Ein-Dor et al. \cite{EinDor20} look to take this idea further with the incorporation of a BERT component in an AL framework. 		
+		
+		\section{Bayesian Deep Learning}
+		\label{chap:literaturereview:deepbayes}
+		
+			Bayesian Deep Learning is a deep learning approach which uses a probabilistic framework – whether that be in the model acquisition function or model parameters – to improve model performance. Bayesian acquisition functions are something we have mentioned previously; however, concerning a probabilistic approach to the selection of model parameters, $\omega$, marginalisation is used to replace optimisation. This is so we can utilise the effect of several models using different $\omega$ with probability distribution $p(\omega)$. To allow us to marginalise over $\omega$, we require Bayes Theorem to link the \emph{prior distribution}, $p(\omega)$, for parameters $\omega$; the likelihood, $p(\mathcal{D} \mid \omega)$ of such parameters being suitable for data, $\mathcal{D}$; and the \emph{posterior distribution}, $p(\omega \mid \mathcal{D})$, of the parameters.
+		
+		$$
+			p(\omega \mid \mathcal{D}) = \frac{p(\mathcal{D}_y \mid  \mathcal{D}_x, \omega)p(\omega)}{\int_{\omega'} p( \mathcal{D}_y \mid  \mathcal{D}_x, \omega')p(\omega')d\omega'}
+		$$
+	
+		\noindent
+		The marginalisation stage forms the integral over all possible $\omega$ on the numerator. This is important since the posterior distribution is incredibly useful to calculate the predictive distribution (or marginal probability distribution) of the output. The \emph{predictive distribution}, $p(y \mid \mathcal{D}, x)$, defines the probability of label $y$ given additional input $x$ and dataset  $\mathcal{D}$ \cite{Izmailov20}.
+		
+		$$
+			p(y \mid x,  \mathcal{D}) = \int_\omega p(y \mid x, \omega)p(\omega \mid  \mathcal{D}) d\omega
+		$$
+		
+		\noindent
+		This integral is called the \emph{Bayesian Model Average (BMA)} and can be thought of as the weighted average (using probability distributions) of all parameters and defines the probability for label $y$ given input $x$ and data $\mathcal{D}$ \cite{Izmailov20}. Wilson and Izmailov \cite{Izmailov20} argue that using a BMA increases accuracy as well as obtaining a realistic expression of uncertainty with classical neural networks exhibiting overconfident predictions \cite{Xu19}. Unfortunately, calculating the posterior distribution is a computationally expensive task, due to the marginalisation step in the denominator, so approximate posterior distributions are used.
+		
+			\subsection{Bayesian Deep Learning Strategies}
+			\label{chap:literaturereview:deepbayes:strategies}
+			
+			Firstly, Wilson and Izamailov \cite{Izmailov20} comment that taking a selection of possible $\omega$ and combining the resulting models to approximate BMA – named Monte Carlo approximation – evocative of frequentist deep ensembles. However, there are modern approaches one can take.
+			
+			\medbreak
+			A common practical method is using Monte Carlo Markov Chains (MCMC) to approximate the posterior \cite{Izmailov20}. MCMCs are used to approximate variable distributions for an idealised system \cite{Brooks11} and two common algorithms have been tailored to approximate posterior distributions: Gibbs Sampling and the Metropolis-Hastings Algorithm. However, Gibbs Sampling is not appropriate for neural networks with conditional posterior distributions due to the interdependency of parameters \cite{Neal95}. Simple forms of the Metropolis-Hasting algorithm (MH) can be more appropriate; however, again due to the high interdependence of states, MH can be costly and prone to random walks \cite{Neal95}. Duane et al. \cite{Duane87} propose an alternative \emph{hybrid Monte Carlo} which is a combination of MH with sampling techniques from dynamical simulation.
+			
+			\begin{figure}[h]
+				\centering
+				\includegraphics[width=0.5\linewidth]{../additions/figures/Srivastava14_MCDropout}
+				\caption{Neural Network undergoing Monte Carlo Dropout \cite{Srivastava14}}
+				\label{fig:MC_dropout}
+			\end{figure}
+			
+			Second, Graves \cite{Graves11} proposed fitting a Gaussian variational posterior approximation over the parameters of neural networks and optimising over the parameters to ensure the variational distribution is as good an estimate of the posterior distribution as possible. This method works well for networks of moderate size, but supplies training difficulties when working with larger architectures \cite{He15}.
+			
+			\medbreak
+			Thirdly, Gal and Ghahramani \cite{Gal15} present Monte Carlo Dropout (MC Dropout); a dropout framework which integrates stochasticity into a neural network, by randomly removing parameters \emph{during training}. We can interpret dropout as approximate Bayesian inference, leading to a range of different parameters. It is intuitive to see the link between this and sampling parameters from a posterior to approximate a predictive distribution.
+			
+			\medbreak
+			Denoting the neural network parameter matrices for layer $i$ as $W_i$ alongside input and output sets $\mathcal{D}_{in}$ and $\mathcal{D}_{out}$, we again suffer from an intractable posterior distribution: $p(y \mid x, \mathcal{D}_{out}, \mathcal{D}_{in})$. Thus $q(\omega)$ is an approximation defined below
+			
+			\begin{align*}
+				z_{i, j} &\sim Bernoulli(p_i) \\
+				W_i &= M_i \cdot diag(z_{i,j})
+			\end{align*}
+			
+			\noindent
+			A simple Bernoulli distribution is used to determine which states are set to zero given some probability $p_i$ and variational parameters $M_i$. Note here that $z_{i,j}$ denotes unit $j$ in layer $i-1$. To obtain the model uncertainty obtained through dropout in neural networks, we take our approximate predictive distribution. Through $T$ sample sets of realisations from our posterior distribution $z_{i,j}$, we get $T$ parameter matrices $\{W^{t}_{1}, W^{t}_{2}, \ldots W^{t}_{L}\}^{T}_{t=1}$ and the following estimate by which we call our Monte Carlo Dropout.
+			
+			$$
+				\mathbb{E}_{q(y^\ast \mid x^\ast)}(y^\ast) \approx \frac{1}{T} \sum_{t=1}^{T} \hat{y}^\ast(x^\ast, W_{1}^{t}, \ldots, W_{L}^{t})
+			$$
+			
+			Another popular technique is \emph{Stochastic Weight Averaging – Gaussian (SWAG)} \cite{Maddox19}. This builds on the idea of \emph{Stochastic Weight Averaging (SWA)} which combines parameters of the same neural network at different stages in training \cite{Dmitrii18}. SWAG uses Stochastic Gradient Descent (SGD) information to estimate the shape of the posterior distribution by fitting a Gaussian distribution to the first two moments of the SGD iterate \cite{Maddox19}. We use these fitted Gaussian distributions for BMA. The benefits of SWAG are grounded in its practicality, stability and accuracy which are essential attributes when working with large neural networks \cite{Maddox19}.
+
+			
+		\section{Deep Active Learning}
+		\label{chap:literaturereview:deepactive}
+		
+		Ideally, our solution would retain the AL component that exists in the PR framework proposed by Simpson et al. \cite{Simpson19} since it allows us to tailor generated summaries to the user preferences; an essential aspect of summary ranking.
+		
+		\medbreak
+		Zhang and Zhang also explored an ensemble of AL strategies to build a deep active learning framework \cite{Zhang19}. This was a composition of a BERT-based classifier and an ensemble sampling method to choose valuable data for training. They found that this alternative approach only required half the training data to attain state-of-the-art performance. However, the framework proposed by Ein-Dor et al. \cite{EinDor20} may be of more use since experimentation was constructed on data with high class imbalance, scarce labelling and a small annotation budget: attributes of an interactive PR context.  
+		
+		\medbreak
+		Ein-Dor et al. \cite{EinDor20} developed a framework that used an AL approach with BERT-based classification. This structure consisted of pool-based AL in batch mode in conjunction with BERT as the classification scheme. Different AL strategies were examined – MC Dropout, a Bayesian approach, and Discriminative Active Learning (DAL) \cite{Gissin19} – with Al proving an excellent boost to helping BERT emerge from its poor initial model \cite{EinDor20}. Although DAL would not be appropriate for the PR context due to its focus on querying batches, using MC Dropout as a strategy seems to be effective for PR.
+		
+		\medbreak
+		Gal and Ghahramani \cite{Gal17} also present an AL framework which incorporates recent BDL techniques. AL is limited by its ability to scale to high-dimensional datasets \cite{Tong01}, key for deep learning scenarios. Thus, Gal and Ghahramani proposed an approach that used specialised Bayesian convolutional neural networks (BCNNs) whereby Gaussian, prior probability distributions are used to describe a set of parameters as a basepoint to start inference. Like Ein-Dor et al., they also introduce MC Dropout to sample the approximate posteriors; however, Gal and Ghahramani do take a different approach by using the BALD acquisition function \cite{Houlsby11}. BALD chooses pool sizes with the greatest expectation of the information gained from the model parameters \cite{Gal17}; chosen since it demonstrates a small test error in experimentation.
+
+		\section{Text Summarisation Models}
+		\label{chap:literaturereview:summodels}
+		
+		Since an extractive text summarisation method to generate candidate summaries is not the central focus of our research, it suffices to use an off-the-shelf solution. Simpson et al. \cite{Simpson19} simply take random sentences from the base text to create summaries which they found to be a sufficient approach to test their proposed PR framework since it is lightweight and can produce test summaries quickly. However, a modern, alternative model such as MemSum, proposed by Gu et al. \cite{Gu22} is likely to produce more realistic summaries for popular use and would be a positive replacement. The final model to mention is HAHSum: an extractive text summarisation model proposed by Jia et al. \cite{Jia20} which provides us with a different option to the two alternative models since it is trained on shorter documents and so is likely to produce practical summaries for a different context.
+		
+		\medbreak
+		Each approach has its strengths and limitations. Namely, the approach that takes sentences randomly is unlikely to produce a practically useful summary as there is no analysis, and subsequent weighting, into the importance of each sentence. Nonetheless, it will produce a range of different summaries to test our PR framework with low computational cost \cite{Simpson19}. Contrastingly, using a model such as MemSum gives us the opposite situation to consider; this model produces more accurate summaries, but with greater computational cost \cite{Gu22}. The key limitation of MemSum is that it is trained to summarise \emph{long} documents such as ones taken from PubMed, arXiv and GovReport so its viability will depend on the data we use in experimentation. If MemSum does not prove viable, there are comparable extractive models trained on shorter documents such as HAHSum \cite{Jia20}. Unfortunately, since MemSum and HAHSum were trained on different datasets, we do not have a direct performance comparison; however, HAHSum outperforms previous extractive summarisers on the CNN/Daily Mail dataset \cite{Nallapati16, Jia20} so is likely to provide suitable summaries to rank.
 		
 		% ----------------------------------------------------------------------------	
 	
 	% =============================================================================
 	
-	% Finally, after the main matter, the back matter is specified.  This is
+	% Finally, after the main matter, the back matter is specified.  This iss
 	% typically populated with just the bibliography.  LaTeX deals with these
 	% in one of two ways, namely
 	%
@@ -135,7 +342,7 @@
 	
 	\backmatter
 	
-	\bibliography{bibtex.bib}
+	\bibliography{bibtex}
 	
 	% -----------------------------------------------------------------------------
 	
@@ -145,15 +352,34 @@
 	
 	\appendix
 	
-	\chapter{One-Page Time-plan}
+	\chapter{Time-plan}
 		\label{appx:timeplan}
 		
-		It should include as an Appendix a one-page time-plan for your project, which you may choose to format as a week-by-week bullet-list, or possibly as a Gantt Chart. 
+		The following Gantt Chart displays my time plan for the course of this research project. Please note that this project will be completed part-time, alongside a full-time job, and this has been taken into account when calculating task time requirements.
+		\bigbreak
+		
+		\begin{center}
+			\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{Gantt.png}
+		\end{center}
 		
 	\chapter{One-Page Risk Assessment}
 		\label{appx:riskassessment}
 		
-		It should include as an Appendix a one-page risk assessment for your project, talking about the major risks you can foresee that might plausibly occur and interfere with your plans. For each risk, state clearly what it is, what its likelihood is, what its effects/impact would be on the project, and what your intended mitigation or risk-reduction involves.
+		\begin{tabular}{ |p{5cm}||p{2cm}|p{2cm}|p{6cm}|  }
+ 			\hline
+ 			\multicolumn{4}{|c|}{Risk Assessment} \\
+			\hline
+ 			Risk& Likelihood &Risk Level&Mitigations\\
+ 			\hline
+ 			Insufficient processing power for timely training on deep learning techniques   & 75\%    &50\%&  We will ensure a Virtual Machine is built to utilise the high-processing capabilities that exist virtually. We also aim to minimise the computational cost in the chosen framework. This is essential as we want the solution to be interactive. For example, using a frozen BERT model would help alleviate concerns. \\
+			\hline
+ 			Insufficient data availability.&10\% & 90\%  & We will use publicly available data, previously used for text summarisation and PR research. This is a low likelihood situation since there are many data sources available that are in common use. We will also be using a noisy random selector to simulate user preferences to limit the risk we have to available data.\\
+			\hline
+ 			Change in research direction leads to ethical concerns since the research is active learning based. &25\% & 90\%& To evade using human annotators, we will be using noisy random selectors as our oracle. This means that an ethics review is not required; however, if there is a change in direction, we will undergo an ethics review where the time taken will be accounted for in the decision-making process.\\
+			\hline
+ 			Due to the project being part of part-time study alongside a full-time job, there is a risk of unpredictable changes in time requirements    &20\% & 75\%& Ensure an effective usage of weekly study day as that is concretely given from work and that there is sufficient time available if tasks do overrun. We will also develop a plan outlining what needs to be achieved each week so that I constantly understand my workload.\\
+ 			\hline
+		\end{tabular}
 		
 		% =============================================================================
 

@@ -1,4 +1,22 @@
 \contentsline {chapter}{\numberline {1}Two Pages of Coherent Text: An Introduction}{1}{chapter.1}%
-\contentsline {chapter}{\numberline {2}Three Pages of Coherent Test: Literature Review}{3}{chapter.2}%
-\contentsline {chapter}{\numberline {A}One-Page Time-plan}{5}{appendix.A}%
-\contentsline {chapter}{\numberline {B}One-Page Risk Assessment}{7}{appendix.B}%
+\contentsline {chapter}{\numberline {2}Subject Background}{3}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Interactive Learning}{3}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Active Learning}{3}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Active Learning Strategies}{3}{subsection.2.2.1}%
+\contentsline {paragraph}{Membership query synthesis.}{4}{section*.3}%
+\contentsline {paragraph}{Stream-based selective sampling.}{4}{section*.4}%
+\contentsline {paragraph}{Pool-based active learning.}{4}{section*.5}%
+\contentsline {subsection}{\numberline {2.2.2}Acquisition Functions}{4}{subsection.2.2.2}%
+\contentsline {paragraph}{Uncertainty Sampling.}{4}{section*.6}%
+\contentsline {paragraph}{Expected Improvement (EI).}{4}{section*.7}%
+\contentsline {paragraph}{Query-By-Committee (QBC).}{5}{section*.8}%
+\contentsline {paragraph}{Vote Entropy (VE).}{5}{section*.9}%
+\contentsline {paragraph}{Average KL divergence}{5}{section*.10}%
+\contentsline {section}{\numberline {2.3}Deep Learning}{5}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Pre-trained Models}{5}{subsection.2.3.1}%
+\contentsline {section}{\numberline {2.4}Bayesian Deep Learning}{6}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}Bayesian Deep Learning Strategies}{7}{subsection.2.4.1}%
+\contentsline {section}{\numberline {2.5}Deep Active Learning}{8}{section.2.5}%
+\contentsline {section}{\numberline {2.6}Text Summarisation Models}{8}{section.2.6}%
+\contentsline {chapter}{\numberline {A}Time-plan}{13}{appendix.A}%
+\contentsline {chapter}{\numberline {B}One-Page Risk Assessment}{15}{appendix.B}%
