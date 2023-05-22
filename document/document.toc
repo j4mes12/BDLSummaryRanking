@@ -1,10 +1,32 @@
 \contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Current Approaches}{2}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Proposed Approach}{2}{section.1.2}%
+\contentsline {subsection}{\numberline {1.2.1}Research Aim}{2}{subsection.1.2.1}%
+\contentsline {subsection}{\numberline {1.2.2}Research Concerns}{2}{subsection.1.2.2}%
 \contentsline {chapter}{\numberline {2}Background}{3}{chapter.2}%
-\contentsline {chapter}{\numberline {3}Execution}{5}{chapter.3}%
-\contentsline {section}{\numberline {3.1}Example Section}{5}{section.3.1}%
-\contentsline {subsection}{\numberline {3.1.1}Example Sub-section}{6}{subsection.3.1.1}%
-\contentsline {subsubsection}{Example Sub-sub-section}{7}{section*.11}%
-\contentsline {paragraph}{Example paragraph.}{8}{section*.12}%
-\contentsline {chapter}{\numberline {4}Critical Evaluation}{9}{chapter.4}%
-\contentsline {chapter}{\numberline {5}Conclusion}{11}{chapter.5}%
-\contentsline {chapter}{\numberline {A}An Example Appendix}{13}{appendix.A}%
+\contentsline {section}{\numberline {2.1}Active Learning}{3}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}Active Learning Strategies}{3}{subsection.2.1.1}%
+\contentsline {paragraph}{Membership query synthesis.}{3}{section*.11}%
+\contentsline {paragraph}{Stream-based selective sampling.}{3}{section*.12}%
+\contentsline {paragraph}{Pool-based active learning.}{3}{section*.13}%
+\contentsline {subsection}{\numberline {2.1.2}Acquisition Functions}{4}{subsection.2.1.2}%
+\contentsline {paragraph}{Uncertainty Sampling.}{4}{section*.14}%
+\contentsline {paragraph}{Expected Improvement (EI).}{4}{section*.15}%
+\contentsline {paragraph}{Query-By-Committee (QBC).}{4}{section*.16}%
+\contentsline {paragraph}{Vote Entropy.}{4}{section*.17}%
+\contentsline {paragraph}{Average KL divergence.}{5}{section*.18}%
+\contentsline {section}{\numberline {2.2}Interactive Learning}{5}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Deep Learning}{5}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Pre-trained Models}{5}{subsection.2.3.1}%
+\contentsline {section}{\numberline {2.4}Bayesian Deep Learning}{6}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}Bayesian Deep Learning Strategies}{7}{subsection.2.4.1}%
+\contentsline {section}{\numberline {2.5}Deep Active Learning}{8}{section.2.5}%
+\contentsline {section}{\numberline {2.6}Text Summarisation Models}{8}{section.2.6}%
+\contentsline {chapter}{\numberline {3}Execution}{9}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Example Section}{9}{section.3.1}%
+\contentsline {subsection}{\numberline {3.1.1}Example Sub-section}{10}{subsection.3.1.1}%
+\contentsline {subsubsection}{Example Sub-sub-section}{11}{section*.19}%
+\contentsline {paragraph}{Example paragraph.}{12}{section*.20}%
+\contentsline {chapter}{\numberline {4}Critical Evaluation}{13}{chapter.4}%
+\contentsline {chapter}{\numberline {5}Conclusion}{14}{chapter.5}%
+\contentsline {chapter}{\numberline {A}An Example Appendix}{15}{appendix.A}%
