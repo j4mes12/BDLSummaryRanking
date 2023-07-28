@@ -1,0 +1,69 @@
+<mxfile host="Electron" modified="2023-07-19T12:33:11.369Z" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.6.1 Chrome/112.0.5615.204 Electron/24.6.1 Safari/537.36" etag="c53FI4ZgolFcrS8ZViQk" version="21.6.1" type="device">
+  <diagram name="Page-1" id="73lPq-DKPrrdzMy-Wt2I">
+    <mxGraphModel dx="906" dy="674" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="5NILO1VMau-hQC1xxTVp-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="5NILO1VMau-hQC1xxTVp-1" target="5NILO1VMau-hQC1xxTVp-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5NILO1VMau-hQC1xxTVp-1" value="Oracle/User" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#232F3D;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.user;" vertex="1" parent="1">
+          <mxGeometry x="120" y="370" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="5NILO1VMau-hQC1xxTVp-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="5NILO1VMau-hQC1xxTVp-2" target="5NILO1VMau-hQC1xxTVp-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5NILO1VMau-hQC1xxTVp-2" value="Pool of unlabelled summaries" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;" vertex="1" parent="1">
+          <mxGeometry x="360" y="90" width="119" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="5NILO1VMau-hQC1xxTVp-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="5NILO1VMau-hQC1xxTVp-3" target="5NILO1VMau-hQC1xxTVp-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5NILO1VMau-hQC1xxTVp-3" value="Extractive Summariser Model" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="100" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="5NILO1VMau-hQC1xxTVp-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="5NILO1VMau-hQC1xxTVp-5" target="5NILO1VMau-hQC1xxTVp-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5NILO1VMau-hQC1xxTVp-13" value="Expected Improvement &lt;br&gt;Sampling" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" vertex="1" connectable="0" parent="5NILO1VMau-hQC1xxTVp-9">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="2" y="-2" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5NILO1VMau-hQC1xxTVp-5" value="BERT Ranking Model" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="220" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="5NILO1VMau-hQC1xxTVp-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="5NILO1VMau-hQC1xxTVp-8" target="5NILO1VMau-hQC1xxTVp-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5NILO1VMau-hQC1xxTVp-12" value="Candidate&lt;br&gt;Querying" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" vertex="1" connectable="0" parent="5NILO1VMau-hQC1xxTVp-10">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-6" y="-1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5NILO1VMau-hQC1xxTVp-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="5NILO1VMau-hQC1xxTVp-8" target="5NILO1VMau-hQC1xxTVp-16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5NILO1VMau-hQC1xxTVp-8" value="Pairwise Query Candidates" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="380" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="5NILO1VMau-hQC1xxTVp-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="5NILO1VMau-hQC1xxTVp-16" target="5NILO1VMau-hQC1xxTVp-5">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="640" y="545" />
+              <mxPoint x="640" y="250" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5NILO1VMau-hQC1xxTVp-19" value="Model Retraining" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" vertex="1" connectable="0" parent="5NILO1VMau-hQC1xxTVp-18">
+          <mxGeometry x="0.0572" y="-1" relative="1" as="geometry">
+            <mxPoint y="30" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5NILO1VMau-hQC1xxTVp-16" value="Training Data" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;" vertex="1" parent="1">
+          <mxGeometry x="360" y="505" width="119" height="80" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
