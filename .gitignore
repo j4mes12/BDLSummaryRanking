@@ -129,3 +129,5 @@ dmypy.json
 .pyre/
 
 ext_code
+**/sp.ipynb
+**/data/
