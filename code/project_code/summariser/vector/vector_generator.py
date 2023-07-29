@@ -53,7 +53,9 @@ class Vectoriser:
                 new_id = random.choice(state.available_sents)
                 if (new_id == 0) or (
                     new_id > 0
-                    and len(self.sentences[new_id - 1].untokenized_form.split(" "))
+                    and len(
+                        self.sentences[new_id - 1].untokenized_form.split(" ")
+                    )
                     > self.sum_token_length
                 ):
                     continue
@@ -109,34 +111,6 @@ class Vectoriser:
 
         return vector_list
 
-    def getSummaryText(self, summary_actions_list):
-        sentence_text_list = []
-
-        for action_list in summary_actions_list:
-            # For each summary, we create a state object
-            state = State(
-                self.sum_token_length,
-                self.base_length,
-                len(self.sentences),
-                self.block_num,
-                self.language,
-            )
-
-            # Now, we construct the text of the summary from the list of
-            # actions, which are IDs of sentences to add.
-            for _, action in enumerate(action_list):
-                state.updateState(action, self.sentences, read=True)
-
-            # state.getSelfVector will return the vector representation of the
-            # summary. This calls self.getStateVector, which we need to
-            # overwrite to define a new type of vector representation. This
-            # makes use of tate.draft_summary_list, which is a list of the
-            # sentence strings in the summary.
-            sentence_text = state.getSelfVector(self.top_ngrams_list, self.sentences)
-            sentence_text_list.append(sentence_text)
-
-        return sentence_text_list
-
     def sent2tokens(self, sent_str):
         if self.without_stopwords and self.stem:
             return dh.sent2stokens_wostop(
@@ -145,7 +119,9 @@ class Vectoriser:
         elif (not self.without_stopwords) and self.stem:
             return dh.sent2stokens(sent_str, self.stemmer, self.language)
         elif self.without_stopwords and (not self.stem):
-            return dh.sent2tokens_wostop(sent_str, self.stoplist, self.language)
+            return dh.sent2tokens_wostop(
+                sent_str, self.stoplist, self.language
+            )
         else:  # both false
             return dh.sent2tokens(sent_str, self.language)
 
@@ -170,7 +146,9 @@ class Vectoriser:
         self.state_length_computer = StateLengthComputer(
             self.block_num, self.base_length, len(self.sentences)
         )
-        self.top_ngrams_num = self.state_length_computer.getStatesLength(self.block_num)
+        self.top_ngrams_num = self.state_length_computer.getStatesLength(
+            self.block_num
+        )
         self.vec_length = self.state_length_computer.getTotalLength()
 
         sent_list = []

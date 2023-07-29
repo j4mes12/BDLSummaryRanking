@@ -22,14 +22,16 @@ def writeSample(actions, reward, path):
             for act in actions:
                 str += repr(act) + ","
             str = str[:-1]
-            str += "\nR1:{};R2:{};R3:{};R4:{};RL:{};RSU:{}".format(
-                reward[model_name][0],
-                reward[model_name][1],
-                reward[model_name][2],
-                reward[model_name][3],
-                reward[model_name][4],
-                reward[model_name][5],
+            str += (
+                "\n"
+                + f"R1:{reward[model_name][0]};"
+                + f"R2:{reward[model_name][1]};"
+                + f"R3:{reward[model_name][2]};"
+                + f"R4:{reward[model_name][3]};"
+                + f"RL:{reward[model_name][4]};"
+                + f"RSU:{reward[model_name][5]}"
             )
+
         append_to_file(str, path)
 
 
@@ -44,43 +46,48 @@ if __name__ == "__main__":
     reader = CorpusReader(res.PROCESSED_PATH)
     data = reader.get_data(dataset, summary_len)
 
-    topic_cnt = 0
-    start = 50
+    topic_count = 0
+    start = 0
     end = 100
-    print("dataset: {}; start: {}; end: {}".format(dataset, start, end - 1))
+    print(f"dataset: {dataset}; start: {start}; end: {end - 1}")
 
     for topic, docs, models in data:
-        topic_cnt += 1
+        topic_count += 1
         dir_path = os.path.join(base_dir, topic)
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
         vec = Vectoriser(docs, summary_len)
-        if topic_cnt >= start and topic_cnt < end:
+        if start <= topic_count < end:
             print(
-                "-----Generate samples for topic {}: {}-----".format(
-                    topic_cnt, topic
-                )
+                f"-----Generate samples for topic {topic_count}: {topic}-----"
             )
-            act_list, h_rewards, r_rewards = vec.sampleRandomReviews(
-                summary_num, True, True, models
+            (
+                action_list,
+                heuristic_rewards,
+                rouge_rewards,
+            ) = vec.sampleRandomReviews(summary_num, True, True, models)
+
+            assert (
+                len(action_list)
+                == len(heuristic_rewards)
+                == len(rouge_rewards)
             )
 
-            assert len(act_list) == len(h_rewards) == len(r_rewards)
-
-            for ii in range(len(act_list)):
+            for action_index in range(len(action_list)):
                 writeSample(
-                    act_list[ii],
-                    h_rewards[ii],
+                    action_list[action_index],
+                    heuristic_rewards[action_index],
                     os.path.join(dir_path, "heuristic"),
                 )
                 writeSample(
-                    act_list[ii],
-                    r_rewards[ii],
+                    action_list[action_index],
+                    rouge_rewards[action_index],
                     os.path.join(dir_path, "rouge"),
                 )
 
     print(
-        "dataset {}; total topic num: {}; start: {}; end: {}".format(
-            dataset, topic_cnt, start, end - 1
-        )
+        f"dataset {dataset}; "
+        + f"total topic num: {topic_count}; "
+        + f"start: {start}; "
+        + f"end: {end - 1}"
     )

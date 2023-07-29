@@ -1,7 +1,8 @@
-import csv, codecs
+import csv
+import codecs
 import os
-from resources import *
-from summariser.utils.misc import *
+import resources as res
+from summariser.utils.misc import normaliseList
 
 
 def read_csv(filename):
@@ -27,36 +28,34 @@ def readSampleSummaries(dataset, topic, feature_type):
 
 
 def readSummaries(dataset, topic, reward_type="rouge"):
-    path = os.path.join(SUMMARY_DB_DIR, dataset, topic, reward_type)
+    path = os.path.join(res.SUMMARY_DB_DIR, dataset, topic, reward_type)
     summary_list = []
-    value_list = []
+    reward_value_list = []
     model_names = []
     sample_num = 9999
 
     with open(path, "r") as ff:
         if reward_type == "heuristic" or reward_type == "supert":
-            cnt = 0
-            while cnt < sample_num:
+            count = 0
+            while count < sample_num:
                 line = ff.readline()
                 if line == "":
                     break
                 if "actions" not in line:
                     continue
                 else:
-                    cnt += 1
-                    nums_str = line.split(":")[1].split(",")
-                    acts = []
-                    for nn in nums_str:
-                        acts.append(int(nn))
-                    summary_list.append(acts)
-                    value = float(ff.readline().split(":")[1])
-                    value_list.append(value)
+                    count += 1
+                    actions_str = line.split(":")[1]
+                    actions = [int(act) for act in actions_str.split(",")]
+                    summary_list.append(actions)
+                    reward_value = float(ff.readline().split(":")[1])
+                    reward_value_list.append(reward_value)
         elif reward_type == "rouge":
             flag = False
-            value = []
+            reward_value = []
             idx = -1
-            cnt = 0
-            while cnt < sample_num:
+            count = 0
+            while count < sample_num:
                 line = ff.readline()
                 if line == "":
                     break
@@ -70,11 +69,11 @@ def readSummaries(dataset, topic, reward_type="rouge"):
                     flag = True
                 elif "model" not in line and flag:
                     if "action" in line and idx == 0:
-                        nums_str = line.split(":")[1].split(",")
-                        acts = []
-                        for nn in nums_str:
-                            acts.append(int(nn))
-                        summary_list.append(acts)
+                        actions_str = line.split(":")[1].split(",")
+                        actions = []
+                        for act in actions_str:
+                            actions.append(int(act))
+                        summary_list.append(actions)
                     elif "R1" in line:
                         scores = line.split(";")
                         R1 = float(scores[0].split(":")[1])
@@ -87,21 +86,21 @@ def readSummaries(dataset, topic, reward_type="rouge"):
                             R1 / 0.47 + R2 / 0.22 + RSU / 0.18
                         )  # (R1/0.48 + R2/0.212 + RSU/0.195)  #
                         # used the commented out values
-                        value.append(vv)
+                        reward_value.append(vv)
                     elif "action" not in line and "R1" not in line:
                         flag = False
-                        value_list.append(value)
-                        value = []
-                        cnt += 1
+                        reward_value_list.append(reward_value)
+                        reward_value = []
+                        count += 1
 
     # normalise
     norm_value_dic = {}
     if reward_type == "heuristic" or reward_type == "supert":
-        norm_value_dic = normaliseList(value_list)
+        norm_value_dic = normaliseList(reward_value_list)
     else:
         assert reward_type == "rouge"
-        for ii in range(len(value_list[0])):
-            temp_list = [x[ii] for x in value_list]
+        for ii in range(len(reward_value_list[0])):
+            temp_list = [x[ii] for x in reward_value_list]
             norm_value_dic[model_names[ii]] = normaliseList(temp_list)
 
     return summary_list, norm_value_dic
