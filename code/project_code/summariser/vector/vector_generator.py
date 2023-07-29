@@ -53,9 +53,7 @@ class Vectoriser:
                 new_id = random.choice(state.available_sents)
                 if (new_id == 0) or (
                     new_id > 0
-                    and len(
-                        self.sentences[new_id - 1].untokenized_form.split(" ")
-                    )
+                    and len(self.sentences[new_id - 1].untokenized_form.split(" "))
                     > self.sum_token_length
                 ):
                     continue
@@ -119,9 +117,7 @@ class Vectoriser:
         elif (not self.without_stopwords) and self.stem:
             return dh.sent2stokens(sent_str, self.stemmer, self.language)
         elif self.without_stopwords and (not self.stem):
-            return dh.sent2tokens_wostop(
-                sent_str, self.stoplist, self.language
-            )
+            return dh.sent2tokens_wostop(sent_str, self.stoplist, self.language)
         else:  # both false
             return dh.sent2tokens(sent_str, self.language)
 
@@ -146,9 +142,7 @@ class Vectoriser:
         self.state_length_computer = StateLengthComputer(
             self.block_num, self.base_length, len(self.sentences)
         )
-        self.top_ngrams_num = self.state_length_computer.getStatesLength(
-            self.block_num
-        )
+        self.top_ngrams_num = self.state_length_computer.getStatesLength(self.block_num)
         self.vec_length = self.state_length_computer.getTotalLength()
 
         sent_list = []

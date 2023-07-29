@@ -33,9 +33,7 @@ if __name__ == "__main__":
         data = reader.get_data(dataset)
 
         for topic, docs, models in data:
-            summaries_actions_list, _ = readSummaries(
-                dataset, topic, "heuristic"
-            )
+            summaries_actions_list, _ = readSummaries(dataset, topic, "heuristic")
             print(f"num of summaries read: {len(summaries_actions_list)}")
 
             # Use the vectoriser to obtain summary embedding vectors
@@ -45,9 +43,7 @@ if __name__ == "__main__":
             )
 
             # Write to the output file
-            output_file = os.path.join(
-                res.SUMMARY_DB_DIR, dataset, topic, "text"
-            )
+            output_file = os.path.join(res.SUMMARY_DB_DIR, dataset, topic, "text")
             with open(output_file, "w") as ofh:
                 for actions_list, sum_text in zip(
                     summaries_actions_list, summaries_action_text
