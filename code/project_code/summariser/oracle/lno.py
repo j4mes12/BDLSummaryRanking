@@ -18,12 +18,11 @@ class SimulatedUser:
         score1 = R11 / 0.47 + R12 / 0.212 + R1SU / 0.185
         score2 = R21 / 0.47 + R22 / 0.212 + R2SU / 0.185
 
-        if random.random() > 1./(1.+math.exp((score2-score1)/self.temperature)):
+        if random.random() > 1.0 / (
+            1.0 + math.exp((score2 - score1) / self.temperature)
+        ):
             # prefers summary 1
             return 0
         else:
             # prefers summary 2
             return 1
-
-
-

@@ -41,10 +41,7 @@ class ExpectedImprovementQuerier(PairUncQuerier):
         f_best = f[best_idx]
 
         sigma = (
-            Cov[best_idx, best_idx]
-            + np.diag(Cov)
-            - Cov[best_idx, :]
-            - Cov[:, best_idx]
+            Cov[best_idx, best_idx] + np.diag(Cov) - Cov[best_idx, :] - Cov[:, best_idx]
         )
         sigma[
             best_idx

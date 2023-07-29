@@ -23,9 +23,7 @@ import random
 
 
 class TDAgent:
-    def __init__(
-        self, vectoriser, summaries, train_round=1000, strict_para=3.0
-    ):
+    def __init__(self, vectoriser, summaries, train_round=1000, strict_para=3.0):
         # hyper parameters
         self.gamma = 1.0
         self.epsilon = 1.0
@@ -54,9 +52,7 @@ class TDAgent:
             self.alpha = 0.001
 
             # find a new sample, using the softmax value
-            idx = softmaxSample(
-                reward_list, self.strict_para, self.softmax_list
-            )
+            idx = softmaxSample(reward_list, self.strict_para, self.softmax_list)
 
             # train the model for one episode
             self.train(summary_list[idx], reward_list[idx])
@@ -94,9 +90,7 @@ class TDAgent:
             return state.draft_summary_list[:-1]
 
     def coreUpdate(self, reward, current_vec, new_vec, vector_e):
-        delta = reward + np.dot(
-            self.weights, self.gamma * new_vec - current_vec
-        )
+        delta = reward + np.dot(self.weights, self.gamma * new_vec - current_vec)
         vec_e = self.gamma * self.lamb * vector_e + current_vec
         self.weights = self.weights + self.alpha * delta * vec_e
         return vec_e
@@ -185,9 +179,7 @@ if __name__ == "__main__":
         print("\n{} {}th TOPIC: {}".format(dataset, topic_cnt, topic))
 
         vec = Vectoriser(docs)
-        summaries, rewards = readSummaries(
-            dataset, topic, reward_type.split("-")[0]
-        )
+        summaries, rewards = readSummaries(dataset, topic, reward_type.split("-")[0])
         rl_agent = TDAgent(vec, summaries, episode, rl_strict)
         if "personal" not in reward_type:
             if "aggregate" in reward_type:

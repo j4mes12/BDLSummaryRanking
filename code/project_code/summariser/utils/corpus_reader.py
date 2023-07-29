@@ -1,35 +1,39 @@
-import sys
-import os.path as path
 import codecs
 
+import sys
+import os.path as path
+
 sys.path.append(path.dirname(path.dirname(path.dirname(path.abspath(__file__)))))
-import re, os
+
+
+import re
+import os
 from resources import DOC_SEQUENCE_PATH
 
 
 class CorpusReader(object):
     def __init__(self, base_path, parse_type=None):
         self.base_path = base_path
-        self.parse_type=parse_type
+        self.parse_type = parse_type
 
-    def getDocs(self,path):
-        path = path.replace('\\', '/') #windows
-        ele = path.split('/')
+    def getDocs(self, path):
+        path = path.replace("\\", "/")  # windows
+        ele = path.split("/")
         dataset = ele[-3]
         topic = ele[-2]
         docs = None
 
-        ff = open(DOC_SEQUENCE_PATH,'r')
+        ff = open(DOC_SEQUENCE_PATH, "r")
         for line in ff.readlines():
-            if '{};{}'.format(dataset,topic) in line:
-                docs = line.split(':')[1].split(';')
+            if "{};{}".format(dataset, topic) in line:
+                docs = line.split(":")[1].split(";")
                 for ii in range(len(docs)):
                     docs[ii] = docs[ii].strip()
                 return docs
 
         ff.close()
         if docs is None:
-            print('INVALID PATH: {}'.format(path))
+            print("INVALID PATH: {}".format(path))
             exit(11)
 
     def load_processed(self, path, summary_len=None):
@@ -37,14 +41,16 @@ class CorpusReader(object):
 
         if summary_len:
             docs = sorted(os.listdir(path))
-            summaries = [model for model in docs if re.search("M\.%s\." % (summary_len), model)]
+            summaries = [
+                model for model in docs if re.search(r"M\.%s\." % (summary_len), model)
+            ]
             docs = summaries
         else:
             docs = self.getDocs(path)
 
         for doc_name in docs:
             filename = "%s/%s" % (path, doc_name)
-            with codecs.open(filename, 'r', 'utf-8') as fp:
+            with codecs.open(filename, "r", "utf-8") as fp:
                 text = fp.read().splitlines()
             data.append((filename, text))
         return data
@@ -53,8 +59,9 @@ class CorpusReader(object):
         """
         generator function that returns a iterable tuple which contains
 
-        :rtype: tuple consisting of topic, contained documents, and contained summaries
-        :param corpus_name: 
+        :rtype: tuple consisting of topic, contained documents,
+         and contained summaries
+        :param corpus_name:
         :param summary_len:
         """
         corpus_base_dir = path.join(self.base_path, corpus_name)
@@ -65,12 +72,12 @@ class CorpusReader(object):
             docs_directory_name = "docs.parsed"
             models_directory_name = "summaries.parsed"
 
-        dir_listing = sorted(os.listdir(corpus_base_dir))
+        dir_listing = [
+            ctopic
+            for ctopic in sorted(os.listdir(corpus_base_dir))
+            if not ctopic.startswith(".")
+        ]
         for ctopic in dir_listing:
-
-            if ctopic[0] == '.':
-                continue # skip over some system files that shouldn't really be there! E.g., .DS_store.
-
             docs_path = path.join(corpus_base_dir, ctopic, docs_directory_name)
             summary_path = path.join(corpus_base_dir, ctopic, models_directory_name)
 

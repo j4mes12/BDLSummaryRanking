@@ -2,25 +2,25 @@ import random, numpy as np
 from summariser.querier.random_querier import RandomQuerier
 from summariser.utils.misc import sigmoid
 
+
 class UncQuerier(RandomQuerier):
-    '''
+    """
     Designed to be used with LR since the function for estimating the uncertainty scores was designed that way.
-    '''
+    """
 
     def _getUncScores(self, scores):
         unc_scores = []
 
         for vv in scores:
-            prob = sigmoid((vv-5)*.6)
+            prob = sigmoid((vv - 5) * 0.6)
             if prob > 0.5:
-                unc_scores.append(2*(1-prob))
+                unc_scores.append(2 * (1 - prob))
             else:
-                unc_scores.append(2*prob)
+                unc_scores.append(2 * prob)
 
         return np.array(unc_scores)
 
     def _getMostUncertainPair(self, unc_scores, log):
-
         # consider only the top N
         num = 20
         unc_idxs = np.argsort(unc_scores)[-num:]
@@ -43,8 +43,7 @@ class UncQuerier(RandomQuerier):
 
         return selected
 
-
-    def getQuery(self,log):
+    def getQuery(self, log):
         mix_values = self.getMixReward()
         unc_scores = self._getUncScores(mix_values)
 
@@ -54,6 +53,3 @@ class UncQuerier(RandomQuerier):
             return pair[0], pair[1]
         else:
             return pair[1], pair[0]
-
-
-

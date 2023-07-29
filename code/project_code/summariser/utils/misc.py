@@ -3,7 +3,8 @@ import random
 import math
 import scipy as sp
 
-def addResult(all_dic,result):
+
+def addResult(all_dic, result):
     for metric in result:
         if metric in all_dic:
             all_dic[metric].append(result[metric])
@@ -11,34 +12,35 @@ def addResult(all_dic,result):
             all_dic[metric] = [result[metric]]
 
 
-def normaliseList(ll, max_value=10.):
+def normaliseList(ll, max_value=10.0):
     minv = min(ll)
     maxv = max(ll)
-    gap = maxv-minv
+    gap = maxv - minv
     if gap == 0:
         gap = 1
 
-    new_ll = [(x-minv)*max_value/gap for x in ll]
+    new_ll = [(x - minv) * max_value / gap for x in ll]
 
     return new_ll
 
-def sigmoid(x, temp=1.):
-    return 1.0/(1.+math.exp(-x/temp))
+
+def sigmoid(x, temp=1.0):
+    return 1.0 / (1.0 + math.exp(-x / temp))
 
 
-def softmaxSample(value_list,strict,softmax_list=[],return_softmax_list=False):
+def softmaxSample(value_list, strict, softmax_list=[], return_softmax_list=False):
     if len(softmax_list) == 0:
-        slist = getSoftmaxList(value_list,strict)
+        slist = getSoftmaxList(value_list, strict)
     else:
         slist = softmax_list
 
-    pointer = random.random()*sum(softmax_list)
+    pointer = random.random() * sum(softmax_list)
     tier = 0
     idx = 0
 
     rtn_idx = -1
     for value in slist:
-        if pointer >= tier and pointer < tier+value:
+        if pointer >= tier and pointer < tier + value:
             rtn_idx = idx
             break
         else:
@@ -46,7 +48,7 @@ def softmaxSample(value_list,strict,softmax_list=[],return_softmax_list=False):
             idx += 1
 
     if return_softmax_list:
-        return rtn_idx,slist
+        return rtn_idx, slist
     else:
         return rtn_idx
 
@@ -54,51 +56,58 @@ def softmaxSample(value_list,strict,softmax_list=[],return_softmax_list=False):
 def getSoftmaxList(value_list, strict):
     softmax_list = []
     for value in value_list:
-        softmax_list.append(np.exp(value/strict))
+        softmax_list.append(np.exp(value / strict))
     return softmax_list
 
+
 def getSoftmaxProb(value_list, strict):
-    slist = getSoftmaxList(value_list,strict)
-    return [xx/np.sum(slist) for xx in slist]
+    slist = getSoftmaxList(value_list, strict)
+    return [xx / np.sum(slist) for xx in slist]
 
 
-def cosine(vec1,vec2):
-    return np.dot(vec1,vec2)/(np.linalg.norm(vec1)*np.linalg.norm(vec2))
+def cosine(vec1, vec2):
+    return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
 
 
 def jsd(p, q, base=np.e):
-    '''
-        Implementation of pairwise `jsd` based on
-        https://en.wikipedia.org/wiki/Jensen%E2%80%93Shannon_divergence
-    '''
+    """
+    Implementation of pairwise `jsd` based on
+    https://en.wikipedia.org/wiki/Jensen%E2%80%93Shannon_divergence
+    """
     ## convert to np.array
     p, q = np.asarray(p), np.asarray(q)
     ## normalize p, q to probabilities
     if p.sum() == 0 or q.sum() == 0:
-        return -1.
+        return -1.0
 
-    p, q = p/p.sum(), q/q.sum()
-    m = 1./2*(p + q)
-    return sp.stats.entropy(p,m, base=base)/2. +  sp.stats.entropy(q, m, base=base)/2.
+    p, q = p / p.sum(), q / q.sum()
+    m = 1.0 / 2 * (p + q)
+    return (
+        sp.stats.entropy(p, m, base=base) / 2.0
+        + sp.stats.entropy(q, m, base=base) / 2.0
+    )
 
 
-def getNormMeanFromLogMean(log_mean,log_dev):
+def getNormMeanFromLogMean(log_mean, log_dev):
     ### from the mean/dev of log-normal to obtain mean/dev for normal distribution
     ### see wikipedia of log normal distribution
-    norm_mean = np.log(log_mean/math.sqrt(1+math.pow(log_dev,2)/math.pow(log_mean,2)))
-    norm_dev = np.log( 1+math.pow(log_dev,2)/math.pow(log_mean,2) )
+    norm_mean = np.log(
+        log_mean / math.sqrt(1 + math.pow(log_dev, 2) / math.pow(log_mean, 2))
+    )
+    norm_dev = np.log(1 + math.pow(log_dev, 2) / math.pow(log_mean, 2))
 
     return norm_mean, math.sqrt(norm_dev)
 
-def bellCurvise(js_list,mean=5.,dev=2.,norm=False,log=True,reverse=True):
+
+def bellCurvise(js_list, mean=5.0, dev=2.0, norm=False, log=True, reverse=True):
     ### note that the smaller the js, the better the summary
-    sorted_js = sorted(js_list,reverse=(not reverse))
+    sorted_js = sorted(js_list, reverse=(not reverse))
     if log:
-        norm_mean, norm_dev = getNormMeanFromLogMean(mean,dev)
-        norm_values = list(np.random.lognormal(norm_mean,norm_dev,len(js_list)))
+        norm_mean, norm_dev = getNormMeanFromLogMean(mean, dev)
+        norm_values = list(np.random.lognormal(norm_mean, norm_dev, len(js_list)))
     else:
-        norm_values = list(np.random.normal(mean,dev,len(js_list)))
-    norm_values = sorted(norm_values,reverse=True)
+        norm_values = list(np.random.normal(mean, dev, len(js_list)))
+    norm_values = sorted(norm_values, reverse=True)
     rewards = []
 
     for js in js_list:
@@ -118,14 +127,15 @@ def aggregateScores(scores_dic):
 
     return np.array(score_matrix).mean(0)
 
-def getRankBasedScores(scores,normalise=True):
+
+def getRankBasedScores(scores, normalise=True):
     rewards = scores[:]
     sr = sorted(rewards)
-    for i in range(len(sr)-1):
-        if sr[i] == sr[i+1]:
-            dec_value = random.random()*1e-5
+    for i in range(len(sr) - 1):
+        if sr[i] == sr[i + 1]:
+            dec_value = random.random() * 1e-5
             sr[i] -= dec_value
-            rewards[rewards.index(sr[i+1])] -= dec_value
+            rewards[rewards.index(sr[i + 1])] -= dec_value
     sr = sorted(sr)
 
     rank_rewards = []
@@ -133,10 +143,6 @@ def getRankBasedScores(scores,normalise=True):
         rank_rewards.append(sr.index(rr))
 
     if normalise:
-        return np.array(rank_rewards)*10./len(rank_rewards)
+        return np.array(rank_rewards) * 10.0 / len(rank_rewards)
     else:
         return np.array(rank_rewards)
-
-
-
-

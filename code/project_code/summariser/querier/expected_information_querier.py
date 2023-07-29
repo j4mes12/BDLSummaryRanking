@@ -4,7 +4,7 @@ from summariser.querier.pairwise_uncertainty_querier import PairUncQuerier
 
 
 class InformationGainQuerier(PairUncQuerier):
-    '''
+    """
     Choose the pair with highest expected information gain over the score function given the pairwise label.
     It computes the EIG using its symmetrical property to take the information gain over the pairwise label given the
     score function. This is not computable in closed form as the non-linearity makes the expectation over score
@@ -27,9 +27,10 @@ class InformationGainQuerier(PairUncQuerier):
     noise is different for different pairs (e.g. if we consider asking different annotators), in which case IG should
     be used. However, IG is easier to compute.
 
-    '''
+    """
+
     def _compute_pairwise_scores(self, f, Cov):
-        #Get the current entropy of pairs
+        # Get the current entropy of pairs
         var = np.diag(Cov)
 
         pairwise_var = var[:, None] + var[None, :] - 2 * Cov
@@ -40,16 +41,18 @@ class InformationGainQuerier(PairUncQuerier):
         pair_probs[pair_probs < 1e-8] = 1e-8
         neg_probs[neg_probs < 1e-8] = 1e-8
 
-        H_current = - pair_probs * np.log(pair_probs) - (neg_probs) * np.log(neg_probs)
+        H_current = -pair_probs * np.log(pair_probs) - (neg_probs) * np.log(neg_probs)
 
         # now approximate the future entropy -- if there were no uncertainty in f -- a la Houlsby 2011 BALD method.
         # This looks like it may have some errors in compared to the Houlsby paper, but that only gives the
         # value for classification, not preference learning, and contains approximations... so it might work out?
         C = np.sqrt(2 * np.pi * np.log(2) / 2.0)
-        H_updated = (-np.log(0.5)) * C / np.sqrt(C**2 + pairwise_var) * np.exp(- (f-f.T)**2 / (2*(C*2 + pairwise_var)))
+        H_updated = (
+            (-np.log(0.5))
+            * C
+            / np.sqrt(C**2 + pairwise_var)
+            * np.exp(-((f - f.T) ** 2) / (2 * (C * 2 + pairwise_var)))
+        )
 
         IG = H_current - H_updated
         return IG
-
-
-
