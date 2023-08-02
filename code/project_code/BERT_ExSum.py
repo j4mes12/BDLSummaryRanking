@@ -13,7 +13,7 @@ Steps for each topic:
  <INITIALLY put 1 for the gold and 0 for the other answers>
 7. Write to CSV files.
 
-Each topic stores CSV files under 'data/BERT_cQA_vec_pred/%s/' % topic.
+Each topic stores CSV files under f'data/BERT_cQA_vec_pred/{topic}/'.
 For each question in the test dataset, we save a separate CSV file
 The csv files contain a row per candidate answer + a row at the end for
  the gold answer (this row will be a duplicate of one of the others.)
@@ -70,10 +70,12 @@ class BertRanker(nn.Module):
 
         self.relu = ReLU()
 
-    def forward(self, input_ids1, attention_mask1, input_ids2, attention_mask2):
-        sequence_emb = self.bert(input_ids=input_ids1, attention_mask=attention_mask1)[
-            0
-        ]
+    def forward(
+        self, input_ids1, attention_mask1, input_ids2, attention_mask2
+    ):
+        sequence_emb = self.bert(
+            input_ids=input_ids1, attention_mask=attention_mask1
+        )[0]
         sequence_emb = sequence_emb.transpose(1, 2)
         pooled_output_1 = self.pooling(sequence_emb)
         pooled_output_1 = pooled_output_1.transpose(2, 1)
@@ -82,9 +84,9 @@ class BertRanker(nn.Module):
         h2_1 = self.relu(self.W2(h1_1))
         scores_1 = self.out(h2_1)
 
-        sequence_emb = self.bert(input_ids=input_ids2, attention_mask=attention_mask2)[
-            0
-        ]
+        sequence_emb = self.bert(
+            input_ids=input_ids2, attention_mask=attention_mask2
+        )[0]
         sequence_emb = sequence_emb.transpose(1, 2)
         pooled_output_2 = self.pooling(sequence_emb)
         pooled_output_2 = pooled_output_2.transpose(2, 1)
@@ -96,7 +98,9 @@ class BertRanker(nn.Module):
         return scores_1, scores_2
 
     def forward_single_item(self, input_ids, attention_mask):
-        sequence_emb = self.bert(input_ids=input_ids, attention_mask=attention_mask)[0]
+        sequence_emb = self.bert(
+            input_ids=input_ids, attention_mask=attention_mask
+        )[0]
         sequence_emb = sequence_emb.transpose(1, 2)
         pooled_output = self.pooling(sequence_emb)
         pooled_output = pooled_output.transpose(2, 1)
@@ -117,7 +121,7 @@ def train_epoch(model, data_loader, loss_fn, optimizer, device, scheduler):
 
     for step, batch in enumerate(data_loader):
         if np.mod(step, 100) == 0:
-            print("Training step %i / %i" % (step, len(data_loader)))
+            print(f"Training step {step} / {len(data_loader)}")
 
         input_ids1 = batch["input_ids1"].to(device)
         attention_mask1 = batch["attention_mask1"].to(device)
@@ -148,7 +152,7 @@ def train_epoch(model, data_loader, loss_fn, optimizer, device, scheduler):
     return ncorrect / float(count_examples), np.mean(losses)
 
 
-def train_bertcqa(
+def train_bert_exsum(
     data_loader,
     nepochs=1,
     random_seed=42,
@@ -181,7 +185,7 @@ def train_bertcqa(
         model.load_state_dict(torch.load(save_path + ".pkl"))
         with open(save_path + "_num_epochs.txt", "r") as fh:
             epochs_completed = int(fh.read())
-            print("Number of epochs already completed: %i" % epochs_completed)
+            print(f"Number of epochs already completed: {epochs_completed}")
     else:
         epochs_completed = 0
 
@@ -196,7 +200,7 @@ def train_bertcqa(
     loss_fn = nn.MarginRankingLoss(margin=0.0).to(device)
 
     for epoch in range(epochs_completed, nepochs):
-        print("Training epoch %i" % epoch)
+        print(f"Training epoch {epoch}")
         train_acc, train_loss = train_epoch(
             model, data_loader, loss_fn, optimizer, device, scheduler
         )
@@ -212,7 +216,7 @@ def train_bertcqa(
     return model, device
 
 
-def predict_bertcqa(model, data_loader, device):
+def predict_bert_exsum(model, data_loader, device):
     scores = np.zeros(0)
     vectors = np.zeros((0, model.embedding_size))
     qids = np.zeros(0)
@@ -222,7 +226,7 @@ def predict_bertcqa(model, data_loader, device):
 
     for step, batch in enumerate(data_loader):
         if np.mod(step, 100) == 0:
-            print("Prediction step  %i / %i" % (step, len(data_loader)))
+            print(f"Prediction step  {step} / {len(data_loader)}")
 
         input_ids = batch["input_ids"].to(device)
         attention_mask = batch["attention_mask"].to(device)
@@ -231,25 +235,34 @@ def predict_bertcqa(model, data_loader, device):
             input_ids, attention_mask
         )
 
-        print("step %i" % step)
-        print("batch_vctor shape " + str(batch_vectors.shape))
-        print("vectors shape " + str(vectors.shape))
+        print(f"step: {step}")
+        print(f"batch_vctor shape: {str(batch_vectors.shape)}")
+        print(f"vectors shape: {str(vectors.shape)}")
 
-        scores = np.append(scores, batch_scores.cpu().detach().numpy().flatten())
+        scores = np.append(
+            scores, batch_scores.cpu().detach().numpy().flatten()
+        )
         batch_vectors = batch_vectors.cpu().numpy()
         if batch_vectors.ndim == 1:
             batch_vectors = batch_vectors[None, :]
         vectors = np.concatenate((vectors, batch_vectors), axis=0)
         qids = np.append(qids, batch["qid"].detach().numpy().flatten())
-        ismatch = np.append(ismatch, batch["ismatch"].detach().numpy().flatten())
+        ismatch = np.append(
+            ismatch, batch["ismatch"].detach().numpy().flatten()
+        )
 
-    print("Outputting an embedding vector with shape " + str(np.array(vectors).shape))
+    print(
+        "Outputting an embedding vector with shape "
+        + str(np.array(vectors).shape)
+    )
 
     return scores, vectors, qids, ismatch
 
 
 def evaluate_accuracy(model, data_loader, device):
-    scores, vectors, qids, matches = predict_bertcqa(model, data_loader, device)
+    scores, vectors, qids, matches = predict_bert_exsum(
+        model, data_loader, device
+    )
 
     unique_questions = np.unique(qids)
 
@@ -264,25 +277,27 @@ def evaluate_accuracy(model, data_loader, device):
             ncorrect += 1
 
     acc = ncorrect / float(nqs)
-    print("Accuracy = %f" % acc)
+    print(f"Accuracy = {acc}")
     return acc, scores, vectors
 
 
 # Create the dataset class
 class SEPairwiseDataset(Dataset):
-    def __init__(self, qa_pairs: list):
-        self.tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-cased")
+    def __init__(self, summ_pairs: list):
+        self.tokenizer = DistilBertTokenizer.from_pretrained(
+            "distilbert-base-cased"
+        )
         # BertTokenizer.from_pretrained('bert-base-cased')
-        self.qa_pairs = qa_pairs
+        self.summ_pairs = summ_pairs
         self.max_len = 512
 
     def __len__(self):
-        return len(self.qa_pairs)
+        return len(self.summ_pairs)
 
     def __getitem__(self, i):
         # first item in the pair
         encoding1 = self.tokenizer.encode_plus(
-            self.qa_pairs[i][0],
+            self.summ_pairs[i][0],
             add_special_tokens=True,
             max_length=self.max_len,
             return_token_type_ids=False,
@@ -292,7 +307,7 @@ class SEPairwiseDataset(Dataset):
         )
         # second item in the pair
         encoding2 = self.tokenizer.encode_plus(
-            self.qa_pairs[i][1],
+            self.summ_pairs[i][1],
             add_special_tokens=True,
             max_length=self.max_len,
             return_token_type_ids=False,
@@ -302,8 +317,8 @@ class SEPairwiseDataset(Dataset):
         )
 
         return {
-            "text1": self.qa_pairs[i][0],
-            "text2": self.qa_pairs[i][1],
+            "text1": self.summ_pairs[i][0],
+            "text2": self.summ_pairs[i][1],
             "input_ids1": encoding1["input_ids"].flatten(),
             "input_ids2": encoding2["input_ids"].flatten(),
             "attention_mask1": encoding1["attention_mask"].flatten(),
@@ -314,7 +329,9 @@ class SEPairwiseDataset(Dataset):
 
 class SESingleDataset(Dataset):
     def __init__(self, qas: list, qids: list, aids: list, goldids: dict):
-        self.tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-cased")
+        self.tokenizer = DistilBertTokenizer.from_pretrained(
+            "distilbert-base-cased"
+        )
         # BertTokenizer.from_pretrained('bert-base-cased')
         self.qas = qas
         self.qids = qids
@@ -361,37 +378,37 @@ def construct_pairwise_dataset(dataframe, n_neg_samples=10):
     # Sample a number of negative (non-matching) qs and as from the answers
     # listed for each question in traindata
 
-    qa_pairs = []
+    summ_pairs = []
 
     for idx, qid in enumerate(dataframe.index):
         # Reconstruct the text sequences for the training questions
-        tokids = questions.loc[qid].values[0].split(" ")
-        toks = vocab[np.array(tokids).astype(int)]
-        question = " ".join(toks)
+        token_ids = questions.loc[qid].values[0].split(" ")
+        tokens = vocab[np.array(token_ids).astype(int)]
+        question = " ".join(tokens)
 
         # Reconstruct the text sequences for the true answers
-        gold_ans_id = dataframe.loc[qid]["goldid"]
+        gold_summ_id = dataframe.loc[qid]["goldid"]
 
         # some of the lines seem to have two gold ids. Just use the first.
-        gold_ans_ids = gold_ans_id.split(" ")
-        gold_ans_id = gold_ans_ids[0]
+        gold_summ_ids = gold_summ_id.split(" ")
+        gold_summ_id = gold_summ_ids[0]
 
-        tokids = answers.loc[gold_ans_id].values[0].split(" ")
-        toks = vocab[np.array(tokids).astype(int)]
-        gold_ans = " ".join(toks)
+        token_ids = answers.loc[gold_summ_id].values[0].split(" ")
+        tokens = vocab[np.array(token_ids).astype(int)]
+        gold_summ = " ".join(tokens)
 
         # Join the sequences. Insert '[SEP]' between the two sequences
-        qa_gold = question + " [SEP] " + gold_ans
+        qa_gold = question + " [SEP] " + gold_summ
 
         # Reconstruct the text sequences for random wrong answers
-        wrong_ans_ids = dataframe.loc[qid]["ansids"]
-        wrong_ans_ids = wrong_ans_ids.split(" ")
-        if len(wrong_ans_ids) < n_neg_samples + 1:
+        wrong_summ_ids = dataframe.loc[qid]["ansids"]
+        wrong_summ_ids = wrong_summ_ids.split(" ")
+        if len(wrong_summ_ids) < n_neg_samples + 1:
             continue
 
         if n_neg_samples == 0:
             # use all the wrong answers (exclude the gold one that is mixed in)
-            n_wrongs = len(wrong_ans_ids) - 1
+            n_wrongs = len(wrong_summ_ids) - 1
             widx = 0
         else:
             # use a specified sample size
@@ -401,30 +418,34 @@ def construct_pairwise_dataset(dataframe, n_neg_samples=10):
         while len(qa_wrongs) < n_wrongs:
             if n_neg_samples == 0:
                 # choose the next wrong answer, skip over the gold answer.
-                wrong_ans_id = wrong_ans_ids[widx]
+                wrong_summ_id = wrong_summ_ids[widx]
                 widx += 1
-                if wrong_ans_id == gold_ans_id:
-                    wrong_ans_id = wrong_ans_ids[widx]
+                if wrong_summ_id == gold_summ_id:
+                    wrong_summ_id = wrong_summ_ids[widx]
                     widx += 1
             else:
                 # choose a new negative sample
-                wrong_ans_id = gold_ans_id
-                while wrong_ans_id == gold_ans_id:
-                    wrong_ans_id = wrong_ans_ids[np.random.randint(len(wrong_ans_ids))]
+                wrong_summ_id = gold_summ_id
+                while wrong_summ_id == gold_summ_id:
+                    wrong_summ_id = wrong_summ_ids[
+                        np.random.randint(len(wrong_summ_ids))
+                    ]
 
-            tokids = answers.loc[wrong_ans_id].values[0].split(" ")
-            toks = vocab[np.array(tokids).astype(int)]
-            wrong_ans = " ".join(toks)
+            token_ids = answers.loc[wrong_summ_id].values[0].split(" ")
+            tokens = vocab[np.array(token_ids).astype(int)]
+            wrong_summ = " ".join(tokens)
 
-            qa_wrong = question + " [SEP] " + wrong_ans
+            qa_wrong = question + " [SEP] " + wrong_summ
             qa_wrongs.append(qa_wrong)
-            qa_pairs.append((qa_gold, qa_wrong))
+            summ_pairs.append((qa_gold, qa_wrong))
 
-    data_loader = DataLoader(SEPairwiseDataset(qa_pairs), batch_size=16, num_workers=8)
+    data_loader = DataLoader(
+        SEPairwiseDataset(summ_pairs), batch_size=16, num_workers=8
+    )
 
     data = next(iter(data_loader))
 
-    return qa_pairs, data_loader, data
+    return summ_pairs, data_loader, data
 
 
 def construct_single_item_dataset(dataframe):
@@ -471,9 +492,9 @@ def construct_single_item_dataset(dataframe):
         for ans_idx, ans_id in enumerate(ans_ids):
             tokids = answers.loc[ans_id].values[0].split(" ")
             toks = vocab[np.array(tokids).astype(int)]
-            wrong_ans = " ".join(toks)
+            wrong_summ = " ".join(toks)
 
-            qa_wrong = question + " [SEP] " + wrong_ans
+            qa_wrong = question + " [SEP] " + wrong_summ
             qas.append(qa_wrong)
             qids.append(qid)
             aids.append(ans_id)
@@ -506,10 +527,10 @@ if __name__ == "__main__":
     # Our chosen topics
     topic = sys.argv[1]  # ['apple', 'cooking', 'travel']
 
-    print("Loading the training data for %s" % topic)
+    print(f"Loading the training data for {topic}")
 
     # Data directory:
-    datadir = "./data/cqa_data/%s.stackexchange.com" % topic
+    datadir = f"./data/cqa_data/{topic}.stackexchange.com"
 
     # answers.tsv: each row corresponds to an answer; first column is answer
     # ID; rows contain the space-separated IDs of the tokens in the answers.
@@ -569,16 +590,16 @@ if __name__ == "__main__":
         if q0_length > 512:
             noverlength += 1
 
-    print("QuestionAnswer max length: %i" % qmax)
-    print("Number over length = %i" % noverlength)
-    print("number of qas = %i" % len(tr_qa_pairs))
+    print(f"QuestionAnswer max length: {qmax}")
+    print(f"Number over length = {noverlength}")
+    print(f"number of qas = {len(tr_qa_pairs)}")
 
     # Train the model ---------------------------------------------------------
-    bertcqa_model, device = train_bertcqa(
+    bertcqa_model, device = train_bert_exsum(
         tr_data_loader,
         3,
         42,
-        os.path.join(outputdir, "model_params_%s" % topic),
+        os.path.join(outputdir, f"model_params_{topic}"),
         reload_model=True,
     )
 
@@ -639,31 +660,33 @@ if __name__ == "__main__":
     ) = construct_single_item_dataset(testdata)
 
     print("Evaluating on test set:")
-    _, te_scores, te_vectors = evaluate_accuracy(bertcqa_model, te_data_loader, device)
+    _, te_scores, te_vectors = evaluate_accuracy(
+        bertcqa_model, te_data_loader, device
+    )
 
     # Output predictions in the right format for the GPPL experiments ---------
     # Save predictions for the test data
-    fname_text = os.path.join(outputdir, "%s_text.tsv" % topic)
-    fname_numerical = os.path.join(outputdir, "%s_num.tsv" % topic)
+    fname_text = os.path.join(outputdir, f"{topic}_text.tsv")
+    fname_numerical = os.path.join(outputdir, f"{topic}_num.tsv")
 
     # The text data and other info goes here:
     text_df = pd.DataFrame(columns=["qid", "answer", "isgold"])
     # Store the prediction and embedding vectors here:
     numerical_data = np.empty((len(te_qids), 1 + bertcqa_model.embedding_size))
 
-    for i, qid in enumerate(te_qids):
-        if np.mod(i, 100) == 0:
-            print("Outputting qa pair %i / %i" % (i, len(te_qids)))
+    for idx, qid in enumerate(te_qids):
+        if np.mod(idx, 100) == 0:
+            print(f"Outputting qa pair {idx} / {len(te_qids)}")
 
         goldid = te_goldids[qid]
 
-        ansid = te_aids[i]
+        ansid = te_aids[idx]
         tokids = answers.loc[ansid].values[0].split(" ")
         toks = vocab[np.array(tokids).astype(int)]
         answer_text = " ".join(toks)
 
-        score = te_scores[i]
-        vector = te_vectors[i]
+        score = te_scores[idx]
+        vector = te_vectors[idx]
 
         isgold = True if goldid == ansid else False
 
@@ -672,8 +695,8 @@ if __name__ == "__main__":
             ignore_index=True,
         )
 
-        numerical_data[i, 0] = score
-        numerical_data[i, 1:] = vector
+        numerical_data[idx, 0] = score
+        numerical_data[idx, 1:] = vector
 
     text_df.to_csv(fname_text, sep="\t")
     pd.DataFrame(numerical_data).to_csv(fname_numerical, sep="\t")

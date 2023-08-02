@@ -416,14 +416,18 @@ def learn_model(
     return learnt_rewards
 
 
-def load_summary_vectors(summaries, dataset, topic, root_dir, docs, feature_type):
+def load_summary_vectors(
+    summaries, dataset, topic, root_dir, docs, feature_type
+):
     summary_vecs_cache_file = (
         root_dir
         + "/data/summary_vectors/%s/summary_vectors_%s_%s.csv"
         % (feature_type, dataset, topic)
     )
 
-    if not os.path.exists(root_dir + "/data/summary_vectors/%s" % feature_type):
+    if not os.path.exists(
+        root_dir + "/data/summary_vectors/%s" % feature_type
+    ):
         os.mkdir(root_dir + "/data/summary_vectors/%s" % feature_type)
     if os.path.exists(summary_vecs_cache_file):
         print("Warning: reloading feature vectors for summaries from cache")
@@ -438,7 +442,9 @@ def load_summary_vectors(summaries, dataset, topic, root_dir, docs, feature_type
 
     elif feature_type == "supert":
         vec = SupertVectoriser(docs)
-        summary_vectors, _ = vec.getSummaryVectors(summaries, use_coverage_feats=True)
+        summary_vectors, _ = vec.getSummaryVectors(
+            summaries, use_coverage_feats=True
+        )
         np.savetxt(summary_vecs_cache_file, summary_vectors)
         print("Cached summary vectors to %s" % summary_vecs_cache_file)
 
@@ -466,7 +472,8 @@ def save_result_dic(
 
     with open(
         output_path
-        + "/metrics_%s_%s_%i.json" % (querier_type, learner_type_str, n_inter_rounds),
+        + "/metrics_%s_%s_%i.json"
+        % (querier_type, learner_type_str, n_inter_rounds),
         "w",
     ) as fh:
         json.dump(all_result_dic, fh)
@@ -487,8 +494,12 @@ def save_selected_results(
         selected_means[this_method_idx, m] = np.mean(all_result_dic[metric])
         selected_vars[this_method_idx, m] = np.var(all_result_dic[metric])
 
-        selected_means_allreps[this_method_idx, m] += selected_means[this_method_idx, m]
-        selected_vars_allreps[this_method_idx, m] += selected_vars[this_method_idx, m]
+        selected_means_allreps[this_method_idx, m] += selected_means[
+            this_method_idx, m
+        ]
+        selected_vars_allreps[this_method_idx, m] += selected_vars[
+            this_method_idx, m
+        ]
 
     df = pd.DataFrame(
         np.concatenate(
@@ -613,7 +624,9 @@ if __name__ == "__main__":
         + f"writing to {root_dir}/{res_dir}/{output_folder_name}"
     )
 
-    max_topics = -1  # set to greater than zero to use a subset of topics for debugging
+    max_topics = (
+        -1
+    )  # set to greater than zero to use a subset of topics for debugging
     folders = []
 
     nqueriers = len(querier_types)
@@ -633,7 +646,9 @@ if __name__ == "__main__":
         selected_means = np.zeros((nqueriers, len(chosen_metrics)))
         selected_vars = np.zeros((nqueriers, len(chosen_metrics)))
 
-        output_path = make_output_dir(root_dir, res_dir, output_folder_name, rep)
+        output_path = make_output_dir(
+            root_dir, res_dir, output_folder_name, rep
+        )
 
         # saves a list of result folders containing repeats from the same run
         folders.append(output_path)
