@@ -1,9 +1,6 @@
-import logging
-
 from summariser.querier.random_querier import RandomQuerier
 import numpy as np
 
-import sys
 from gppl.gp_pref_learning import pref_likelihood
 
 
@@ -59,9 +56,9 @@ class PairUncQuerier(RandomQuerier):
         pair_probs[pair_probs < 1e-8] = 1e-8
         pair_probs[pair_probs > 1 - 1e-8] = 1 - 1e-8
 
-        pairwise_entropy = -pair_probs * np.log(pair_probs) - (1 - pair_probs) * np.log(
+        pairwise_entropy = -pair_probs * np.log(pair_probs) - (
             1 - pair_probs
-        )
+        ) * np.log(1 - pair_probs)
         pairwise_entropy[
             range(pair_probs.shape[0]), range(pair_probs.shape[1])
         ] = -np.inf
@@ -78,7 +75,10 @@ class PairUncQuerier(RandomQuerier):
         return candidate_idxs
 
     def getQuery(self, log):
-        if self.reward_learner.n_labels_seen == 0 and self.random_initial_sample:
+        if (
+            self.reward_learner.n_labels_seen == 0
+            and self.random_initial_sample
+        ):
             return super().getQuery(log)
         elif self.reward_learner.n_labels_seen == 0:
             return self._get_good_and_dissimilar_pair()
@@ -90,7 +90,9 @@ class PairUncQuerier(RandomQuerier):
 
         Cov = self.reward_learner.predictive_cov(candidate_idxs)
 
-        pairwise_entropy = self._compute_pairwise_scores(f[candidate_idxs], Cov)
+        pairwise_entropy = self._compute_pairwise_scores(
+            f[candidate_idxs], Cov
+        )
 
         # Find out which of our candidates have been compared already
         for data_point in log:
@@ -104,7 +106,9 @@ class PairUncQuerier(RandomQuerier):
             pairwise_entropy[dp0, dp1] = -np.inf
             pairwise_entropy[dp1, dp0] = -np.inf
 
-        selected = np.unravel_index(np.argmax(pairwise_entropy), pairwise_entropy.shape)
+        selected = np.unravel_index(
+            np.argmax(pairwise_entropy), pairwise_entropy.shape
+        )
         pe_selected = pairwise_entropy[selected[0], selected[1]]
         selected = (candidate_idxs[selected[0]], candidate_idxs[selected[1]])
 

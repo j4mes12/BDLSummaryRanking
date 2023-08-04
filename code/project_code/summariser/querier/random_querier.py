@@ -27,9 +27,10 @@ class RandomQuerier:
         self.learnt_weight = learnt_weight
         self.learnt_values = [0.0] * len(summary_vectors)
 
-        # use a random sample to initialise the AL process, then apply the AL strategy to subsequent iterations.
-        # This flag only affects the classes that inherit from this class since the random querier always chooses
-        # randomly
+        # use a random sample to initialise the AL process, then apply the AL
+        #  strategy to subsequent iterations.
+        # This flag only affects the classes that inherit from this class
+        #  since the random querier always chooses randomly
         self.random_initial_sample = True
 
     def tune_learner(self):
@@ -46,8 +47,8 @@ class RandomQuerier:
         return False
 
     def _get_good_and_dissimilar_pair(self):
-        # find two distinctive items as an initial sample. To limit complexity, first choose the item with
-        # strongest heuristic:
+        # find two distinctive items as an initial sample. To limit complexity,
+        # first choose the item with strongest heuristic:
         first_item = np.argmax(self.heuristics)
 
         # now compare this item to the others according to the feature vectors:
@@ -59,14 +60,17 @@ class RandomQuerier:
         return first_item, second_item
 
     def getQuery(self, log):
-        if self.reward_learner.n_labels_seen == 0 and not self.random_initial_sample:
+        if (
+            self.reward_learner.n_labels_seen == 0
+            and not self.random_initial_sample
+        ):
             return self._get_good_and_dissimilar_pair()
 
         summary_num = len(self.summary_vectors)
         rand1 = random.randint(0, summary_num - 1)
         rand2 = random.randint(0, summary_num - 1)
 
-        ### ensure the sampled pair has not been queried before
+        # Ensure the sampled pair has not been queried before
         while rand2 == rand1 or self.inLog(rand1, rand2, log):
             rand1 = random.randint(0, summary_num - 1)
             rand2 = random.randint(0, summary_num - 1)
