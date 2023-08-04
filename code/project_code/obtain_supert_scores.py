@@ -32,7 +32,9 @@ class SupertVectoriser(Vectoriser):
             if use_coverage_feats:
                 # Get the original heuristic feature vectors containing the
                 # coverage/redundancy features
-                vector = state.getSelfVector(self.top_ngrams_list, self.sentences)
+                vector = state.getSelfVector(
+                    self.top_ngrams_list, self.sentences
+                )
 
                 # Get the relevant features
                 vector = vector[-5:]
@@ -49,11 +51,13 @@ class SupertVectoriser(Vectoriser):
         # Obtain the SUPERT scores for the summaries from their embedding
         # vectors
         supert_scores, supert_vectors = get_sbert_score_metrics(
-            docs, summ_list, "top15", return_summary_vectors=True
+            self.docs, summ_list, "top15", return_summary_vectors=True
         )
 
         for i, supert_vector in enumerate(supert_vectors):
-            vector_list[i] = np.append(np.mean(supert_vector, axis=0), vector_list[i])
+            vector_list[i] = np.append(
+                np.mean(supert_vector, axis=0), vector_list[i]
+            )
 
         return vector_list, supert_scores
 
@@ -72,18 +76,23 @@ if __name__ == "__main__":
 
             # Use the vectoriser to obtain summary embedding vectors
             vec = SupertVectoriser(docs)
-            summary_vectors, scores = vec.getSummaryVectors(summaries_acts_list)
+            summary_vectors, scores = vec.getSummaryVectors(
+                summaries_acts_list
+            )
 
             # Save the vectors to the cache file
-            if not os.path.exists("./data/supert"):
-                os.mkdir("./data/supert")
+            if not os.path.exists(summary_vecs_cache_dir):
+                os.mkdir(summary_vecs_cache_dir)
             summary_vecs_cache_file = (
-                summary_vecs_cache_dir + f"summary_vectors_{dataset}_{topic}.csv"
+                summary_vecs_cache_dir
+                + f"summary_vectors_{dataset}_{topic}.csv"
             )
             np.savetxt(summary_vecs_cache_file, summary_vectors)
 
             # Write to the output file
-            output_file = os.path.join(res.SUMMARY_DB_DIR, dataset, topic, "supert")
+            output_file = os.path.join(
+                res.SUMMARY_DB_DIR, dataset, topic, "supert"
+            )
             with open(output_file, "w") as ofh:
                 for i, summ in enumerate(summaries_acts_list):
                     act_str = np.array(summ).astype(str)

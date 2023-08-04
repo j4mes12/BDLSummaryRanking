@@ -31,20 +31,22 @@ import numpy as np
 import logging
 from random import seed
 from summariser.querier.logistic_reward_learner import LogisticRewardLearner
-from summariser.querier.GPPL_reward_learner import (
+from summariser.querier.reward_learner import (
     GPPLRewardLearner,
     GPPLHRewardLearner,
     GPPLHsRewardLearner,
+    BERTRewardLearner,
 )
 
 logging.basicConfig(level=logging.DEBUG)
 
 
 def process_cmd_line_args(args):
+    # Set arg defualts
     if len(args) > 1:
         learner_type_str = args[1]
     else:
-        learner_type_str = "LR"
+        learner_type_str = "BDL"
 
     if len(args) > 2:
         n_debug = int(args[2])
@@ -111,6 +113,8 @@ def process_cmd_line_args(args):
     else:
         temp = 2.5
 
+    # Deal with arg inputs
+
     if learner_type_str == "LR":
         if querier_types is None:
             querier_types = ["random", "unc"]
@@ -154,7 +158,6 @@ def process_cmd_line_args(args):
                 # 'eig', # this should be very similar to pari_unc_SO
                 # so I think it's redundant
                 "imp",
-                # 'ttt', # this didn't work
                 "tp",
             ]
         post_weight = 1
@@ -173,6 +176,12 @@ def process_cmd_line_args(args):
     elif learner_type_str == "H":
         post_weight = 0
         querier_types = ["random"]
+        n_reps = 1
+
+    elif learner_type_str == "BDL":
+        if querier_types is None:
+            querier_types = ["imp"]
+        post_weight = 1
         n_reps = 1
 
     first_rep = 0
@@ -197,6 +206,8 @@ def process_cmd_line_args(args):
         learner_type = GPPLHRewardLearner
     elif learner_type_str == "GPPLHHs":
         learner_type = GPPLHsRewardLearner
+    elif learner_type_str == "BDL":
+        learner_type = BERTRewardLearner
     else:
         learner_type = None
 
@@ -239,7 +250,7 @@ def learn_model(
     temp=2.5,
 ):
     model_name = model[0].split("/")[-1].strip()
-    print("\n---ref. summary {}---".format(model_name))
+    print(f"\n---ref. summary {model_name}---")
 
     rouge_values = ref_values_dic[model_name]
     if n_debug:
@@ -388,14 +399,6 @@ def learn_model(
     print("Computing metrics...")
     metrics_dic = evaluateReward(learnt_rewards, rouge_values)
 
-    # learnt_reward = querier.getMixReward()
-    # rmse, temp, cee = plotAgreement(
-    #     np.array(rouge_values), np.array(learnt_reward), plot=False
-    # )
-    # metrics_dic["lno-rmse"] = rmse
-    # metrics_dic["lno-temperature"] = temp
-    # metrics_dic["lno-cee"] = cee
-
     for metric in metrics_dic:
         print("metric {} : {}".format(metric, metrics_dic[metric]))
         if metric in all_result_dic:
@@ -419,16 +422,15 @@ def learn_model(
 def load_summary_vectors(
     summaries, dataset, topic, root_dir, docs, feature_type
 ):
+    feature_type_dir = (
+        f"/code/project_code/data/summary_vectors/{feature_type}/"
+    )
     summary_vecs_cache_file = (
-        root_dir
-        + "/data/summary_vectors/%s/summary_vectors_%s_%s.csv"
-        % (feature_type, dataset, topic)
+        root_dir + feature_type_dir + f"summary_vectors_{dataset}_{topic}.csv"
     )
 
-    if not os.path.exists(
-        root_dir + "/data/summary_vectors/%s" % feature_type
-    ):
-        os.mkdir(root_dir + "/data/summary_vectors/%s" % feature_type)
+    if not os.path.exists(root_dir + feature_type_dir):
+        os.mkdir(root_dir + feature_type_dir)
     if os.path.exists(summary_vecs_cache_file):
         print("Warning: reloading feature vectors for summaries from cache")
         # This should be fine, but if there is an error, we may need to check
@@ -446,9 +448,13 @@ def load_summary_vectors(
             summaries, use_coverage_feats=True
         )
         np.savetxt(summary_vecs_cache_file, summary_vectors)
-        print("Cached summary vectors to %s" % summary_vecs_cache_file)
+        print("Cached summary vectors to", summary_vecs_cache_file)
 
     return summary_vectors
+
+
+def load_summry_texts():
+    pass
 
 
 def save_result_dic(
@@ -468,7 +474,7 @@ def save_result_dic(
         + f"INTER ROUND {n_inter_rounds} ===\n"
     )
     for metric in all_result_dic:
-        print("{} : {}".format(metric, np.mean(all_result_dic[metric])))
+        print(f"{metric} : {np.mean(all_result_dic[metric])}")
 
     with open(
         output_path
@@ -510,7 +516,7 @@ def save_selected_results(
             (
                 ["Method"],
                 chosen_metrics,
-                ["%s var" % metric for metric in chosen_metrics],
+                [f"{metric} var" for metric in chosen_metrics],
             )
         ),
     ).set_index("Method")
@@ -542,25 +548,25 @@ def save_selected_results_allreps(
             (
                 ["Query_type"],
                 chosen_metrics,
-                ["%s var" % metric for metric in chosen_metrics],
+                [f"{metric} var" for metric in chosen_metrics],
             )
         ),
     ).set_index("Query_type")
 
     filename = output_path + "/table_all_reps.csv"
-    print("Saving summary of all results to %s" % filename)
+    print(f"Saving summary of all results to {filename}")
     df.to_csv(filename)
 
 
 def make_output_dir(root_dir, res_dir, output_folder_name, rep):
     if output_folder_name == -1:
-        output_folder_name = datetime.datetime.now().strftime(
+        output_folder_name = datetime.now().strftime(
             "started-%Y-%m-%d-%H-%M-%S"
         )
     else:
-        output_folder_name = output_folder_name + "_rep%i" % rep
+        output_folder_name = output_folder_name + f"_rep{rep}"
 
-    output_path = root_dir + "/" + res_dir + "/%s" % output_folder_name
+    output_path = root_dir + "/" + res_dir + f"/{output_folder_name}"
     if not os.path.exists(output_path):
         os.mkdir(output_path)
 
@@ -624,9 +630,8 @@ if __name__ == "__main__":
         + f"writing to {root_dir}/{res_dir}/{output_folder_name}"
     )
 
-    max_topics = (
-        -1
-    )  # set to greater than zero to use a subset of topics for debugging
+    # set to greater than zero to use a subset of topics for debugging
+    max_topics = -1
     folders = []
 
     nqueriers = len(querier_types)
