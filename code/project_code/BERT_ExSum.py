@@ -112,6 +112,67 @@ class BertRanker(nn.Module):
         return scores, torch.squeeze(pooled_output).detach()
 
 
+class MCDBertRanker(BertRanker):
+    def __init__(self, dropout_prob=0.5):
+        super(MCDBertRanker, self).__init__()
+        self.dropout_w1 = nn.Dropout(dropout_prob)
+        self.dropout_w2 = nn.Dropout(dropout_prob)
+
+    def forward(
+        self, input_ids1, attention_mask1, input_ids2, attention_mask2
+    ):
+        sequence_emb = self.bert(
+            input_ids=input_ids1, attention_mask=attention_mask1
+        )[0]
+        sequence_emb = sequence_emb.transpose(1, 2)
+        pooled_output_1 = self.pooling(sequence_emb)
+        pooled_output_1 = pooled_output_1.transpose(2, 1)
+
+        h1_1 = self.relu(self.W1(pooled_output_1))
+        h1_1 = self.dropout_w1(h1_1)
+        h2_1 = self.relu(self.W2(h1_1))
+        h2_1 = self.dropout_w2(h2_1)
+        scores_1 = self.out(h2_1)
+
+        sequence_emb = self.bert(
+            input_ids=input_ids2, attention_mask=attention_mask2
+        )[0]
+        sequence_emb = sequence_emb.transpose(1, 2)
+        pooled_output_2 = self.pooling(sequence_emb)
+        pooled_output_2 = pooled_output_2.transpose(2, 1)
+
+        h1_2 = self.relu(self.W1(pooled_output_2))
+        h1_2 = self.dropout_w1(h1_2)
+        h2_2 = self.relu(self.W2(h1_2))
+        h2_2 = self.dropout_w2(h2_2)
+        scores_2 = self.out(h2_2)
+
+        return scores_1, scores_2
+
+    def forward_single_item(self, input_ids, attention_mask):
+        sequence_emb = self.bert(
+            input_ids=input_ids, attention_mask=attention_mask
+        )[0]
+        sequence_emb = sequence_emb.transpose(1, 2)
+        pooled_output = self.pooling(sequence_emb)
+        pooled_output = pooled_output.transpose(2, 1)
+
+        h1 = self.relu(self.W1(pooled_output))
+        h1 = self.dropout_w1(h1)
+        h2 = self.relu(self.W2(h1))
+        h2 = self.dropout_w2(h2)
+        scores = self.out(h2)
+
+        return scores, torch.squeeze(pooled_output).detach()
+
+    def predict(self, input_ids, attention_mask, num_samples=100):
+        predictions = [
+            self.forward_single_item(input_ids, attention_mask)[0]
+            for _ in range(num_samples)
+        ]
+        return torch.stack(predictions)  # .mean(dim=0)
+
+
 def train_epoch(model, data_loader, loss_fn, optimizer, device, scheduler):
     model = model.train()
 
@@ -159,6 +220,40 @@ def train_bert_exsum(
     save_path="saved_bertcqa_params",
     reload_model=False,
 ):
+    """
+    Function to train the BertRanker model for a specified number of epochs.
+
+    Parameters:
+    data_loader (DataLoader): The DataLoader object that provides the training
+     data.
+    nepochs (int): The number of epochs to train the model for.
+    random_seed (int): The seed for the random number generator.
+    save_path (str): The path where the trained model parameters should be
+     saved.
+    reload_model (bool): A flag that indicates whether a previously trained
+     model should be loaded from the save_path.
+
+    Returns:
+    model (BertRanker): The trained BertRanker model.
+    device (torch.device): The device (CPU or GPU) where the model was trained
+
+    The function trains a BertRanker model for nepochs. The training can be
+     done from scratch, or it can continue from a previously saved model.
+    The function uses AdamW for optimization, and a margin ranking loss
+     function for training.
+    It also employs a linear scheduler with warmup for learning rate decay.
+    Model weights are saved periodically to the path specified in save_path.
+
+    Stochastic Weight Averaging (SWA) is used during training to improve the
+     generalisation performance of the model.
+    The SWA model is updated after a certain number of epochs (defined by
+     swa_start) and is then used for inference.
+
+    Note: For reproducibility, the function allows setting a random seed.
+     However, results may still differ due to factors such as GPU model and
+     CUDA version.
+    """
+
     # For reproducibility while debugging.
     # TODO: vary this during real experiments.
     np.random.seed(random_seed)
@@ -190,6 +285,7 @@ def train_bert_exsum(
         epochs_completed = 0
 
     optimizer = AdamW(model.parameters(), lr=5e-5, correct_bias=False)
+
     optimizer.zero_grad()
     scheduler = get_linear_schedule_with_warmup(
         optimizer,
@@ -578,12 +674,12 @@ if __name__ == "__main__":
         names=["goldid", "ansids"],
         index_col=0,
     )
+
     tr_qa_pairs, tr_data_loader, tr_data = construct_pairwise_dataset(
         traindata, n_neg_samples=20
     )
 
-    qmax = 0
-    noverlength = 0
+    qmax = noverlength = 0
     for q in tr_qa_pairs:
         q0_length = len(q[0].split(" "))
         qmax = q0_length if q0_length > qmax else qmax
@@ -597,9 +693,9 @@ if __name__ == "__main__":
     # Train the model ---------------------------------------------------------
     bertcqa_model, device = train_bert_exsum(
         tr_data_loader,
-        3,
-        42,
-        os.path.join(outputdir, f"model_params_{topic}"),
+        nepochs=3,
+        random_seed=42,
+        save_path=os.path.join(outputdir, f"model_params_{topic}"),
         reload_model=True,
     )
 
