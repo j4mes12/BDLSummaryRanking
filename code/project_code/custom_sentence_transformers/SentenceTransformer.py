@@ -11,7 +11,7 @@ import numpy as np
 import transformers as pytorch_transformers
 import torch
 from numpy import ndarray
-from torch import nn, Tensor
+from torch import nn  # , Tensor
 from torch.optim import Optimizer
 from torch.utils.data import DataLoader
 from tqdm import tqdm, trange
@@ -247,7 +247,8 @@ class SentenceTransformer(nn.Sequential):
 
     def save(self, path):
         """
-        Saves all elements for this seq. sentence embedder into different sub-folders
+        Saves all elements for this seq. sentence embedder into
+         different sub-folders
         """
         logging.info("Save model to {}".format(path))
         contained_modules = []
@@ -276,7 +277,8 @@ class SentenceTransformer(nn.Sequential):
 
     def smart_batching_collate(self, batch):
         """
-        Transforms a batch from a SmartBatchingDataset to a batch of tensors for the model
+        Transforms a batch from a SmartBatchingDataset to a batch of tensors
+        for the model
 
         :param batch:
             a batch from a SmartBatchingDataset
@@ -343,8 +345,8 @@ class SentenceTransformer(nn.Sequential):
         Train the model with the given training objective
 
         Each training objective is sampled in turn for one batch.
-        We sample only as many batches from each objective as there are in the smallest one
-        to make sure of equal training with each dataset.
+        We sample only as many batches from each objective as there are in the
+        smallest one to make sure of equal training with each dataset.
 
         :param weight_decay:
         :param scheduler:
@@ -366,9 +368,7 @@ class SentenceTransformer(nn.Sequential):
             os.makedirs(output_path, exist_ok=True)
             if os.listdir(output_path):
                 raise ValueError(
-                    "Output directory ({}) already exists and is not empty.".format(
-                        output_path
-                    )
+                    f"{output_path} already exists and is not empty."
                 )
 
         dataloaders = [dataloader for dataloader, _ in train_objectives]
@@ -433,7 +433,8 @@ class SentenceTransformer(nn.Sequential):
                 from apex import amp
             except ImportError:
                 raise ImportError(
-                    "Please install apex from https://www.github.com/nvidia/apex to use fp16 training."
+                    "Please install apex from "
+                    + "https://www.github.com/nvidia/apex to use fp16 training"
                 )
 
             for idx in range(len(loss_models)):
