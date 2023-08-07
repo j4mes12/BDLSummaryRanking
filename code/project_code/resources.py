@@ -1,6 +1,6 @@
 import os
 
-BASE_DIR = os.path.abspath("./code/project_code")
+BASE_DIR = os.path.abspath("./project_code")
 # BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # os.path.abspath('.')
 ROUGE_DIR = os.path.join(
     BASE_DIR, "summariser", "rouge", "ROUGE-RELEASE-1.5.5/"
