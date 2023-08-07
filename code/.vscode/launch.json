@@ -1,0 +1,44 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "--learner_type_str",
+                "BDLH",
+                "--n_debug",
+                "1",
+                "--output_folder_name_in",
+                "duc01_supert_imp_bdlh",
+                "--querier_types",
+                "[imp]",
+                "--res_dir",
+                "results_1",
+                "--root_dir",
+                "./project_code",
+                "--nthreads",
+                "12",
+                "--dataset",
+                "DUC2001",
+                "--n_inter_rounds",
+                "100",
+                "--feature_type",
+                "supert",
+                "--rate",
+                "200",
+                "--lspower",
+                "1",
+                "--temp",
+                "1"
+            ]
+        }
+    ]
+}
