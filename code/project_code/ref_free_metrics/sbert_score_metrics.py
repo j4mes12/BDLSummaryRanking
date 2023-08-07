@@ -1,4 +1,6 @@
 import numpy as np
+
+# Custom version of package
 from custom_sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 from nltk.corpus import stopwords

@@ -79,7 +79,7 @@ class SentenceTransformer(nn.Sequential):
                         )
                     )
                 default_cache_path = os.path.join(
-                    torch_cache_home, "sentence_transformers"
+                    torch_cache_home, "custom_sentence_transformers"
                 )
                 model_path = os.path.join(default_cache_path, folder_name)
                 os.makedirs(model_path, exist_ok=True)
