@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 import pandas as pd
 from obtain_supert_scores import SupertVectoriser
+from obtain_summary_text import SummaryTextGenerator
 from summariser.oracle.lno_ref_values import SimulatedUser
 from summariser.utils.corpus_reader import CorpusReader
 from resources import PROCESSED_PATH
@@ -177,6 +178,8 @@ def learn_model(
         save_json(reward_file, learnt_rewards)
 
     print("Computing metrics...")
+    if n_debug:
+        learnt_rewards = learnt_rewards[:n_debug]
     compute_and_store_metrics(learnt_rewards, rouge_values, all_result_dic)
 
     return learnt_rewards
@@ -223,6 +226,33 @@ def compute_and_store_metrics(learnt_rewards, rouge_values, all_result_dic):
             all_result_dic[metric_name].append(metric_value)
         else:
             all_result_dic[metric_name] = [metric_value]
+
+
+def load_candidate_summaries(summaries, dataset, topic, root_dir, docs):
+    feature_type_dir = "./data/summary_candidates/"
+    summary_text_cache_file = os.path.join(
+        root_dir,
+        feature_type_dir,
+        f"summary_texts_{dataset}_{topic}.csv",
+    )
+
+    if os.path.exists(summary_text_cache_file):
+        print("Warning: reloading text for summaries from cache")
+        summary_text = np.genfromtxt(
+            summary_text_cache_file, delimiter="#####", dtype=str
+        )
+        return summary_text
+
+    text_generator = SummaryTextGenerator(docs)
+
+    summary_text = text_generator.getSummaryText(summaries)
+
+    np.savetxt(
+        summary_text_cache_file, summary_text, fmt="%s", delimiter="#####"
+    )
+    print(f"Cached summary vectors to {summary_text_cache_file}")
+
+    return summary_text
 
 
 def load_summary_vectors(
@@ -572,6 +602,9 @@ if __name__ == "__main__":
 
                 summary_vectors = load_summary_vectors(
                     summaries, dataset, topic, root_dir, docs, feature_type
+                )
+                summary_text = load_candidate_summaries(
+                    summaries, dataset, topic, root_dir, docs
                 )
 
                 if n_debug:

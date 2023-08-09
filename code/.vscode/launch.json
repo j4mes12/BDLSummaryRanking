@@ -15,7 +15,7 @@
                 "--learner_type_str",
                 "BDLH",
                 "--n_debug",
-                "1",
+                "0",
                 "--output_folder_name_in",
                 "duc01_supert_imp_bdlh",
                 "--querier_types",

@@ -9,19 +9,22 @@ import numpy as np
 
 class SummaryTextGenerator(Vectoriser):
     def getSummaryText(self, summary_actions_list, stemmed=True):
-        summary_text = [
-            [
-                (
-                    self.stemmed_sentences_list[act]
-                    if stemmed
-                    else self.sentences.untokenized_form
-                )
-                for act in actions
-            ]
-            for actions in summary_actions_list
-        ]
+        summary_texts = []
 
-        return summary_text
+        for actions in summary_actions_list:
+            summary = ". ".join(
+                [
+                    (
+                        self.stemmed_sentences_list[act]
+                        if stemmed
+                        else self.sentences.untokenized_form
+                    )
+                    for act in actions
+                ]
+            )
+
+            summary_texts.append(summary)
+        return np.array(summary_texts)
 
 
 if __name__ == "__main__":
@@ -33,7 +36,9 @@ if __name__ == "__main__":
         data = reader.get_data(dataset)
 
         for topic, docs, models in data:
-            summaries_actions_list, _ = readSummaries(dataset, topic, "heuristic")
+            summaries_actions_list, _ = readSummaries(
+                dataset, topic, "heuristic"
+            )
             print(f"num of summaries read: {len(summaries_actions_list)}")
 
             # Use the vectoriser to obtain summary embedding vectors
@@ -43,7 +48,9 @@ if __name__ == "__main__":
             )
 
             # Write to the output file
-            output_file = os.path.join(res.SUMMARY_DB_DIR, dataset, topic, "text")
+            output_file = os.path.join(
+                res.SUMMARY_DB_DIR, dataset, topic, "text"
+            )
             with open(output_file, "w") as ofh:
                 for actions_list, sum_text in zip(
                     summaries_actions_list, summaries_action_text
