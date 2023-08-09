@@ -5,7 +5,7 @@ from summariser.querier.pairwise_uncertainty_querier import PairUncQuerier
 
 
 class ThompsonTopTwoQuerier(PairUncQuerier):
-    '''
+    """
     Uses Thompson sampling to sample the scores for the summaries, then selects the two summaries with highest total
     score. Pairs that were already compared are ignored.
 
@@ -15,15 +15,16 @@ class ThompsonTopTwoQuerier(PairUncQuerier):
     Downside: it doesn't check whether the selected pair is actually informative. Scenarios with lots of very similar,
     very good items may over-exploit.
 
-    '''
+    """
 
     def _get_candidates(self):
-
         f = self.reward_learner.get_rewards()
         var = self.reward_learner.predictive_var()
 
         # sample the scores from the distributions
-        self.f_sample = norm.rvs(f, np.sqrt(var))  #mvn.rvs(f, Cov) --> not necessary to consider covariance here
+        self.f_sample = norm.rvs(
+            f, np.sqrt(var)
+        )  # mvn.rvs(f, Cov) --> not necessary to consider covariance here
 
         # consider only the top most uncertain items
         num = 20
@@ -34,7 +35,6 @@ class ThompsonTopTwoQuerier(PairUncQuerier):
         return candidate_idxs
 
     def _compute_pairwise_scores(self, f, Cov):
-
         # find the total scores for the pairs, excluding any pairs in the logs
         f_total = self.f_sample[:, None] + self.f_sample[None, :]
 
@@ -42,7 +42,7 @@ class ThompsonTopTwoQuerier(PairUncQuerier):
 
 
 class ThompsonInformationGainQuerier(ThompsonTopTwoQuerier):
-    '''
+    """
     Selects (1) the best item, x_1, using thompson sampling,
     then (2) selects the best pair to learn about this item using information gain over f(x_1).
 
@@ -81,15 +81,16 @@ class ThompsonInformationGainQuerier(ThompsonTopTwoQuerier):
     be used. However, IG is easier to compute.
 
 
-    '''
+    """
 
     def _get_candidates(self):
-
         f = self.reward_learner.get_rewards()
         var = self.reward_learner.predictive_var()
 
         # sample the scores from the distributions
-        self.f_sample = norm.rvs(f, np.sqrt(var))  #mvn.rvs(f, Cov) --> not necessary to consider covariance here
+        self.f_sample = norm.rvs(
+            f, np.sqrt(var)
+        )  # mvn.rvs(f, Cov) --> not necessary to consider covariance here
 
         # consider only the top most uncertain items
         num = 20**2
@@ -115,12 +116,17 @@ class ThompsonInformationGainQuerier(ThompsonTopTwoQuerier):
         pair_probs[pair_probs < 1e-8] = 1e-8
         neg_probs[neg_probs < 1e-8] = 1e-8
 
-        H_current = - pair_probs * np.log(pair_probs) - (neg_probs) * np.log(neg_probs)
+        H_current = -pair_probs * np.log(pair_probs) - (neg_probs) * np.log(neg_probs)
 
         # now approximate the future entropy -- if there were no uncertainty in f -- a la Houlsby 2011 BALD method.
         C = np.sqrt(2 * np.pi * np.log(2) / 2.0)
-        z_mean = f-f[best_idx]
-        H_updated = (-np.log(0.5)) * C / np.sqrt(C**2 + var_cands) * np.exp(- z_mean**2 / (2*(C**2 + var_cands)))
+        z_mean = f - f[best_idx]
+        H_updated = (
+            (-np.log(0.5))
+            * C
+            / np.sqrt(C**2 + var_cands)
+            * np.exp(-(z_mean**2) / (2 * (C**2 + var_cands)))
+        )
 
         IG = H_current - H_updated[:, None]
 
@@ -129,6 +135,3 @@ class ThompsonInformationGainQuerier(ThompsonTopTwoQuerier):
         IG_mat[best_idx, :] = IG.flatten()
 
         return IG_mat
-
-
-

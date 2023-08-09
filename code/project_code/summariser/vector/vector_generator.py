@@ -39,9 +39,9 @@ class Vectoriser:
     ):
         heuristic_list = []
         rouge_list = []
-        act_list = []
+        action_list = []
 
-        for ii in range(num):
+        for _ in range(num):
             state = State(
                 self.sum_token_length,
                 self.base_length,
@@ -51,19 +51,15 @@ class Vectoriser:
             )
             while state.available_sents != [0]:
                 new_id = random.choice(state.available_sents)
-                if new_id == 0:
-                    continue
-                if (
+                if (new_id == 0) or (
                     new_id > 0
-                    and len(
-                        self.sentences[new_id - 1].untokenized_form.split(" ")
-                    )
+                    and len(self.sentences[new_id - 1].untokenized_form.split(" "))
                     > self.sum_token_length
                 ):
                     continue
                 state.updateState(new_id - 1, self.sentences)
             actions = state.historical_actions
-            act_list.append(actions)
+            action_list.append(actions)
 
             if heuristic_reward:
                 rew = state.getTerminalReward(
@@ -83,12 +79,12 @@ class Vectoriser:
                     r_dic[model_name] = rew
                 rouge_list.append(r_dic)
 
-        return act_list, heuristic_list, rouge_list
+        return action_list, heuristic_list, rouge_list
 
-    def getSummaryVectors(self, summary_acts_list):
+    def getSummaryVectors(self, summary_actions_list):
         vector_list = []
 
-        for act_list in summary_acts_list:
+        for action_list in summary_actions_list:
             # For each summary, we create a state object
             state = State(
                 self.sum_token_length,
@@ -100,8 +96,8 @@ class Vectoriser:
 
             # Now, we construct the text of the summary from the list of
             # actions, which are IDs of sentences to add.
-            for _, act in enumerate(act_list):
-                state.updateState(act, self.sentences, read=True)
+            for _, action in enumerate(action_list):
+                state.updateState(action, self.sentences, read=True)
 
             # state.getSelfVector will return the vector representation of the
             # summary. This calls self.getStateVector, which we need to
@@ -121,9 +117,7 @@ class Vectoriser:
         elif (not self.without_stopwords) and self.stem:
             return dh.sent2stokens(sent_str, self.stemmer, self.language)
         elif self.without_stopwords and (not self.stem):
-            return dh.sent2tokens_wostop(
-                sent_str, self.stoplist, self.language
-            )
+            return dh.sent2tokens_wostop(sent_str, self.stoplist, self.language)
         else:  # both false
             return dh.sent2tokens(sent_str, self.language)
 
@@ -148,9 +142,7 @@ class Vectoriser:
         self.state_length_computer = StateLengthComputer(
             self.block_num, self.base_length, len(self.sentences)
         )
-        self.top_ngrams_num = self.state_length_computer.getStatesLength(
-            self.block_num
-        )
+        self.top_ngrams_num = self.state_length_computer.getStatesLength(self.block_num)
         self.vec_length = self.state_length_computer.getTotalLength()
 
         sent_list = []

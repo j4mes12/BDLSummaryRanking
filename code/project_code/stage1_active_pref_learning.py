@@ -1,181 +1,53 @@
 import json
+import argparse
 import os
-import sys
 from datetime import datetime
 import pandas as pd
 from obtain_supert_scores import SupertVectoriser
+from obtain_summary_text import SummaryTextGenerator
 from summariser.oracle.lno_ref_values import SimulatedUser
-from summariser.querier.expected_improvement_querier import (
-    ExpectedImprovementQuerier,
-)
-from summariser.querier.expected_information_querier import (
-    InformationGainQuerier,
-)
-from summariser.querier.gibbs_querier import GibbsQuerier
-from summariser.querier.pairwise_uncertainty_querier import PairUncQuerier
-from summariser.querier.pairwise_uncertainty_secondorder_querier import (
-    PairUncSOQuerier,
-)
-from summariser.querier.thompson_querier import (
-    ThompsonTopTwoQuerier,
-    ThompsonInformationGainQuerier,
-)
-from summariser.querier.uncertainty_querier import UncQuerier
 from summariser.utils.corpus_reader import CorpusReader
 from resources import PROCESSED_PATH
 from summariser.utils.reader import readSampleSummaries
 from summariser.vector.vector_generator import Vectoriser
 from summariser.utils.evaluator import evaluateReward
-from summariser.querier.random_querier import RandomQuerier
 import numpy as np
 import logging
 from random import seed
-from summariser.querier.logistic_reward_learner import LogisticRewardLearner
-from summariser.querier.GPPL_reward_learner import (
-    GPPLRewardLearner,
-    GPPLHRewardLearner,
-    GPPLHsRewardLearner,
-)
+from params import QUERIER_TYPE_DICT, LEARNER_TYPE_DICT
 
 logging.basicConfig(level=logging.DEBUG)
 
 
-def process_cmd_line_args(args):
-    if len(args) > 1:
-        learner_type_str = args[1]
-    else:
-        learner_type_str = "LR"
+def process_cmd_line_args():
+    # Initialize parser
+    parser = argparse.ArgumentParser()
 
-    if len(args) > 2:
-        n_debug = int(args[2])
-    else:
-        # to debug with a small subset of data, set this to a num of summaries
-        n_debug = 0
+    # Adding optional arguments with default values
+    parser.add_argument("--learner_type_str", default="BDL")
+    parser.add_argument("--n_debug", type=int, default=0)
+    parser.add_argument("--output_folder_name_in", default=-1)
+    parser.add_argument(
+        "--querier_types",
+        type=lambda s: s.strip("[]").split(",") if s else None,
+        default=["imp"],
+    )
+    parser.add_argument("--res_dir", default="results")
+    parser.add_argument("--root_dir", default=".")
+    parser.add_argument("--nthreads", type=int, default=0)
+    parser.add_argument("--dataset", default=None)
+    parser.add_argument("--n_inter_rounds", type=int, default=None)
+    parser.add_argument("--feature_type", default="april")
+    parser.add_argument("--rate", type=float, default=200)
+    parser.add_argument("--lspower", type=float, default=1)
+    parser.add_argument("--temp", type=float, default=2.5)
 
-    if len(args) > 3:
-        output_folder_name_in = args[3]
-    else:
-        output_folder_name_in = -1
+    # Parse the arguments
+    args = parser.parse_args()
 
-    if len(args) > 4:
-        querier_types = args[4].strip("[]").split(",")
-    else:
-        querier_types = None
-
-    if len(args) > 12:
-        res_dir = args[12]
-    else:
-        res_dir = "results"
-
-    if len(args) > 5 and args[5][0] != "-":
-        root_dir = args[5]
-        if not os.path.exists(os.path.join(root_dir, res_dir)):
-            os.mkdir(os.path.join(root_dir, res_dir))
-        if not os.path.exists(os.path.join(root_dir, "data")):
-            os.mkdir(os.path.join(root_dir, "data"))
-    else:
-        root_dir = "."
-
-    if len(args) > 6:
-        nthreads = int(args[6])
-    else:
-        nthreads = 0
-
-    if len(args) > 7:
-        dataset = args[7]
-    else:
-        dataset = None
-
-    if len(args) > 8:
-        n_inter_rounds = int(args[8])
-    else:
-        n_inter_rounds = n_debug if n_debug else 100
-
-    if len(args) > 9:
-        feature_type = args[9]  # can be april or supert
-    else:
-        feature_type = "april"
-
-    if len(args) > 10:
-        rate = float(args[10])
-    else:
-        rate = 200
-
-    if len(args) > 11:
-        lspower = float(args[11])
-    else:
-        lspower = 1
-
-    if len(args) > 13:
-        temp = float(args[13])
-    else:
-        temp = 2.5
-
-    if learner_type_str == "LR":
-        if querier_types is None:
-            querier_types = ["random", "unc"]
-        post_weight = 0.5  # 0.7 if n_inter_rounds == 100 else 0.3
-        # trade off between the heuristic rewards and the pref-learnt rewards
-        n_reps = 10
-
-    elif learner_type_str == "GPPL":
-        if querier_types is None:
-            querier_types = [
-                "random",
-                "pair_unc",
-                "pair_unc_SO",
-            ]
-        # ['ttt', 'tp', 'imp']
-        # 'ttt' 'random' 'gibbs' 'unc' 'eig' 'tp' 'imp' 'eig'
-
-        post_weight = 0.5  # 0.7 if n_inter_rounds == 100 else 0.3
-        n_reps = 5
-
-    elif learner_type_str == "GPPLH":
-        if querier_types is None:
-            querier_types = [
-                "random",
-                "pair_unc",
-                "pair_unc_SO",
-            ]
-        post_weight = 1
-        n_reps = 10
-
-    elif (
-        learner_type_str == "GPPLHH"
-        or learner_type_str == "GPPLHHtune"
-        or learner_type_str == "GPPLHHs"
-    ):
-        if querier_types is None:
-            querier_types = [
-                "random",
-                "pair_unc",
-                "pair_unc_SO",
-                # 'eig', # this should be very similar to pari_unc_SO
-                # so I think it's redundant
-                "imp",
-                # 'ttt', # this didn't work
-                "tp",
-            ]
-        post_weight = 1
-
-        n_reps = 1
-
-        if len(querier_types) == 1 and querier_types[0] == "random":
-            n_reps = 10
-            print("Using %i repeats because of random sampling." % n_reps)
-        else:
-            print(
-                "Changing the number of repeats to 1 as there are no random "
-                + "initialisations with this method."
-            )
-
-    elif learner_type_str == "H":
-        post_weight = 0
-        querier_types = ["random"]
-        n_reps = 1
-
-    first_rep = 0
+    # Deal with arg inputs
+    post_weight = 1
+    first_rep, n_reps = 0, 1
     reps = np.arange(first_rep, n_reps)
 
     seed(28923895)
@@ -184,41 +56,37 @@ def process_cmd_line_args(args):
     # with all queriers in each repetition
     seeds = np.random.randint(1, 10000, n_reps)
 
-    if learner_type_str == "LR":
-        learner_type = LogisticRewardLearner
-    elif learner_type_str == "GPPL":
-        learner_type = GPPLRewardLearner
-    elif (
-        learner_type_str == "GPPLH"
-        or learner_type_str == "GPPLHH"
-        or learner_type_str == "GPPLHHtune"
-    ):
-        # GPPL with heuristics as the prior mean
-        learner_type = GPPLHRewardLearner
-    elif learner_type_str == "GPPLHHs":
-        learner_type = GPPLHsRewardLearner
-    else:
-        learner_type = None
+    learner_type = LEARNER_TYPE_DICT.get(args.learner_type_str, None)
 
     return (
         learner_type,
-        learner_type_str,
-        n_inter_rounds,
-        output_folder_name_in,
-        querier_types,
-        root_dir,
-        res_dir,
+        args.learner_type_str,
+        args.n_inter_rounds,
+        args.output_folder_name_in,
+        args.querier_types,
+        args.root_dir,
+        args.res_dir,
         post_weight,
         reps,
         seeds,
-        n_debug,
-        nthreads,
-        dataset,
-        feature_type,
-        rate,
-        lspower,
-        temp,
+        args.n_debug,
+        args.nthreads,
+        args.dataset,
+        args.feature_type,
+        args.rate,
+        args.lspower,
+        args.temp,
     )
+
+
+def load_json(filename):
+    with open(filename, "r") as fh:
+        return json.load(fh)
+
+
+def save_json(filename, data):
+    with open(filename, "w") as fh:
+        json.dump(data, fh)
 
 
 def learn_model(
@@ -238,215 +106,198 @@ def learn_model(
     n_threads,
     temp=2.5,
 ):
+    """
+    This function learns a model based on the provided parameters.
+
+    Parameters:
+        topic (str): The topic of the model.
+        model (list): The model to be learnt.
+        ref_values_dic (dict): A dictionary containing reference values.
+        querier_type (str): The type of the querier.
+        learner_type (str): The type of the learner.
+        learner_type_str (str): The string representation of the learner type.
+        summary_vectors (ndarray): The summary vectors.
+        heuristics_list (list): List of heuristics.
+        post_weight (float): The weight of the post.
+        n_inter_rounds (int): The number of rounds.
+        all_result_dic (dict): Dictionary to store all results.
+        n_debug (int): Debug level.
+        output_path (str): The output path for saving results.
+        n_threads (int): The number of threads to be used in processing.
+        temp (float, optional): The temperature for the SimulatedUser,
+         defaults to 2.5.
+
+    Returns:
+        learnt_rewards (dict): The dictionary of learnt rewards.
+    """
+
     model_name = model[0].split("/")[-1].strip()
-    print("\n---ref. summary {}---".format(model_name))
+    print(f"\n---ref. summary {model_name}---")
 
     rouge_values = ref_values_dic[model_name]
     if n_debug:
         rouge_values = rouge_values[:n_debug]
 
-    if learner_type is not None:
-        learner_type_label = learner_type.__name__
-    else:
-        learner_type_label = "nolearner"
-
-    reward_file = output_path + "/rewards_%s_%s_%s_%s.json" % (
-        topic,
-        model_name,
-        querier_type,
-        learner_type_label,
+    learner_type_label = (
+        learner_type.__name__ if learner_type is not None else "nolearner"
     )
+
+    reward_information = "_".join(
+        [topic, model_name, querier_type, learner_type_label]
+    )
+    reward_file = os.path.join(
+        output_path, f"rewards_{reward_information}.json"
+    )
+
     # if this has already been done, skip it!
     if os.path.exists(reward_file):
         print("Reloading previously computed results.")
         # reload the pre-computed rewards
-        with open(reward_file, "r") as fh:
-            learnt_rewards = json.load(fh)
+        learnt_rewards = load_json(reward_file)
     else:
         oracle = SimulatedUser(rouge_values, m=temp)
 
-        if querier_type == "gibbs":
-            querier = GibbsQuerier(
-                learner_type,
-                summary_vectors,
-                heuristics_list,
-                post_weight,
-                rate,
-                lspower,
-            )
-        elif querier_type == "unc":
-            querier = UncQuerier(
-                learner_type,
-                summary_vectors,
-                heuristics_list,
-                post_weight,
-                rate,
-                lspower,
-            )
-        elif querier_type == "pair_unc":
-            querier = PairUncQuerier(
-                learner_type,
-                summary_vectors,
-                heuristics_list,
-                post_weight,
-                n_threads,
-                rate,
-                lspower,
-            )
-        elif querier_type == "pair_unc_SO":
-            querier = PairUncSOQuerier(
-                learner_type,
-                summary_vectors,
-                heuristics_list,
-                post_weight,
-                n_threads,
-                rate,
-                lspower,
-            )
-        elif querier_type == "imp":
-            querier = ExpectedImprovementQuerier(
-                learner_type,
-                summary_vectors,
-                heuristics_list,
-                post_weight,
-                n_threads,
-                rate,
-                lspower,
-            )
-        elif querier_type == "eig":
-            querier = InformationGainQuerier(
-                learner_type,
-                summary_vectors,
-                heuristics_list,
-                post_weight,
-                n_threads,
-                rate,
-                lspower,
-            )
-        elif querier_type == "ttt":
-            querier = ThompsonTopTwoQuerier(
-                learner_type,
-                summary_vectors,
-                heuristics_list,
-                post_weight,
-                n_threads,
-                rate,
-                lspower,
-            )
-        elif querier_type == "tig" or querier_type == "tp":
-            querier = ThompsonInformationGainQuerier(
-                learner_type,
-                summary_vectors,
-                heuristics_list,
-                post_weight,
-                n_threads,
-                rate,
-                lspower,
-            )
-        else:
-            querier = RandomQuerier(
-                learner_type,
-                summary_vectors,
-                heuristics_list,
-                post_weight,
-                n_threads,
-                rate,
-                lspower,
-            )
+        querier = QUERIER_TYPE_DICT.get(
+            querier_type, QUERIER_TYPE_DICT["default"]
+        )(
+            learner_type,
+            summary_vectors,
+            heuristics_list,
+            post_weight,
+            rate,
+            lspower,
+        )
 
         log = []
-
-        if "tune" in learner_type_str:
-            querier.tune_learner()
-
-        if (
-            learner_type_str == "GPPLHH"
-            or learner_type_str == "GPPLHHtune"
-            or learner_type_str == "GPPLHHs"
-        ):
-            # the first sample should not use the default of random selection
-            # but should already apply the chosen AL strategy
-            querier.random_initial_sample = False
-
-        if learner_type_str != "H":  # heuristics only, no learning
-            for round in range(n_inter_rounds):
-                sum1, sum2 = querier.getQuery(log)
-                pref = oracle.getPref(sum1, sum2)
-                log.append([[sum1, sum2], pref])
-                if querier_type != "random" or round == n_inter_rounds - 1:
-                    # with random querier, don't train until the last
-                    # iteration as the intermediate results are not used
-                    querier.updateRanker(log)
+        perform_learning(querier, oracle, log, n_inter_rounds, querier_type)
 
         print("Active learning complete. Now getting mixed rewards")
         learnt_rewards = querier.getMixReward()
 
         print("Saving the rewards for this model...")
-        with open(reward_file, "w") as fh:
-            json.dump(learnt_rewards, fh)
+        save_json(reward_file, learnt_rewards)
 
     print("Computing metrics...")
-    metrics_dic = evaluateReward(learnt_rewards, rouge_values)
-
-    # learnt_reward = querier.getMixReward()
-    # rmse, temp, cee = plotAgreement(
-    #     np.array(rouge_values), np.array(learnt_reward), plot=False
-    # )
-    # metrics_dic["lno-rmse"] = rmse
-    # metrics_dic["lno-temperature"] = temp
-    # metrics_dic["lno-cee"] = cee
-
-    for metric in metrics_dic:
-        print("metric {} : {}".format(metric, metrics_dic[metric]))
-        if metric in all_result_dic:
-            all_result_dic[metric].append(metrics_dic[metric])
-        else:
-            all_result_dic[metric] = [metrics_dic[metric]]
-
-    # print("Saving the model...")
-
-    # with open(
-    #     output_path
-    #     + "learner_%s_%s_%s_%s.pkl"
-    #     % (topic, model_name, querier_type, learner_type.__name__),
-    #     "wb",
-    # ) as fh:
-    #     pickle.dump(querier.reward_learner, fh)
+    if n_debug:
+        learnt_rewards = learnt_rewards[:n_debug]
+    compute_and_store_metrics(learnt_rewards, rouge_values, all_result_dic)
 
     return learnt_rewards
+
+
+def perform_learning(querier, oracle, log, n_inter_rounds, querier_type):
+    """
+    This function performs the learning process for a given querier and oracle.
+
+    Parameters:
+        querier (object): The querier object used in the learning process.
+        oracle (object): The oracle object simulating user feedback.
+        log (list): A list to store query and preference history.
+        n_inter_rounds (int): The number of intermediate rounds.
+        querier_type (str): The type of the querier, affecting the training
+         strategy.
+    """
+    for round in range(n_inter_rounds):
+        sum1, sum2 = querier.getQuery(log)
+        pref = oracle.getPref(sum1, sum2)
+        log.append([[sum1, sum2], pref])
+        if querier_type != "random" or round == n_inter_rounds - 1:
+            # with random querier, don't train until the last
+            # iteration as the intermediate results are not used
+            querier.updateRanker(log)
+
+
+def compute_and_store_metrics(learnt_rewards, rouge_values, all_result_dic):
+    """
+    This function computes and stores metrics from the learnt rewards.
+
+    Parameters:
+        learnt_rewards (dict): The dictionary of learnt rewards.
+        rouge_values (array): An array of ROUGE values used for reward
+         evaluation.
+        all_result_dic (dict): A dictionary to store all metrics results.
+
+    """
+    metrics_dic = evaluateReward(learnt_rewards, rouge_values)
+
+    for metric_name, metric_value in metrics_dic.items():
+        print(f"metric {metric_name} : {metric_value}")
+        if metric_name in all_result_dic:
+            all_result_dic[metric_name].append(metric_value)
+        else:
+            all_result_dic[metric_name] = [metric_value]
+
+
+def load_candidate_summaries(summaries, dataset, topic, root_dir, docs):
+    feature_type_dir = "./data/summary_candidates/"
+    summary_text_cache_file = os.path.join(
+        root_dir,
+        feature_type_dir,
+        f"summary_texts_{dataset}_{topic}.csv",
+    )
+
+    if os.path.exists(summary_text_cache_file):
+        print("Warning: reloading text for summaries from cache")
+        summary_text = np.genfromtxt(
+            summary_text_cache_file, delimiter="#####", dtype=str
+        )
+        return summary_text
+
+    text_generator = SummaryTextGenerator(docs)
+
+    summary_text = text_generator.getSummaryText(summaries)
+
+    np.savetxt(
+        summary_text_cache_file, summary_text, fmt="%s", delimiter="#####"
+    )
+    print(f"Cached summary vectors to {summary_text_cache_file}")
+
+    return summary_text
 
 
 def load_summary_vectors(
     summaries, dataset, topic, root_dir, docs, feature_type
 ):
-    summary_vecs_cache_file = (
-        root_dir
-        + "/data/summary_vectors/%s/summary_vectors_%s_%s.csv"
-        % (feature_type, dataset, topic)
+    """
+    Load the summary vectors based on the given feature type.
+    """
+    feature_type_dir = "./data/summary_vectors/"
+    summary_vecs_cache_file = os.path.join(
+        root_dir,
+        feature_type_dir,
+        feature_type,
+        f"summary_vectors_{dataset}_{topic}.csv",
     )
 
-    if not os.path.exists(
-        root_dir + "/data/summary_vectors/%s" % feature_type
-    ):
-        os.mkdir(root_dir + "/data/summary_vectors/%s" % feature_type)
+    feature_type_path_check = os.path.join(root_dir, feature_type_dir)
+    if not os.path.exists(feature_type_path_check):
+        os.mkdir(feature_type_path_check)
+
     if os.path.exists(summary_vecs_cache_file):
         print("Warning: reloading feature vectors for summaries from cache")
-        # This should be fine, but if there is an error, we may need to check
-        # that the loading order has not changed.
         summary_vectors = np.genfromtxt(summary_vecs_cache_file)
+        return summary_vectors
 
-    elif feature_type == "april" or feature_type == "supertbigram+":
-        vec = Vectoriser(docs)
-        summary_vectors = vec.getSummaryVectors(summaries)
-        np.savetxt(summary_vecs_cache_file, summary_vectors)
+    vectorisers = {
+        "april": Vectoriser,
+        "supertbigram+": Vectoriser,
+        "supert": SupertVectoriser,
+    }
 
-    elif feature_type == "supert":
-        vec = SupertVectoriser(docs)
+    if feature_type not in vectorisers:
+        raise ValueError(f"Invalid feature type: {feature_type}")
+
+    vec = vectorisers[feature_type](docs)
+
+    if feature_type == "supert":
         summary_vectors, _ = vec.getSummaryVectors(
             summaries, use_coverage_feats=True
         )
-        np.savetxt(summary_vecs_cache_file, summary_vectors)
-        print("Cached summary vectors to %s" % summary_vecs_cache_file)
+    else:
+        summary_vectors = vec.getSummaryVectors(summaries)
+
+    np.savetxt(summary_vecs_cache_file, summary_vectors)
+    print(f"Cached summary vectors to {summary_vecs_cache_file}")
 
     return summary_vectors
 
@@ -460,23 +311,58 @@ def save_result_dic(
     learner_type_str,
     n_inter_rounds,
 ):
-    # Compute and save metrics for this topic
+    """
+    Compute and save metrics for a given topic.
+    """
     print(
         f"=== (rep={rep}) RESULTS UNTIL TOPIC {topic_cnt}, "
-        + f"QUERIER {querier_type.upper()}, "
-        + f"LEARNER {learner_type_str}, "
-        + f"INTER ROUND {n_inter_rounds} ===\n"
+        f"QUERIER {querier_type.upper()}, LEARNER {learner_type_str}, "
+        f"INTER ROUND {n_inter_rounds} ===\n"
     )
-    for metric in all_result_dic:
-        print("{} : {}".format(metric, np.mean(all_result_dic[metric])))
+    for metric, values in all_result_dic.items():
+        print(f"{metric} : {np.mean(values)}")
 
-    with open(
-        output_path
-        + "/metrics_%s_%s_%i.json"
-        % (querier_type, learner_type_str, n_inter_rounds),
-        "w",
-    ) as fh:
+    file_name = (
+        f"metrics_{querier_type}_{learner_type_str}_{n_inter_rounds}.json"
+    )
+    with open(os.path.join(output_path, file_name), "w") as fh:
         json.dump(all_result_dic, fh)
+
+
+def create_dataframe_and_save(
+    method_names, data_means, data_vars, metrics, filename
+):
+    """
+    This function creates a pandas DataFrame using provided means and
+    variances, and saves the DataFrame into a CSV file.
+    """
+
+    # Prepare data for DataFrame
+    df_data = np.concatenate(
+        (
+            np.array(method_names)[:, None],
+            data_means,
+            data_vars,
+        ),
+        axis=1,
+    )
+
+    # Prepare column names
+    column_names = np.concatenate(
+        (
+            ["Method"],
+            metrics,
+            [f"{metric} var" for metric in metrics],
+        )
+    )
+
+    # Create DataFrame
+    df = pd.DataFrame(df_data, columns=column_names).set_index("Method")
+
+    print(f"Saving data to {filename}")
+
+    # Save DataFrame to CSV
+    df.to_csv(filename)
 
 
 def save_selected_results(
@@ -484,38 +370,30 @@ def save_selected_results(
     all_result_dic,
     selected_means,
     selected_vars,
-    selected_means_allreps,
-    selected_vars_allreps,
     chosen_metrics,
     method_names,
     this_method_idx,
 ):
-    for m, metric in enumerate(chosen_metrics):
-        selected_means[this_method_idx, m] = np.mean(all_result_dic[metric])
-        selected_vars[this_method_idx, m] = np.var(all_result_dic[metric])
+    """
+    This function calculates means and variances for selected metrics and
+    saves them into a csv file along with method names.
+    """
 
-        selected_means_allreps[this_method_idx, m] += selected_means[
-            this_method_idx, m
-        ]
-        selected_vars_allreps[this_method_idx, m] += selected_vars[
-            this_method_idx, m
-        ]
+    # Compute means and variances
+    for metric_index, metric in enumerate(chosen_metrics):
+        selected_means[this_method_idx, metric_index] = np.mean(
+            all_result_dic[metric]
+        )
+        selected_vars[this_method_idx, metric_index] = np.var(
+            all_result_dic[metric]
+        )
 
-    df = pd.DataFrame(
-        np.concatenate(
-            (np.array(method_names)[:, None], selected_means, selected_vars),
-            axis=1,
-        ),
-        columns=np.concatenate(
-            (
-                ["Method"],
-                chosen_metrics,
-                ["%s var" % metric for metric in chosen_metrics],
-            )
-        ),
-    ).set_index("Method")
+    filename = os.path.join(output_path, "table.csv")
 
-    df.to_csv(output_path + "/table.csv")
+    # Create DataFrame and save to CSV
+    create_dataframe_and_save(
+        method_names, selected_means, selected_vars, chosen_metrics, filename
+    )
 
 
 def save_selected_results_allreps(
@@ -526,45 +404,81 @@ def save_selected_results_allreps(
     method_names,
     nreps,
 ):
-    selected_means_allreps /= float(nreps)
-    selected_vars_allreps /= float(nreps)
+    """
+    This function calculates average means and variances over all repetitions
+    for selected metrics and saves them into a csv file along with method
+    names.
+    """
 
-    df = pd.DataFrame(
-        np.concatenate(
-            (
-                np.array(method_names)[:, None],
-                selected_means_allreps,
-                selected_vars_allreps,
-            ),
-            axis=1,
-        ),
-        columns=np.concatenate(
-            (
-                ["Query_type"],
-                chosen_metrics,
-                ["%s var" % metric for metric in chosen_metrics],
-            )
-        ),
-    ).set_index("Query_type")
+    # Compute average means and variances
+    average_means_allreps = selected_means_allreps / float(nreps)
+    average_vars_allreps = selected_vars_allreps / float(nreps)
 
-    filename = output_path + "/table_all_reps.csv"
-    print("Saving summary of all results to %s" % filename)
-    df.to_csv(filename)
+    filename = os.path.join(output_path, "table_all_reps.csv")
+
+    # Create DataFrame and save to CSV
+    create_dataframe_and_save(
+        method_names,
+        average_means_allreps,
+        average_vars_allreps,
+        chosen_metrics,
+        filename,
+    )
 
 
 def make_output_dir(root_dir, res_dir, output_folder_name, rep):
+    """
+    Create an output directory based on provided root directory,
+    results directory, output folder name, and repetition index.
+    """
     if output_folder_name == -1:
-        output_folder_name = datetime.datetime.now().strftime(
-            "started-%Y-%m-%d-%H-%M-%S"
+        output_folder_name = datetime.now().strftime(
+            r"started-%Y-%m-%d-%H-%M-%S"
         )
     else:
-        output_folder_name = output_folder_name + "_rep%i" % rep
+        output_folder_name = f"{output_folder_name}_rep{rep}"
 
-    output_path = root_dir + "/" + res_dir + "/%s" % output_folder_name
+    output_path = os.path.join(root_dir, res_dir, output_folder_name)
+
     if not os.path.exists(output_path):
-        os.mkdir(output_path)
+        os.makedirs(output_path)
 
     return output_path
+
+
+def generate_summary(learnt_rewards, summaries, docs):
+    """
+    This function generates the best summary based on the learnt rewards.
+
+    Parameters:
+    learnt_rewards (numpy array): An array of rewards for each summary.
+    summaries (list): A list containing sentence indices for each summary.
+    docs (list): A list of documents where each document is a pair of an ID
+     and a list of sentences.
+
+    Returns:
+    str: The best summary text.
+    """
+    # Get the indices of the sentences for the best summary
+    best_summary_indices = summaries[np.argmax(learnt_rewards)]
+
+    # Initialize the variables
+    summary_sents = {}
+    sentcount = 0
+
+    # Collect the sentences for the summary
+    for _, doc_sents in docs:
+        for sent_text in doc_sents:
+            if sentcount in best_summary_indices:
+                summary_sents[sentcount] = sent_text
+            sentcount += 1
+
+    # Construct the summary text
+    summary_text = "".join(
+        summary_sents[sent] for sent in best_summary_indices
+    )
+
+    return summary_text
 
 
 if __name__ == "__main__":
@@ -574,12 +488,10 @@ if __name__ == "__main__":
     output_folder_name querier_types
 
     reward_learner_type -- can be:
-        LR,
-        GPPL (mixes the posterior with the heuristics),
-        GPPLH (uses heuristic as a prior),
-        GPPLHH (uses heuristic as a prior and a heuristic to select the
-        initial sample).
-        The best performer so far is GPPLHH.
+        BDL - copy of GPPL (placeholder);
+        MC_BDL - supert ranker with mc dropout;
+        SWAG_BDL - supert ranker using swag;
+        nBDL - super ranking without bayesian inference.
 
     n_debug -- set to 0 if you are not debugging; set to a higher number to
     select a subsample of the data for faster debugging of the main setup.
@@ -613,7 +525,7 @@ if __name__ == "__main__":
         rate,
         lspower,
         temp,
-    ) = process_cmd_line_args(sys.argv)
+    ) = process_cmd_line_args()
 
     # parameters
     if dataset is None:
@@ -624,12 +536,12 @@ if __name__ == "__main__":
         + f"writing to {root_dir}/{res_dir}/{output_folder_name}"
     )
 
-    max_topics = (
-        -1
-    )  # set to greater than zero to use a subset of topics for debugging
+    # set to greater than zero to use a subset of topics for debugging
+    max_topics = -1
     folders = []
 
     nqueriers = len(querier_types)
+
     chosen_metrics = [
         "ndcg_at_1%",
         "pcc",
@@ -656,9 +568,7 @@ if __name__ == "__main__":
             for folder_name in folders:
                 fh.write(folder_name + "\n")
 
-        figs = []
-
-        avg_figs = []
+        figs = avg_figs = []
 
         for qidx, querier_type in enumerate(querier_types):
             seed(seeds[rep])
@@ -688,10 +598,13 @@ if __name__ == "__main__":
                     ref_values_dic,
                     heuristic_list,
                 ) = readSampleSummaries(dataset, topic, feature_type)
-                print("num of summaries read: {}".format(len(summaries)))
+                print(f"num of summaries read: {summaries}")
 
                 summary_vectors = load_summary_vectors(
                     summaries, dataset, topic, root_dir, docs, feature_type
+                )
+                summary_text = load_candidate_summaries(
+                    summaries, dataset, topic, root_dir, docs
                 )
 
                 if n_debug:
@@ -716,24 +629,17 @@ if __name__ == "__main__":
                         n_threads,
                         temp,
                     )
-                    # best summary idx
-                    bestidx = np.argmax(learnt_rewards)
-                    sentidxs = summaries[bestidx]
-                    sentcount = 0
-                    summary_sents = {}
-                    for doc_id, doc in enumerate(docs):
-                        _, doc_sents = doc
-                        for sent_text in doc_sents:
-                            if sentcount in sentidxs:
-                                summary_sents[sentcount] = sent_text
 
-                            sentcount += 1
-                    summary_text = ""
-                    for sent in sentidxs:
-                        summary_text += summary_sents[sent]
-
+                    # The following selects the highest rewarded set of
+                    # sentences from a list of documents and prints them
+                    # out as a summary.
                     print("SUMMARY: ")
-                    print(summary_text)
+                    highest_rewarded_summary_text = generate_summary(
+                        learnt_rewards=learnt_rewards,
+                        summaries=summaries,
+                        docs=docs,
+                    )
+                    print(highest_rewarded_summary_text)
 
                 if n_debug:
                     heuristic_list = heuristic_list[:n_debug]

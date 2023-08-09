@@ -1,6 +1,6 @@
 import os
 
-from resources import PROCESSED_PATH, SUMMARY_DB_DIR
+import resources as res
 from ref_free_metrics.sbert_score_metrics import get_sbert_score_metrics
 from summariser.utils.corpus_reader import CorpusReader
 from summariser.utils.reader import readSummaries
@@ -51,7 +51,7 @@ class SupertVectoriser(Vectoriser):
         # Obtain the SUPERT scores for the summaries from their embedding
         # vectors
         supert_scores, supert_vectors = get_sbert_score_metrics(
-            docs, summ_list, "top15", return_summary_vectors=True
+            self.docs, summ_list, "top15", return_summary_vectors=True
         )
 
         for i, supert_vector in enumerate(supert_vectors):
@@ -65,12 +65,14 @@ class SupertVectoriser(Vectoriser):
 if __name__ == "__main__":
     for dataset in ["DUC2001", "DUC2002", "DUC2004"]:
         # read documents and ref. summaries
-        reader = CorpusReader(PROCESSED_PATH)
+
+        summary_vecs_cache_dir = "./data/summary_vectors/supert/"
+        reader = CorpusReader(res.PROCESSED_PATH)
         data = reader.get_data(dataset)
 
         for topic, docs, models in data:
             summaries_acts_list, _ = readSummaries(dataset, topic, "heuristic")
-            print("num of summaries read: {}".format(len(summaries_acts_list)))
+            print(f"num of summaries read: {len(summaries_acts_list)}")
 
             # Use the vectoriser to obtain summary embedding vectors
             vec = SupertVectoriser(docs)
@@ -79,17 +81,17 @@ if __name__ == "__main__":
             )
 
             # Save the vectors to the cache file
-            if not os.path.exists("./data/supert"):
-                os.mkdir("./data/supert")
+            if not os.path.exists(summary_vecs_cache_dir):
+                os.mkdir(summary_vecs_cache_dir)
             summary_vecs_cache_file = (
-                "./data/summary_vectors/supert/summary_vectors_%s_%s.csv"
-                % (dataset, topic)
+                summary_vecs_cache_dir
+                + f"summary_vectors_{dataset}_{topic}.csv"
             )
             np.savetxt(summary_vecs_cache_file, summary_vectors)
 
             # Write to the output file
             output_file = os.path.join(
-                SUMMARY_DB_DIR, dataset, topic, "supert"
+                res.SUMMARY_DB_DIR, dataset, topic, "supert"
             )
             with open(output_file, "w") as ofh:
                 for i, summ in enumerate(summaries_acts_list):

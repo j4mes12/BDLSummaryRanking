@@ -131,3 +131,6 @@ dmypy.json
 ext_code
 **/sp.ipynb
 **/data/
+**/writeups
+**/test_artifacts.py
+**/run_scripts.sh
