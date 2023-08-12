@@ -1,37 +1,62 @@
 from torch import Tensor
 from torch import nn
-from transformers import  BertModel, BertTokenizer
+from transformers import BertModel, BertTokenizer
 import json
 from typing import Union, Tuple, List, Dict
 import os
 import numpy as np
 import logging
 
+
 class BERT(nn.Module):
     """BERT model to generate token embeddings.
 
     Each token is mapped to an output vector from BERT.
     """
-    def __init__(self, model_name_or_path: str, max_seq_length: int = 128, do_lower_case: bool = True):
+
+    def __init__(
+        self,
+        model_name_or_path: str,
+        max_seq_length: int = 128,
+        do_lower_case: bool = True,
+    ):
         super(BERT, self).__init__()
-        self.config_keys = ['max_seq_length', 'do_lower_case']
+        self.config_keys = ["max_seq_length", "do_lower_case"]
         self.do_lower_case = do_lower_case
 
         if max_seq_length > 510:
-            logging.warning("BERT only allows a max_seq_length of 510 (512 with special tokens). Value will be set to 510")
+            logging.warning(
+                "BERT only allows a max_seq_length of 510 (512 with special tokens). Value will be set to 510"
+            )
             max_seq_length = 510
         self.max_seq_length = max_seq_length
 
         self.bert = BertModel.from_pretrained(model_name_or_path)
-        self.tokenizer = BertTokenizer.from_pretrained(model_name_or_path, do_lower_case=do_lower_case)
-        self.cls_token_id = self.tokenizer.convert_tokens_to_ids([self.tokenizer.cls_token])[0]
-        self.sep_token_id = self.tokenizer.convert_tokens_to_ids([self.tokenizer.sep_token])[0]
+        self.tokenizer = BertTokenizer.from_pretrained(
+            model_name_or_path, do_lower_case=do_lower_case
+        )
+        self.cls_token_id = self.tokenizer.convert_tokens_to_ids(
+            [self.tokenizer.cls_token]
+        )[0]
+        self.sep_token_id = self.tokenizer.convert_tokens_to_ids(
+            [self.tokenizer.sep_token]
+        )[0]
 
     def forward(self, features):
         """Returns token_embeddings, cls_token"""
-        output_tokens = self.bert(input_ids=features['input_ids'], token_type_ids=features['token_type_ids'], attention_mask=features['input_mask'])[0]
+        output_tokens = self.bert(
+            input_ids=features["input_ids"],
+            token_type_ids=features["token_type_ids"],
+            attention_mask=features["input_mask"],
+        )[0]
         cls_tokens = output_tokens[:, 0, :]  # CLS token is first token
-        features.update({'token_embeddings': output_tokens, 'cls_token_embeddings': cls_tokens, 'input_mask': features['input_mask']})
+        features.update(
+            {
+                "token_embeddings": output_tokens,
+                "cls_token_embeddings": cls_tokens,
+                "input_mask": features["input_mask"],
+            }
+        )
         return features
 
     def get_word_embedding_dimension(self) -> int:
@@ -42,7 +67,7 @@ class BERT(nn.Module):
         Tokenizes a text and maps tokens to token-ids
         """
         return self.tokenizer.convert_tokens_to_ids(self.tokenizer.tokenize(text))
-    
+
     def ids_to_tokens(self, ids: List[int]) -> List[str]:
         return self.tokenizer.convert_ids_to_tokens(ids)
 
@@ -77,7 +102,12 @@ class BERT(nn.Module):
         assert len(input_mask) == pad_seq_length
         assert len(token_type_ids) == pad_seq_length
 
-        return {'input_ids': np.asarray(input_ids, dtype=np.int64), 'token_type_ids': np.asarray(token_type_ids, dtype=np.int64), 'input_mask': np.asarray(input_mask, dtype=np.int64), 'sentence_lengths': np.asarray(sentence_length, dtype=np.int64)}
+        return {
+            "input_ids": np.asarray(input_ids, dtype=np.int64),
+            "token_type_ids": np.asarray(token_type_ids, dtype=np.int64),
+            "input_mask": np.asarray(input_mask, dtype=np.int64),
+            "sentence_lengths": np.asarray(sentence_length, dtype=np.int64),
+        }
 
     def get_config_dict(self):
         return {key: self.__dict__[key] for key in self.config_keys}
@@ -86,17 +116,11 @@ class BERT(nn.Module):
         self.bert.save_pretrained(output_path)
         self.tokenizer.save_pretrained(output_path)
 
-        with open(os.path.join(output_path, 'sentence_bert_config.json'), 'w') as fOut:
+        with open(os.path.join(output_path, "sentence_bert_config.json"), "w") as fOut:
             json.dump(self.get_config_dict(), fOut, indent=2)
 
     @staticmethod
     def load(input_path: str):
-        with open(os.path.join(input_path, 'sentence_bert_config.json')) as fIn:
+        with open(os.path.join(input_path, "sentence_bert_config.json")) as fIn:
             config = json.load(fIn)
         return BERT(model_name_or_path=input_path, **config)
-
-
-
-
-
-

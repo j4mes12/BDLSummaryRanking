@@ -21,8 +21,13 @@ class LabelSampler(Sampler):
 
 
     """
-    def __init__(self, data_source: SentenceLabelDataset, samples_per_label: int = 5,
-                 with_replacement: bool = False):
+
+    def __init__(
+        self,
+        data_source: SentenceLabelDataset,
+        samples_per_label: int = 5,
+        with_replacement: bool = False,
+    ):
         """
         Creates a LabelSampler for a SentenceLabelDataset.
 
@@ -52,16 +57,22 @@ class LabelSampler(Sampler):
             if label not in already_seen:
                 already_seen[label] = []
 
-            left_border = 0 if label == 0 else self.borders[label-1]
+            left_border = 0 if label == 0 else self.borders[label - 1]
             right_border = self.borders[label]
 
             if self.with_replacement:
                 selection = np.arange(left_border, right_border)
             else:
-                selection = [i for i in np.arange(left_border, right_border) if i not in already_seen[label]]
+                selection = [
+                    i
+                    for i in np.arange(left_border, right_border)
+                    if i not in already_seen[label]
+                ]
 
             if len(selection) >= self.samples_per_label:
-                for element_idx in np.random.choice(selection, self.samples_per_label, replace=False):
+                for element_idx in np.random.choice(
+                    selection, self.samples_per_label, replace=False
+                ):
                     count += 1
                     already_seen[label].append(element_idx)
                     yield element_idx

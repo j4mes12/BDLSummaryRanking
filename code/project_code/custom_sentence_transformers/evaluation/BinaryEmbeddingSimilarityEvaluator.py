@@ -6,7 +6,11 @@ from tqdm import tqdm
 from ..util import batch_to_device
 import os
 import csv
-from sklearn.metrics.pairwise import paired_cosine_distances, paired_euclidean_distances, paired_manhattan_distances
+from sklearn.metrics.pairwise import (
+    paired_cosine_distances,
+    paired_euclidean_distances,
+    paired_manhattan_distances,
+)
 import numpy as np
 
 
@@ -22,8 +26,13 @@ class BinaryEmbeddingSimilarityEvaluator(SentenceEvaluator):
 
     The results are written in a CSV. If a CSV already exists, then values are appended.
     """
-    def __init__(self, dataloader: DataLoader,
-                 main_similarity: SimilarityFunction = SimilarityFunction.COSINE, name:str =''):
+
+    def __init__(
+        self,
+        dataloader: DataLoader,
+        main_similarity: SimilarityFunction = SimilarityFunction.COSINE,
+        name: str = "",
+    ):
         """
         Constructs an evaluator based for the dataset
 
@@ -40,12 +49,20 @@ class BinaryEmbeddingSimilarityEvaluator(SentenceEvaluator):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.name = name
         if name:
-            name = "_"+name
+            name = "_" + name
 
-        self.csv_file: str = "binary_similarity_evaluation"+name+"_results.csv"
-        self.csv_headers = ["epoch", "steps", "cosine_acc", "euclidean_acc", "manhattan_acc"]
+        self.csv_file: str = "binary_similarity_evaluation" + name + "_results.csv"
+        self.csv_headers = [
+            "epoch",
+            "steps",
+            "cosine_acc",
+            "euclidean_acc",
+            "manhattan_acc",
+        ]
 
-    def __call__(self, model, output_path: str = None, epoch: int = -1, steps: int = -1) -> float:
+    def __call__(
+        self, model, output_path: str = None, epoch: int = -1, steps: int = -1
+    ) -> float:
         model.eval()
         embeddings1 = []
         embeddings2 = []
@@ -59,12 +76,15 @@ class BinaryEmbeddingSimilarityEvaluator(SentenceEvaluator):
         else:
             out_txt = ":"
 
-        logging.info("Evaluation the model on "+self.name+" dataset"+out_txt)
+        logging.info("Evaluation the model on " + self.name + " dataset" + out_txt)
         self.dataloader.collate_fn = model.smart_batching_collate
         for step, batch in enumerate(tqdm(self.dataloader, desc="Evaluating")):
             features, label_ids = batch_to_device(batch, self.device)
             with torch.no_grad():
-                emb1, emb2 = [model(sent_features)['sentence_embedding'].to("cpu").numpy() for sent_features in features]
+                emb1, emb2 = [
+                    model(sent_features)["sentence_embedding"].to("cpu").numpy()
+                    for sent_features in features
+                ]
 
             labels.extend(label_ids.to("cpu").numpy())
             embeddings1.extend(emb1)
@@ -73,37 +93,40 @@ class BinaryEmbeddingSimilarityEvaluator(SentenceEvaluator):
         manhattan_distances = -paired_manhattan_distances(embeddings1, embeddings2)
         euclidean_distances = -paired_euclidean_distances(embeddings1, embeddings2)
 
-        #Ensure labels are just 0 or 1
+        # Ensure labels are just 0 or 1
         for label in labels:
-            assert (label == 0 or label == 1)
+            assert label == 0 or label == 1
 
         cosine_middle = np.median(cosine_scores)
         cosine_acc = 0
         for label, score in zip(labels, cosine_scores):
-            if (label == 1 and score > cosine_middle) or (label == 0 and score <= cosine_middle):
+            if (label == 1 and score > cosine_middle) or (
+                label == 0 and score <= cosine_middle
+            ):
                 cosine_acc += 1
         cosine_acc /= len(labels)
 
         manhattan_middle = np.median(manhattan_distances)
         manhattan_acc = 0
         for label, score in zip(labels, manhattan_distances):
-            if (label == 1 and score > manhattan_middle) or (label == 0 and score <= manhattan_middle):
+            if (label == 1 and score > manhattan_middle) or (
+                label == 0 and score <= manhattan_middle
+            ):
                 manhattan_acc += 1
         manhattan_acc /= len(labels)
 
         euclidean_middle = np.median(euclidean_distances)
         euclidean_acc = 0
         for label, score in zip(labels, euclidean_distances):
-            if (label == 1 and score > euclidean_middle) or (label == 0 and score <= euclidean_middle):
+            if (label == 1 and score > euclidean_middle) or (
+                label == 0 and score <= euclidean_middle
+            ):
                 euclidean_acc += 1
         euclidean_acc /= len(labels)
 
-        logging.info("Cosine-Classification:\t{:4f}".format(
-            cosine_acc))
-        logging.info("Manhattan-Classification:\t{:4f}".format(
-            manhattan_acc))
-        logging.info("Euclidean-Classification:\t{:4f}\n".format(
-            euclidean_acc))
+        logging.info("Cosine-Classification:\t{:4f}".format(cosine_acc))
+        logging.info("Manhattan-Classification:\t{:4f}".format(manhattan_acc))
+        logging.info("Euclidean-Classification:\t{:4f}\n".format(euclidean_acc))
 
         if output_path is not None:
             csv_path = os.path.join(output_path, self.csv_file)
@@ -111,11 +134,15 @@ class BinaryEmbeddingSimilarityEvaluator(SentenceEvaluator):
                 with open(csv_path, mode="w", encoding="utf-8") as f:
                     writer = csv.writer(f)
                     writer.writerow(self.csv_headers)
-                    writer.writerow([epoch, steps, cosine_acc, euclidean_acc, manhattan_acc])
+                    writer.writerow(
+                        [epoch, steps, cosine_acc, euclidean_acc, manhattan_acc]
+                    )
             else:
                 with open(csv_path, mode="a", encoding="utf-8") as f:
                     writer = csv.writer(f)
-                    writer.writerow([epoch, steps, cosine_acc, euclidean_acc, manhattan_acc])
+                    writer.writerow(
+                        [epoch, steps, cosine_acc, euclidean_acc, manhattan_acc]
+                    )
 
         if self.main_similarity == SimilarityFunction.COSINE:
             return cosine_acc

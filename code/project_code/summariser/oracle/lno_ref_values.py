@@ -13,9 +13,7 @@ class SimulatedUser:
         #     "idx1 = %i, idx2 = %i, available reference vals =%i"
         #     % (idx1, idx2, len(self.ref_values))
         # )
-        prob = sigmoid(
-            self.ref_values[idx1] - self.ref_values[idx2], self.temperature
-        )
+        prob = sigmoid(self.ref_values[idx1] - self.ref_values[idx2], self.temperature)
 
         if random.random() <= prob:
             return 0  # summary1 is preferred

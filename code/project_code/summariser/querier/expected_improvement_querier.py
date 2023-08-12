@@ -50,10 +50,7 @@ class ExpectedImprovementQuerier(PairUncQuerier):
         f_best = f[best_idx]
 
         sigma = (
-            Cov[best_idx, best_idx]
-            + np.diag(Cov)
-            - Cov[best_idx, :]
-            - Cov[:, best_idx]
+            Cov[best_idx, best_idx] + np.diag(Cov) - Cov[best_idx, :] - Cov[:, best_idx]
         )
         sigma[
             best_idx
@@ -107,10 +104,7 @@ class ExpImpQuerierForDeepLearner:
         f_best = f[best_idx]
 
         sigma = (
-            Cov[best_idx, best_idx]
-            + np.diag(Cov)
-            - Cov[best_idx, :]
-            - Cov[:, best_idx]
+            Cov[best_idx, best_idx] + np.diag(Cov) - Cov[best_idx, :] - Cov[:, best_idx]
         )
         sigma[
             best_idx
@@ -163,13 +157,9 @@ class ExpImpQuerierForDeepLearner:
 
         candidate_idxs = self._get_candidates(f)
 
-        Cov = reward_learner.predictive_cov(
-            candidate_idxs, full_cov=self.full_cov
-        )
+        Cov = reward_learner.predictive_cov(candidate_idxs, full_cov=self.full_cov)
 
-        pairwise_entropy = self._compute_pairwise_scores(
-            f[candidate_idxs], Cov
-        )
+        pairwise_entropy = self._compute_pairwise_scores(f[candidate_idxs], Cov)
 
         # Find out which of our candidates have been compared already
         for data_point in log:
@@ -183,9 +173,7 @@ class ExpImpQuerierForDeepLearner:
             pairwise_entropy[dp0, dp1] = -np.inf
             pairwise_entropy[dp1, dp0] = -np.inf
 
-        selected = np.unravel_index(
-            np.argmax(pairwise_entropy), pairwise_entropy.shape
-        )
+        selected = np.unravel_index(np.argmax(pairwise_entropy), pairwise_entropy.shape)
         pe_selected = pairwise_entropy[selected[0], selected[1]]
         selected = (candidate_idxs[selected[0]], candidate_idxs[selected[1]])
 

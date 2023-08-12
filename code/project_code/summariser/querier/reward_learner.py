@@ -91,9 +91,7 @@ class BERTRewardLearner:
         self.items_feat = None
         self.do_dim_reduction = do_dim_reduction
 
-    def train(
-        self, pref_history, vector_list, true_scores=None, tr_items=None
-    ):
+    def train(self, pref_history, vector_list, true_scores=None, tr_items=None):
         """
         :param pref_history: a list of objects of the form
          [[item_id0, item_id1], preference_label ], where preference_label is
@@ -196,9 +194,7 @@ class BERTRewardLearner:
             # new_item_ids1 = []
             # new_labels = []
 
-            logging.debug(
-                "GPPL fitting with %i pairwise labels" % len(new_labels)
-            )
+            logging.debug("GPPL fitting with %i pairwise labels" % len(new_labels))
 
             self.learner.fit(
                 new_item_ids0,
@@ -227,8 +223,7 @@ class BERTRewardLearner:
                     best_model = self.learner
                     best_rate = rate
                     print(
-                        "New best train score %f with rate_s0=%f"
-                        % (train_score, rate)
+                        "New best train score %f with rate_s0=%f" % (train_score, rate)
                     )
 
         print("GPPL fitting complete in %i iterations." % self.learner.vb_iter)
@@ -296,9 +291,7 @@ class BERTHRewardLearner(BERTRewardLearner):
         minh = np.min(heuristics)
         maxh = np.max(heuristics)
 
-        self.mu0 = (heuristics - minh) / (
-            maxh - minh
-        ) - 0.5  # * 2 * np.sqrt(200)
+        self.mu0 = (heuristics - minh) / (maxh - minh) - 0.5  # * 2 * np.sqrt(200)
         self.mu0 = self.mu0 * heuristic_scale + heuristic_offset
 
 
@@ -390,14 +383,10 @@ class MCDTinyBertDeepLearner(nn.Module):
 
         return sim_scores.var(axis=0)
 
-    def predictive_cov(
-        self, idxs: Optional[List[int]], full_cov: bool = False
-    ):
+    def predictive_cov(self, idxs: Optional[List[int]], full_cov: bool = False):
         if full_cov:
             # rowvar = False ensures columns are treated as variables
-            return np.cov(
-                self.similarity_scores.detach().numpy(), rowvar=False
-            )
+            return np.cov(self.similarity_scores.detach().numpy(), rowvar=False)
         else:
             reward_variance = self.predictive_var(return_tensor=False)
 
@@ -449,12 +438,8 @@ class TinyBertDeepLearnerWithMCDropoutInLayer(MCDTinyBertDeepLearner):
     def forward(self, candidate_summaries: List[str]):
         scores = []
         for summary in candidate_summaries:
-            document_summary_pair = (
-                self.original_document + " [SEP] " + summary
-            )
-            ds_embedding = self._get_sliding_window_embedding(
-                document_summary_pair
-            )
+            document_summary_pair = self.original_document + " [SEP] " + summary
+            ds_embedding = self._get_sliding_window_embedding(document_summary_pair)
 
             h1_1 = self.relu(self.linear1(ds_embedding))
             h1_2 = self.dropout1(h1_1)
@@ -472,8 +457,7 @@ class TinyBertDeepLearnerWithMCDropoutInLayer(MCDTinyBertDeepLearner):
         self.set_layers_to_training_mode()
 
         all_scores = [
-            self.forward(candidate_summaries=summaries)
-            for _ in range(self.n_samples)
+            self.forward(candidate_summaries=summaries) for _ in range(self.n_samples)
         ]
 
         self.set_layers_to_eval_mode()
@@ -549,9 +533,7 @@ class TinyBertDeepLearnerWithMCDropoutInBert(MCDTinyBertDeepLearner):
         self.cs = nn.DataParallel(cs)
 
         # Text variables
-        self.doc_embedding = self._get_sliding_window_embedding(
-            original_document
-        )
+        self.doc_embedding = self._get_sliding_window_embedding(original_document)
 
         self.training_mode_layers = [self.base_model]
 
@@ -582,8 +564,7 @@ class TinyBertDeepLearnerWithMCDropoutInBert(MCDTinyBertDeepLearner):
         self.set_layers_to_training_mode()
 
         all_scores = [
-            self.forward(candidate_summaries=summaries)
-            for _ in range(self.n_samples)
+            self.forward(candidate_summaries=summaries) for _ in range(self.n_samples)
         ]
 
         self.set_layers_to_eval_mode()

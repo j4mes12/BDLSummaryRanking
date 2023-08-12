@@ -3,9 +3,7 @@ import codecs
 import sys
 import os.path as path
 
-sys.path.append(
-    path.dirname(path.dirname(path.dirname(path.abspath(__file__))))
-)
+sys.path.append(path.dirname(path.dirname(path.dirname(path.abspath(__file__)))))
 
 import re  # noqa
 import os  # noqa
@@ -43,9 +41,7 @@ class CorpusReader(object):
         if summary_len:
             docs = sorted(os.listdir(path))
             summaries = [
-                model
-                for model in docs
-                if re.search(r"M\.%s\." % (summary_len), model)
+                model for model in docs if re.search(r"M\.%s\." % (summary_len), model)
             ]
             docs = summaries
         else:
@@ -82,9 +78,7 @@ class CorpusReader(object):
         ]
         for ctopic in dir_listing:
             docs_path = path.join(corpus_base_dir, ctopic, docs_directory_name)
-            summary_path = path.join(
-                corpus_base_dir, ctopic, models_directory_name
-            )
+            summary_path = path.join(corpus_base_dir, ctopic, models_directory_name)
 
             docs = self.load_processed(docs_path)
             summaries = self.load_processed(summary_path, summary_len)

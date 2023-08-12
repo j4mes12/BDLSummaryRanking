@@ -155,9 +155,7 @@ def learn_dl_model(
             [f"dr-{dropout_rate}", f"dl-{dropout_layers}"]
         )
 
-    reward_file = os.path.join(
-        output_path, f"rewards_{reward_information}.json"
-    )
+    reward_file = os.path.join(output_path, f"rewards_{reward_information}.json")
 
     # if this has already been done, skip it!
     if os.path.exists(reward_file):
@@ -276,9 +274,7 @@ def load_candidate_summaries(summaries, dataset, topic, root_dir, docs):
 
     summary_text = text_generator.getSummaryText(summaries)
 
-    np.savetxt(
-        summary_text_cache_file, summary_text, fmt="%s", delimiter="#####"
-    )
+    np.savetxt(summary_text_cache_file, summary_text, fmt="%s", delimiter="#####")
     print(f"Cached summary vectors to {summary_text_cache_file}")
 
     return summary_text
@@ -304,16 +300,12 @@ def save_result_dic(
     for metric, values in all_result_dic.items():
         print(f"{metric} : {np.mean(values)}")
 
-    file_name = (
-        f"metrics_{querier_type}_{learner_type_str}_{n_inter_rounds}.json"
-    )
+    file_name = f"metrics_{querier_type}_{learner_type_str}_{n_inter_rounds}.json"
     with open(os.path.join(output_path, file_name), "w") as fh:
         json.dump(all_result_dic, fh)
 
 
-def create_dataframe_and_save(
-    method_names, data_means, data_vars, metrics, filename
-):
+def create_dataframe_and_save(method_names, data_means, data_vars, metrics, filename):
     """
     This function creates a pandas DataFrame using provided means and
     variances, and saves the DataFrame into a CSV file.
@@ -363,12 +355,8 @@ def save_selected_results(
 
     # Compute means and variances
     for metric_index, metric in enumerate(chosen_metrics):
-        selected_means[this_method_idx, metric_index] = np.mean(
-            all_result_dic[metric]
-        )
-        selected_vars[this_method_idx, metric_index] = np.var(
-            all_result_dic[metric]
-        )
+        selected_means[this_method_idx, metric_index] = np.mean(all_result_dic[metric])
+        selected_vars[this_method_idx, metric_index] = np.var(all_result_dic[metric])
 
     filename = os.path.join(output_path, "table.csv")
 
@@ -414,9 +402,7 @@ def make_output_dir(root_dir, res_dir, output_folder_name, rep):
     results directory, output folder name, and repetition index.
     """
     if output_folder_name == -1:
-        output_folder_name = datetime.now().strftime(
-            r"started-%Y-%m-%d-%H-%M-%S"
-        )
+        output_folder_name = datetime.now().strftime(r"started-%Y-%m-%d-%H-%M-%S")
     else:
         output_folder_name = f"{output_folder_name}_rep{rep}"
 
@@ -544,9 +530,7 @@ if __name__ == "__main__":
         selected_means = np.zeros((1, len(chosen_metrics)))
         selected_vars = np.zeros((1, len(chosen_metrics)))
 
-        output_path = make_output_dir(
-            root_dir, res_dir, output_folder_name, rep
-        )
+        output_path = make_output_dir(root_dir, res_dir, output_folder_name, rep)
 
         # saves a list of result folders containing repeats from the same run
         folders.append(output_path)

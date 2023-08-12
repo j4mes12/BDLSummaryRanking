@@ -30,9 +30,7 @@ def kill_stopwords(sent_idx, all_token_vecs, all_tokens, language="english"):
     mystopwords.update(["[cls]", "[sep]"])
 
     # Filter out the stop words from the full tokens and their vectors
-    wanted_idx = [
-        j for j, tk in enumerate(full_token) if tk.lower() not in mystopwords
-    ]
+    wanted_idx = [j for j, tk in enumerate(full_token) if tk.lower() not in mystopwords]
     return full_vec[wanted_idx], np.array(full_token)[wanted_idx]
 
 
@@ -40,8 +38,7 @@ def encode_token_vecs(model, sents):
     token_embeddings, tokens = model.encode(sents, token_vecs=True)
 
     assert len(token_embeddings) == len(tokens), (
-        "Overall length assertion - "
-        + f"{len(token_embeddings)} != {len(tokens)}"
+        "Overall length assertion - " + f"{len(token_embeddings)} != {len(tokens)}"
     )
 
     for idx in range(len(token_embeddings)):
@@ -159,9 +156,7 @@ def get_vecs_tokens(index_list, all_token_vecs, all_tokens):
     """
     Function to get vectors and tokens based on an index list.
     """
-    ksw_data = [
-        kill_stopwords(ref, all_token_vecs, all_tokens) for ref in index_list
-    ]
+    ksw_data = [kill_stopwords(ref, all_token_vecs, all_tokens) for ref in index_list]
     vecs, tokens = zip(*ksw_data)
     return vecs, tokens
 
@@ -175,9 +170,7 @@ def get_scoring_artifacts(docs, metric):
     all_token_vecs, all_tokens = get_all_token_vecs(model, sent_info_dic)
 
     # Build pseudo-reference
-    ref_dic = {
-        k: sent_info_dic[k] for k in sent_info_dic if sents_weights[k] >= 0.1
-    }
+    ref_dic = {k: sent_info_dic[k] for k in sent_info_dic if sents_weights[k] >= 0.1}
 
     # Get sentences in the pseudo reference
     ref_sources = set(ref_dic[k]["doc"] for k in ref_dic)
@@ -192,12 +185,8 @@ def get_rewards(docs, summaries, ref_metric, sim_metric="f1"):
     )
 
     # Get vectors and tokens of the pseudo reference and the summaries
-    ref_vecs, ref_tokens = get_vecs_tokens(
-        ref_idxs, all_token_vecs, all_tokens
-    )
-    summ_vecs, summ_tokens = get_vecs_tokens(
-        summaries, all_token_vecs, all_tokens
-    )
+    ref_vecs, ref_tokens = get_vecs_tokens(ref_idxs, all_token_vecs, all_tokens)
+    summ_vecs, summ_tokens = get_vecs_tokens(summaries, all_token_vecs, all_tokens)
 
     # Measure similarity between system summaries and the pseudo-reference
     scores = get_sbert_score(ref_vecs, summ_vecs, sim_metric)
@@ -220,9 +209,7 @@ def get_token_vecs(model, sents, remove_stopwords=True, language="english"):
         mystopwords = set(stopwords.words(language))
         mystopwords.update(["[cls]", "[sep]"])
         wanted_idx = [
-            j
-            for j, tk in enumerate(full_token)
-            if tk.lower() not in mystopwords
+            j for j, tk in enumerate(full_token) if tk.lower() not in mystopwords
         ]
     else:
         wanted_idx = list(range(len(full_token)))
@@ -238,14 +225,10 @@ def get_sbert_score_metrics(
     )
 
     # Get vecs and tokens of the pseudo reference
-    ref_vecs, ref_tokens = get_vecs_tokens(
-        ref_idxs, all_token_vecs, all_tokens
-    )
+    ref_vecs, ref_tokens = get_vecs_tokens(ref_idxs, all_token_vecs, all_tokens)
 
     # Get vecs and tokens of the summaries
-    summ_data = [
-        get_token_vecs(model, sent_tokenize(summ)) for summ in summaries
-    ]
+    summ_data = [get_token_vecs(model, sent_tokenize(summ)) for summ in summaries]
     summ_vecs, summ_tokens = zip(*summ_data)
 
     # Measure similarity between system summaries and the pseudo-ref

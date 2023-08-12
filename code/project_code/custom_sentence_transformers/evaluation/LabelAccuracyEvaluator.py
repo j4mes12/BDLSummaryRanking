@@ -7,6 +7,7 @@ from ..util import batch_to_device
 import os
 import csv
 
+
 class LabelAccuracyEvaluator(SentenceEvaluator):
     """
     Evaluate a model based on its accuracy on a labeled dataset
@@ -27,12 +28,14 @@ class LabelAccuracyEvaluator(SentenceEvaluator):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.name = name
         if name:
-            name = "_"+name
+            name = "_" + name
 
-        self.csv_file = "accuracy_evaluation"+name+"_results.csv"
+        self.csv_file = "accuracy_evaluation" + name + "_results.csv"
         self.csv_headers = ["epoch", "steps", "accuracy"]
 
-    def __call__(self, model, output_path: str = None, epoch: int = -1, steps: int = -1) -> float:
+    def __call__(
+        self, model, output_path: str = None, epoch: int = -1, steps: int = -1
+    ) -> float:
         model.eval()
         total = 0
         correct = 0
@@ -45,7 +48,7 @@ class LabelAccuracyEvaluator(SentenceEvaluator):
         else:
             out_txt = ":"
 
-        logging.info("Evaluation on the "+self.name+" dataset"+out_txt)
+        logging.info("Evaluation on the " + self.name + " dataset" + out_txt)
         self.dataloader.collate_fn = model.smart_batching_collate
         for step, batch in enumerate(tqdm(self.dataloader, desc="Evaluating")):
             features, label_ids = batch_to_device(batch, self.device)
@@ -54,7 +57,7 @@ class LabelAccuracyEvaluator(SentenceEvaluator):
 
             total += prediction.size(0)
             correct += torch.argmax(prediction, dim=1).eq(label_ids).sum().item()
-        accuracy = correct/total
+        accuracy = correct / total
 
         logging.info("Accuracy: {:.4f} ({}/{})\n".format(accuracy, correct, total))
 
