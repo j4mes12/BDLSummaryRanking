@@ -2,12 +2,14 @@
 from summariser.querier.reward_learner import (
     BERTHRewardLearner,
     BERTRewardLearner,
+    TinyBertDeepLearnerWithMCDropout,
 )
 from summariser.querier.logistic_reward_learner import LogisticRewardLearner
 
 # Queriers
 from summariser.querier.expected_improvement_querier import (
     ExpectedImprovementQuerier,
+    ExpImpQuerierForDeepLearner,
 )
 from summariser.querier.expected_information_querier import (
     InformationGainQuerier,
@@ -30,6 +32,7 @@ QUERIER_TYPE_DICT = {
     "pair_unc": PairUncQuerier,
     "pair_unc_SO": PairUncSOQuerier,
     "imp": ExpectedImprovementQuerier,
+    "dl_imp": ExpImpQuerierForDeepLearner,
     "eig": InformationGainQuerier,
     "ttt": ThompsonTopTwoQuerier,
     "tig": ThompsonInformationGainQuerier,
@@ -42,4 +45,5 @@ LEARNER_TYPE_DICT = {
     # GPPL with heuristics as the prior mean
     "BDLH": BERTHRewardLearner,
     "BDL": BERTRewardLearner,
+    "TBDL_MCD": TinyBertDeepLearnerWithMCDropout,
 }
