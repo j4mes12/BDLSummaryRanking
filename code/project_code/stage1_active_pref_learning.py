@@ -37,10 +37,18 @@ def process_cmd_line_args():
 
     # Adding optional arguments with default values
     parser.add_argument("--dataset", default=None)
-    parser.add_argument("--learner_type_str", default="TBDL_IB")
+    parser.add_argument(
+        "--learner_type_str", default="TBDL_IB", choice=["TBDL_IB", "TBDL_IL"]
+    )
     parser.add_argument("--temp", type=float, default=2.5)
     parser.add_argument("--dropout_rate", default=0.1, type=float)
     parser.add_argument("--n_samples", default=5, type=int)
+    parser.add_argument(
+        "--dropout_layers",
+        default="both",
+        type=str,
+        choices=["both", "first", "second"],
+    )
     parser.add_argument("--n_inter_rounds", type=int, default=None)
     parser.add_argument("--n_debug", type=int, default=0)
     parser.add_argument("--reps", type=int, default=1)
@@ -59,6 +67,7 @@ def process_cmd_line_args():
         args.temp,
         args.dropout_rate,
         args.n_samples,
+        args.dropout_layers,
         # Experiment params
         args.n_inter_rounds,
         args.n_debug,
@@ -98,15 +107,17 @@ def learn_dl_model(
     model,  # D04.M.100.B
     original_document,  # original document
     summaries,  # summary texts
+    heuristic_list,  # list of initial values for summaries
+    ref_values_dic,  # dict of rouge scores keys are models
+    all_result_dic,
+    output_path,
+    n_inter_rounds,  # num loops
+    n_debug,
     learner_type_str: str,
     n_samples: int,  # number of dropout samples
-    ref_values_dic,  # dict of rouge scores keys are models
-    heuristic_list,  # list of initial values for summaries
-    n_inter_rounds,  # num loops
-    all_result_dic,
-    n_debug,
-    output_path,
     temp=2.5,
+    dropout_layers: str = "both",
+    dropout_rate=0.1,
 ):
     """
     This function learns a model based on the provided parameters.
@@ -135,13 +146,15 @@ def learn_dl_model(
         rouge_values = rouge_values[:n_debug]
 
     reward_information = "_".join(
-        [
-            topic,
-            model_name,
-            "eximpdl",
-            learner_type_str,
-        ]
+        [topic, model_name, "ExpImpForDL", learner_type_str, f"ns-{n_samples}"]
     )
+
+    # Add record of additional params for in-layer model
+    if learner_type_str == "TBDL_IL":
+        reward_information += "_" + "_".join(
+            [f"dr-{dropout_rate}", f"dl-{dropout_layers}"]
+        )
+
     reward_file = os.path.join(
         output_path, f"rewards_{reward_information}.json"
     )
@@ -169,7 +182,8 @@ def learn_dl_model(
                 original_document=original_document,
                 model_name="huawei-noah/TinyBERT_General_4L_312D",
                 n_samples=n_samples,
-                dropout_rate=0.1,
+                dropout_layers=dropout_layers,
+                dropout_rate=dropout_rate,
             )
 
         log = []
@@ -491,6 +505,7 @@ if __name__ == "__main__":
         temp,
         dropout_rate,
         n_samples,
+        dropout_layers,
         # Experiment params
         n_inter_rounds,
         n_debug,
@@ -584,19 +599,25 @@ if __name__ == "__main__":
 
             for model in models:
                 learnt_rewards = learn_dl_model(
+                    # Data params
                     topic=topic,
                     model=model,
                     original_document=topic_documents,
                     summaries=summary_text.tolist(),
+                    heuristic_list=heuristic_list,
+                    ref_values_dic=ref_values_dic,
+                    all_result_dic=all_result_dic,
+                    # Path params
+                    output_path=output_path,
+                    # Experimental params
+                    n_inter_rounds=n_inter_rounds,
+                    n_debug=n_debug,
+                    # Model params
                     learner_type_str=learner_type_str,
                     n_samples=n_samples,
-                    ref_values_dic=ref_values_dic,
-                    heuristic_list=heuristic_list,
-                    n_inter_rounds=n_inter_rounds,
-                    all_result_dic=all_result_dic,
-                    n_debug=n_debug,
-                    output_path=output_path,
                     temp=temp,
+                    dropout_layers=dropout_layers,
+                    dropout_rate=dropout_rate,
                 )
 
                 # The following selects the highest rewarded set of

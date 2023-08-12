@@ -20,6 +20,8 @@
                 "1",
                 "--dropout_rate",
                 "0.1",
+                "--dropout_layers",
+                "both",
                 "--n_samples",
                 "5",
                 "--n_inter_rounds",

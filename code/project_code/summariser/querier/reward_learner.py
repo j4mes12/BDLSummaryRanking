@@ -302,73 +302,6 @@ class BERTHRewardLearner(BERTRewardLearner):
         self.mu0 = self.mu0 * heuristic_scale + heuristic_offset
 
 
-class BaseBERTDeepRanker(nn.Module):
-    def __init__(
-        self, sbert_model_name: str = "bert-large-nli-stsb-mean-tokens"
-    ) -> None:
-        super().__init__()
-        self.sbert_model = SentenceTransformer(
-            model_name_or_path=sbert_model_name
-        )
-        cs = nn.CosineSimilarity(dim=1)
-        self.cs = nn.DataParallel(cs)
-
-    def forward(self, doc, summ1, summ2):
-        self.doc_embedding = self.sbert_model.encode(
-            doc, convert_to_tensor=True
-        ).unsqueeze(0)
-        self.summary1_embedding = self.sbert_model.encode(
-            summ1, convert_to_tensor=True
-        ).unsqueeze(0)
-        self.summary2_embedding = self.sbert_model.encode(
-            summ2, convert_to_tensor=True
-        ).unsqueeze(0)
-
-        score1 = self.cs(self.doc_embedding, self.summary1_embedding)
-        score2 = self.cs(self.doc_embedding, self.summary2_embedding)
-
-        return score1, score2
-
-
-class MCDBERTDeepRanker(BaseBERTDeepRanker):
-    def __init__(
-        self,
-        sbert_model_name: str = "bert-large-nli-stsb-mean-tokens",
-        n_samples: int = 100,
-    ) -> None:
-        self.n_samples = n_samples
-        super().__init__(sbert_model_name)
-        self.sbert_model.train()
-        # for name, module in self.sbert_model.named_modules():
-        #     if isinstance(module, nn.Dropout):
-        #         module.train()
-
-    def predict_with_dropout(self, doc, summ1, summ2):
-        scores1 = []
-        scores2 = []
-
-        for _ in range(self.n_samples):
-            score1, score2 = self.forward(doc=doc, summ1=summ1, summ2=summ2)
-
-            scores1.append(score1), scores2.append(score2)
-
-        return torch.stack(scores1), torch.stack(scores2)
-
-    def mean_var_from_scores(self, scores: torch.tensor):
-        mean_scores = scores.mean().numpy()
-
-        var_scores = scores.var().numpy()
-
-        return mean_scores, var_scores
-
-    def predict_mean_var(self, doc, summ1, summ2):
-        scores1, scores2 = self.predict_with_dropout(doc, summ1, summ2)
-
-        return self.mean_var_from_scores(scores1), self.mean_var_from_scores(
-            scores2
-        )
-
-
 class MCDTinyBertDeepLearner(nn.Module):
     def __init__(
         self,
@@ -386,12 +319,12 @@ class MCDTinyBertDeepLearner(nn.Module):
         # Set MCD params
         self.n_samples = n_samples
 
-    def set_layers_to_training_mode(self, layers: List[nn.Dropout]):
-        for module in layers:
+    def set_layers_to_training_mode(self):
+        for module in self.training_mode_layers:
             module.train()
 
-    def set_layers_to_eval_mode(self, layers: List[nn.Dropout]):
-        for module in layers:
+    def set_layers_to_eval_mode(self):
+        for module in self.training_mode_layers:
             module.eval()
 
     def _get_sliding_window_embedding(
@@ -481,7 +414,14 @@ class TinyBertDeepLearnerWithMCDropoutInLayer(MCDTinyBertDeepLearner):
         model_name: str = "huawei-noah/TinyBERT_General_4L_312D",
         n_samples: int = 10,
         dropout_rate: float = 0.1,
+        dropout_layers: str = "both",
     ) -> None:
+        assert dropout_layers in [
+            "both",
+            "first",
+            "second",
+        ], f"{dropout_layers} is not a dropout_layers option."
+
         super().__init__(
             original_document=original_document,
             model_name=model_name,
@@ -499,6 +439,12 @@ class TinyBertDeepLearnerWithMCDropoutInLayer(MCDTinyBertDeepLearner):
         self.out = nn.Linear(10, 1)
 
         self.relu = ReLU()
+
+        self.train_mode_layers = {
+            "both": [self.dropout1, self.dropout2],
+            "first": [self.dropout1],
+            "second": [self.dropout2],
+        }[dropout_layers]
 
     def forward(self, candidate_summaries: List[str]):
         scores = []
@@ -523,16 +469,14 @@ class TinyBertDeepLearnerWithMCDropoutInLayer(MCDTinyBertDeepLearner):
         return torch.stack(scores)
 
     def get_scores_with_dropout(self, summaries) -> None:
-        train_mode_layers = [self.dropout1, self.dropout2]
-
-        self.set_layers_to_training_mode(layers=train_mode_layers)
+        self.set_layers_to_training_mode()
 
         all_scores = [
             self.forward(candidate_summaries=summaries)
             for _ in range(self.n_samples)
         ]
 
-        self.set_layers_to_eval_mode(layers=train_mode_layers)
+        self.set_layers_to_eval_mode()
 
         self.similarity_scores = torch.stack(all_scores)
 
@@ -609,6 +553,8 @@ class TinyBertDeepLearnerWithMCDropoutInBert(MCDTinyBertDeepLearner):
             original_document
         )
 
+        self.training_mode_layers = [self.base_model]
+
     def _get_embedding(self, text):
         encodings = self.tokenizer(
             text,
@@ -633,16 +579,14 @@ class TinyBertDeepLearnerWithMCDropoutInBert(MCDTinyBertDeepLearner):
         return scores
 
     def get_scores_with_dropout(self, summaries) -> None:
-        train_mode_layers = [self.base_model]
-
-        self.set_layers_to_training_mode(layers=train_mode_layers)
+        self.set_layers_to_training_mode()
 
         all_scores = [
             self.forward(candidate_summaries=summaries)
             for _ in range(self.n_samples)
         ]
 
-        self.set_layers_to_eval_mode(layers=train_mode_layers)
+        self.set_layers_to_eval_mode()
 
         self.similarity_scores = torch.stack(all_scores)
 
@@ -686,3 +630,41 @@ class TinyBertDeepLearnerWithMCDropoutInBert(MCDTinyBertDeepLearner):
         optimizer.step()
 
         print(f"Loss: {loss.item()}")
+
+
+class MCDSBertDeepRanker(nn.Module):
+    def __init__(
+        self,
+        original_document: str,
+        model_name: str = "bert-large-nli-stsb-mean-tokens",
+        n_samples: int = 10,
+        dropout_rate: float = 0.1,
+    ):
+        super().__init__()
+
+        # Architecture
+        self.base_model = SentenceTransformer(model_name_or_path=model_name)
+
+        linear1 = nn.Linear(self.base_model.config.hidden_size, 100)
+        self.linear1 = nn.DataParallel(linear1)
+        self.dropout1 = nn.Dropout(dropout_rate).eval()
+
+        linear2 = nn.Linear(100, 10)
+        self.linear2 = nn.DataParallel(linear2)
+        self.dropout2 = nn.Dropout(dropout_rate).eval()
+
+        self.out = nn.Linear(10, 1)
+
+        self.relu = ReLU()
+
+        # Define variables
+        self.original_document = original_document
+        self.n_samples = n_samples
+        self.dropout_rate = dropout_rate
+
+        self.doc_embedding = self.base_model.encode(
+            original_document, convert_to_tensor=True
+        ).unsqueeze(0)
+
+    def forward(self, summary: str):
+        pass
