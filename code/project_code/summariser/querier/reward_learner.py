@@ -11,6 +11,7 @@ import torch
 
 # from torch.utils.data import Dataset
 from torch import nn
+from torch.nn.modules.activation import ReLU
 
 from sentence_transformers import SentenceTransformer
 from transformers import BertTokenizer, BertModel
@@ -368,28 +369,34 @@ class MCDBERTDeepRanker(BaseBERTDeepRanker):
         )
 
 
-class TinyBertDeepLearner(nn.Module):
+class MCDTinyBertDeepLearner(nn.Module):
     def __init__(
         self,
         original_document,
         model_name: str = "huawei-noah/TinyBERT_General_4L_312D",
-    ) -> None:
+        n_samples: int = 10,
+    ):
         super().__init__()
         self.base_model = BertModel.from_pretrained(model_name)
         self.tokenizer = BertTokenizer.from_pretrained(model_name)
-
-        cs = nn.CosineSimilarity(dim=1)
-        self.cs = nn.DataParallel(cs)
-
         # Record of summary processing
         self.n_labels_seen = 0
+        # Define og
+        self.original_document = original_document
+        # Set MCD params
+        self.n_samples = n_samples
 
-        # Text variables
-        self._get_original_document_embedding(original_document)
+    def set_layers_to_training_mode(self, layers: List[nn.Dropout]):
+        for module in layers:
+            module.train()
 
-    def _get_original_document_embedding(
+    def set_layers_to_eval_mode(self, layers: List[nn.Dropout]):
+        for module in layers:
+            module.eval()
+
+    def _get_sliding_window_embedding(
         self,
-        original_document: str,
+        text: str,
         window_size: int = 512,
         stride: int = 256,
     ):
@@ -406,7 +413,7 @@ class TinyBertDeepLearner(nn.Module):
         text.
         """
 
-        input_ids = self.tokenizer.encode(original_document)
+        input_ids = self.tokenizer.encode(text)
         embeddings = []
 
         # Create sliding windows
@@ -423,53 +430,7 @@ class TinyBertDeepLearner(nn.Module):
                 window_embedding = output.last_hidden_state.mean(dim=1)
                 embeddings.append(window_embedding)
 
-        self.doc_embedding = torch.stack(embeddings).mean(axis=0)
-
-    def _get_embedding(self, text):
-        encodings = self.tokenizer(
-            text,
-            return_tensors="pt",
-            padding=True,
-            truncation=True,
-            max_length=512,
-        )
-        embeddings = self.base_model(**encodings).last_hidden_state
-        # use cls token as it is more robust to padding
-        return embeddings[:, 0, :]
-
-    def forward(self, candidate_summaries):
-        # Batched embeddings
-        self.summaries_embeddings = self._get_embedding(candidate_summaries)
-
-        scores = self.cs(
-            self.doc_embedding.repeat(len(candidate_summaries), 1),
-            self.summaries_embeddings,
-        )
-
-        return scores
-
-
-class TinyBertDeepLearnerWithMCDropout(TinyBertDeepLearner):
-    def __init__(
-        self,
-        original_document,
-        model_name: str = "huawei-noah/TinyBERT_General_4L_312D",
-        n_samples: int = 10,
-    ) -> None:
-        super().__init__(
-            original_document=original_document, model_name=model_name
-        )
-
-        self.base_model.train()
-        self.n_samples = n_samples
-
-    def get_scores_with_dropout(self, summaries) -> None:
-        all_scores = [
-            self.forward(candidate_summaries=summaries)
-            for _ in range(self.n_samples)
-        ]
-
-        self.similarity_scores = torch.stack(all_scores)
+        return torch.stack(embeddings).mean(axis=0)
 
     def get_similarity_rewards(self, return_tensor: bool = True):
         # return mean scores
@@ -513,43 +474,215 @@ class TinyBertDeepLearnerWithMCDropout(TinyBertDeepLearner):
                 return np.diag(reward_variance[idxs])
 
 
-def train_incremental(
-    device,
-    model: TinyBertDeepLearnerWithMCDropout,
-    training_summaries: list,
-    preference_score: int,
-    loss_margin: float,
-):
-    model = model.to(device)
-    # Set the model to training mode
-    model.train()
+class TinyBertDeepLearnerWithMCDropoutInLayer(MCDTinyBertDeepLearner):
+    def __init__(
+        self,
+        original_document: str,
+        model_name: str = "huawei-noah/TinyBERT_General_4L_312D",
+        n_samples: int = 10,
+        dropout_rate: float = 0.1,
+    ) -> None:
+        super().__init__(
+            original_document=original_document,
+            model_name=model_name,
+            n_samples=n_samples,
+        )
 
-    # Define optimiser
-    optimizer = torch.optim.Adam(model.parameters(), lr=5e-5)
+        linear1 = nn.Linear(self.base_model.config.hidden_size, 100)
+        self.linear1 = nn.DataParallel(linear1)
+        self.dropout1 = nn.Dropout(dropout_rate).eval()
 
-    # Define the loss function
-    criterion = nn.MarginRankingLoss(margin=loss_margin).to(device)
+        linear2 = nn.Linear(100, 10)
+        self.linear2 = nn.DataParallel(linear2)
+        self.dropout2 = nn.Dropout(dropout_rate).eval()
 
-    # Clear the gradients
-    optimizer.zero_grad()
+        self.out = nn.Linear(10, 1)
 
-    model.get_scores_with_dropout(training_summaries)
+        self.relu = ReLU()
 
-    # Get the mean scores using Monte Carlo Dropout
-    mean_scores = model.get_similarity_rewards(return_tensor=True)
+    def forward(self, candidate_summaries: List[str]):
+        scores = []
+        for summary in candidate_summaries:
+            document_summary_pair = (
+                self.original_document + " [SEP] " + summary
+            )
+            ds_embedding = self._get_sliding_window_embedding(
+                document_summary_pair
+            )
 
-    # map preference score into MRL target
-    # If preference_score is 0 -> 1 (first input is prefered)
-    # If preference_score is 1 -> -1 (second input is prefered)
-    mrl_target = torch.tensor(1 - 2 * preference_score)
+            h1_1 = self.relu(self.linear1(ds_embedding))
+            h1_2 = self.dropout1(h1_1)
 
-    # Compute the loss
-    loss = criterion(mean_scores[0], mean_scores[1], mrl_target)
+            h2_1 = self.relu(self.linear2(h1_2))
+            h2_2 = self.dropout2(h2_1)
 
-    # # Backpropagate the loss
-    loss.backward()
+            score = self.out(h2_2)
 
-    # Update the weights
-    optimizer.step()
+            scores.append(score.squeeze())
 
-    print(f"Loss: {loss.item()}")
+        return torch.stack(scores)
+
+    def get_scores_with_dropout(self, summaries) -> None:
+        train_mode_layers = [self.dropout1, self.dropout2]
+
+        self.set_layers_to_training_mode(layers=train_mode_layers)
+
+        all_scores = [
+            self.forward(candidate_summaries=summaries)
+            for _ in range(self.n_samples)
+        ]
+
+        self.set_layers_to_eval_mode(layers=train_mode_layers)
+
+        self.similarity_scores = torch.stack(all_scores)
+
+    def train_incremental(
+        self,
+        device: torch.device,
+        training_summaries: list,
+        preference_score: int,
+        loss_margin: float,
+    ):
+        # Move the model to the specified device
+        self = self.to(device)
+
+        # Set the model to training mode
+        self.train()
+
+        # Freeze the pretrained BERT model
+        for param in self.base_model.parameters():
+            param.requires_grad = False
+
+        # Define an optimizer that will update only the linear layers
+        linear_layers_params = (
+            list(self.linear1.parameters())
+            + list(self.linear2.parameters())
+            + list(self.out.parameters())
+        )
+        optimizer = torch.optim.Adam(linear_layers_params, lr=5e-5)
+
+        # Define the loss function
+        criterion = nn.MarginRankingLoss(margin=loss_margin).to(device)
+
+        # Clear the gradients
+        optimizer.zero_grad()
+
+        # Call the existing logic for generating scores with dropout
+        self.get_scores_with_dropout(training_summaries)
+
+        # Get the mean scores using Monte Carlo Dropout
+        mean_scores = self.get_similarity_rewards(return_tensor=True)
+
+        # Map preference score into MRL target
+        mrl_target = torch.tensor(1 - 2 * preference_score)
+
+        # Compute the loss
+        loss = criterion(mean_scores[0], mean_scores[1], mrl_target)
+
+        # Backpropagate the loss
+        loss.backward()
+
+        # Update the weights of the linear layers
+        optimizer.step()
+
+        print(f"Loss: {loss.item()}")
+
+
+class TinyBertDeepLearnerWithMCDropoutInBert(MCDTinyBertDeepLearner):
+    def __init__(
+        self,
+        original_document,
+        model_name: str = "huawei-noah/TinyBERT_General_4L_312D",
+        n_samples: int = 10,
+    ) -> None:
+        super().__init__(
+            original_document=original_document,
+            model_name=model_name,
+            n_samples=n_samples,
+        )
+
+        cs = nn.CosineSimilarity(dim=1)
+        self.cs = nn.DataParallel(cs)
+
+        # Text variables
+        self.doc_embedding = self._get_sliding_window_embedding(
+            original_document
+        )
+
+    def _get_embedding(self, text):
+        encodings = self.tokenizer(
+            text,
+            return_tensors="pt",
+            padding=True,
+            truncation=True,
+            max_length=512,
+        )
+        embeddings = self.base_model(**encodings).last_hidden_state
+        # use cls token as it is more robust to padding
+        return embeddings[:, 0, :]
+
+    def forward(self, candidate_summaries):
+        # Batched embeddings
+        self.summaries_embeddings = self._get_embedding(candidate_summaries)
+
+        scores = self.cs(
+            self.doc_embedding.repeat(len(candidate_summaries), 1),
+            self.summaries_embeddings,
+        )
+
+        return scores
+
+    def get_scores_with_dropout(self, summaries) -> None:
+        train_mode_layers = [self.base_model]
+
+        self.set_layers_to_training_mode(layers=train_mode_layers)
+
+        all_scores = [
+            self.forward(candidate_summaries=summaries)
+            for _ in range(self.n_samples)
+        ]
+
+        self.set_layers_to_eval_mode(layers=train_mode_layers)
+
+        self.similarity_scores = torch.stack(all_scores)
+
+    def train_incremental(
+        self,
+        device: torch.device,
+        training_summaries: list,
+        preference_score: int,
+        loss_margin: float,
+    ):
+        self = self.to(device)
+        # Set the model to training mode
+        self.train()
+
+        # Define optimiser
+        optimizer = torch.optim.Adam(self.parameters(), lr=5e-5)
+
+        # Define the loss function
+        criterion = nn.MarginRankingLoss(margin=loss_margin).to(device)
+
+        # Clear the gradients
+        optimizer.zero_grad()
+
+        self.get_scores_with_dropout(training_summaries)
+
+        # Get the mean scores using Monte Carlo Dropout
+        mean_scores = self.get_similarity_rewards(return_tensor=True)
+
+        # map preference score into MRL target
+        # If preference_score is 0 -> 1 (first input is prefered)
+        # If preference_score is 1 -> -1 (second input is prefered)
+        mrl_target = torch.tensor(1 - 2 * preference_score)
+
+        # Compute the loss
+        loss = criterion(mean_scores[0], mean_scores[1], mrl_target)
+
+        # # Backpropagate the loss
+        loss.backward()
+
+        # Update the weights
+        optimizer.step()
+
+        print(f"Loss: {loss.item()}")
