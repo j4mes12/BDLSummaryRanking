@@ -34,6 +34,7 @@ def process_cmd_line_args():
 
     # Adding optional arguments with default values
     parser.add_argument("--dataset", default=None)
+    parser.add_argument("--use_lorem_summs", default=False, type=bool)
     parser.add_argument(
         "--learner_type_str", default="TBDL_IB", choices=["TBDL_IB", "TBDL_IL"]
     )
@@ -59,6 +60,7 @@ def process_cmd_line_args():
     return (
         # Data variables
         args.dataset,
+        args.use_lorem_summs,
         # Model params
         args.learner_type_str,
         args.temp,
@@ -486,6 +488,12 @@ def load_topic_articles(docs):
     return " ".join(topic_sentences)
 
 
+def load_lorem_summaries(filepath):
+    summaries = np.genfromtxt(filepath, delimiter="#####", dtype=str)
+
+    return summaries
+
+
 if __name__ == "__main__":
     """
     Command line arguments:
@@ -515,6 +523,7 @@ if __name__ == "__main__":
     (
         # Data variables
         dataset,
+        use_lorem_summs,
         # Model params
         learner_type_str,
         temp,
@@ -606,9 +615,15 @@ if __name__ == "__main__":
             ) = readSampleSummaries(dataset, topic, "supert")
             print(f"num of summaries read: {len(summaries)}")
 
-            summary_text = load_candidate_summaries(
-                summaries, dataset, topic, root_dir, docs
-            )
+            if use_lorem_summs:
+                summary_text = load_lorem_summaries(
+                    filepath="project_code/data/summary_candidates/"
+                    + "lorem_summaries_min-200_max-800_step-50.csv"
+                )
+            else:
+                summary_text = load_candidate_summaries(
+                    summaries, dataset, topic, root_dir, docs
+                )
 
             topic_documents = load_topic_articles(docs)
 
