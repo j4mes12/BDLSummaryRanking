@@ -36,9 +36,7 @@ class SentenceTransformer(nn.Sequential):
 
         if model_name_or_path is not None and model_name_or_path != "":
             logging.info(
-                "Load pretrained SentenceTransformer: {}".format(
-                    model_name_or_path
-                )
+                "Load pretrained SentenceTransformer: {}".format(model_name_or_path)
             )
 
             if (
@@ -50,9 +48,7 @@ class SentenceTransformer(nn.Sequential):
                     "Did not find a / or \\ in the name. "
                     + "Assume to download model from server"
                 )
-                model_name_or_path = (
-                    __DOWNLOAD_SERVER__ + model_name_or_path + ".zip"
-                )
+                model_name_or_path = __DOWNLOAD_SERVER__ + model_name_or_path + ".zip"
 
             if model_name_or_path.startswith(
                 "http://"
@@ -105,9 +101,7 @@ class SentenceTransformer(nn.Sequential):
             # Load from disk
             if model_path is not None:
                 logging.info(
-                    "Load SentenceTransformer from folder: {}".format(
-                        model_path
-                    )
+                    "Load SentenceTransformer from folder: {}".format(model_path)
                 )
                 with open(os.path.join(model_path, "modules.json")) as fIn:
                     contained_modules = json.load(fIn)
@@ -176,16 +170,12 @@ class SentenceTransformer(nn.Sequential):
 
             features = {}
             for text in batch_tokens:
-                sentence_features = self.get_sentence_features(
-                    text, longest_seq
-                )
+                sentence_features = self.get_sentence_features(text, longest_seq)
 
                 for feature_name in sentence_features:
                     if feature_name not in features:
                         features[feature_name] = []
-                    features[feature_name].append(
-                        sentence_features[feature_name]
-                    )
+                    features[feature_name].append(sentence_features[feature_name])
 
             for feature_name in features:
                 features[feature_name] = torch.tensor(
@@ -194,17 +184,11 @@ class SentenceTransformer(nn.Sequential):
 
             with torch.no_grad():
                 embeddings = self.forward(features)
-                sent_embeddings = (
-                    embeddings["sentence_embedding"].to("cpu").numpy()
-                )
+                sent_embeddings = embeddings["sentence_embedding"].to("cpu").numpy()
                 all_embeddings.extend(sent_embeddings)
-                raw_token_vecs = (
-                    embeddings["token_embeddings"].to("cpu").numpy()
-                )
+                raw_token_vecs = embeddings["token_embeddings"].to("cpu").numpy()
                 token_ids = embeddings["input_ids"].to("cpu").numpy()
-                for i, l in enumerate(
-                    embeddings["sentence_lengths"].to("cpu").numpy()
-                ):
+                for i, l in enumerate(embeddings["sentence_lengths"].to("cpu").numpy()):
                     all_token_embeddings.append(raw_token_vecs[i][:l])
                     all_tokens.append(
                         self._first_module().ids_to_tokens(token_ids[i][:l])
@@ -212,9 +196,7 @@ class SentenceTransformer(nn.Sequential):
 
         reverting_order = np.argsort(length_sorted_idx)
         all_embeddings = [all_embeddings[idx] for idx in reverting_order]
-        all_token_embeddings = [
-            all_token_embeddings[idx] for idx in reverting_order
-        ]
+        all_token_embeddings = [all_token_embeddings[idx] for idx in reverting_order]
         all_tokens = [all_tokens[idx] for idx in reverting_order]
 
         if token_vecs:
@@ -255,9 +237,7 @@ class SentenceTransformer(nn.Sequential):
 
         for idx, name in enumerate(self._modules):
             module = self._modules[name]
-            model_path = os.path.join(
-                path, str(idx) + "_" + type(module).__name__
-            )
+            model_path = os.path.join(path, str(idx) + "_" + type(module).__name__)
             os.makedirs(model_path, exist_ok=True)
             module.save(model_path)
             contained_modules.append(
@@ -306,9 +286,7 @@ class SentenceTransformer(nn.Sequential):
                 for feature_name in sentence_features:
                     if feature_name not in feature_lists:
                         feature_lists[feature_name] = []
-                    feature_lists[feature_name].append(
-                        sentence_features[feature_name]
-                    )
+                    feature_lists[feature_name].append(sentence_features[feature_name])
 
             for feature_name in feature_lists:
                 feature_lists[feature_name] = torch.tensor(
@@ -367,9 +345,7 @@ class SentenceTransformer(nn.Sequential):
         if output_path is not None:
             os.makedirs(output_path, exist_ok=True)
             if os.listdir(output_path):
-                raise ValueError(
-                    f"{output_path} already exists and is not empty."
-                )
+                raise ValueError(f"{output_path} already exists and is not empty.")
 
         dataloaders = [dataloader for dataloader, _ in train_objectives]
 
@@ -404,9 +380,7 @@ class SentenceTransformer(nn.Sequential):
                 },
                 {
                     "params": [
-                        p
-                        for n, p in param_optimizer
-                        if any(nd in n for nd in no_decay)
+                        p for n, p in param_optimizer if any(nd in n for nd in no_decay)
                     ],
                     "weight_decay": 0.0,
                 },
@@ -455,9 +429,7 @@ class SentenceTransformer(nn.Sequential):
                 loss_model.zero_grad()
                 loss_model.train()
 
-            for step in trange(
-                num_train_objectives * min_batch_size, desc="Iteration"
-            ):
+            for step in trange(num_train_objectives * min_batch_size, desc="Iteration"):
                 idx = step % num_train_objectives
 
                 loss_model = loss_models[idx]
@@ -495,10 +467,7 @@ class SentenceTransformer(nn.Sequential):
                 optimizer.zero_grad()
                 global_step += 1
 
-                if (
-                    evaluation_steps > 0
-                    and training_steps % evaluation_steps == 0
-                ):
+                if evaluation_steps > 0 and training_steps % evaluation_steps == 0:
                     self._eval_during_training(
                         evaluator,
                         output_path,
@@ -532,9 +501,7 @@ class SentenceTransformer(nn.Sequential):
     ):
         """Runs evaluation during the training"""
         if evaluator is not None:
-            score = evaluator(
-                self, output_path=output_path, epoch=epoch, steps=steps
-            )
+            score = evaluator(self, output_path=output_path, epoch=epoch, steps=steps)
             if score > self.best_score and save_best_model:
                 self.save(output_path)
                 self.best_score = score

@@ -59,5 +59,5 @@ if __name__ == "__main__":
                     actions_line = "actions:" + ",".join(act_str) + "\n"
                     ofh.write(actions_line)
 
-                    text_line = "text:" + ". ".join(sum_text) + "\n"
+                    text_line = "text:" + sum_text + "\n"
                     ofh.write(text_line)

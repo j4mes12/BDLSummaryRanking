@@ -7,9 +7,14 @@ from tqdm import tqdm
 from ..util import batch_to_device
 import os
 import csv
-from sklearn.metrics.pairwise import paired_cosine_distances, paired_euclidean_distances, paired_manhattan_distances
+from sklearn.metrics.pairwise import (
+    paired_cosine_distances,
+    paired_euclidean_distances,
+    paired_manhattan_distances,
+)
 from scipy.stats import pearsonr, spearmanr
 import numpy as np
+
 
 class EmbeddingSimilarityEvaluator(SentenceEvaluator):
     """
@@ -21,8 +26,13 @@ class EmbeddingSimilarityEvaluator(SentenceEvaluator):
     The results are written in a CSV. If a CSV already exists, then values are appended.
     """
 
-
-    def __init__(self, dataloader: DataLoader, main_similarity: SimilarityFunction = None, name: str = '', show_progress_bar: bool = None):
+    def __init__(
+        self,
+        dataloader: DataLoader,
+        main_similarity: SimilarityFunction = None,
+        name: str = "",
+        show_progress_bar: bool = None,
+    ):
         """
         Constructs an evaluator based for the dataset
 
@@ -37,17 +47,37 @@ class EmbeddingSimilarityEvaluator(SentenceEvaluator):
         self.main_similarity = main_similarity
         self.name = name
         if name:
-            name = "_"+name
+            name = "_" + name
 
         if show_progress_bar is None:
-            show_progress_bar = (logging.getLogger().getEffectiveLevel() == logging.INFO or logging.getLogger().getEffectiveLevel() == logging.DEBUG)
+            show_progress_bar = (
+                logging.getLogger().getEffectiveLevel() == logging.INFO
+                or logging.getLogger().getEffectiveLevel() == logging.DEBUG
+            )
         self.show_progress_bar = show_progress_bar
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.csv_file: str = "similarity_evaluation"+name+"_results.csv"
-        self.csv_headers = ["epoch", "steps", "cosine_pearson", "cosine_spearman", "euclidean_pearson", "euclidean_spearman", "manhattan_pearson", "manhattan_spearman", "dot_pearson", "dot_spearman"]
+        self.csv_file: str = "similarity_evaluation" + name + "_results.csv"
+        self.csv_headers = [
+            "epoch",
+            "steps",
+            "cosine_pearson",
+            "cosine_spearman",
+            "euclidean_pearson",
+            "euclidean_spearman",
+            "manhattan_pearson",
+            "manhattan_spearman",
+            "dot_pearson",
+            "dot_spearman",
+        ]
 
-    def __call__(self, model: 'SequentialSentenceEmbedder', output_path: str = None, epoch: int = -1, steps: int = -1) -> float:
+    def __call__(
+        self,
+        model: "SequentialSentenceEmbedder",
+        output_path: str = None,
+        epoch: int = -1,
+        steps: int = -1,
+    ) -> float:
         model.eval()
         embeddings1 = []
         embeddings2 = []
@@ -61,7 +91,7 @@ class EmbeddingSimilarityEvaluator(SentenceEvaluator):
         else:
             out_txt = ":"
 
-        logging.info("Evaluation the model on "+self.name+" dataset"+out_txt)
+        logging.info("Evaluation the model on " + self.name + " dataset" + out_txt)
 
         self.dataloader.collate_fn = model.smart_batching_collate
 
@@ -72,7 +102,10 @@ class EmbeddingSimilarityEvaluator(SentenceEvaluator):
         for step, batch in enumerate(iterator):
             features, label_ids = batch_to_device(batch, self.device)
             with torch.no_grad():
-                emb1, emb2 = [model(sent_features)['sentence_embedding'].to("cpu").numpy() for sent_features in features]
+                emb1, emb2 = [
+                    model(sent_features)["sentence_embedding"].to("cpu").numpy()
+                    for sent_features in features
+                ]
 
             labels.extend(label_ids.to("cpu").numpy())
             embeddings1.extend(emb1)
@@ -83,12 +116,13 @@ class EmbeddingSimilarityEvaluator(SentenceEvaluator):
         except Exception as e:
             print(embeddings1)
             print(embeddings2)
-            raise(e)
+            raise (e)
 
         manhattan_distances = -paired_manhattan_distances(embeddings1, embeddings2)
         euclidean_distances = -paired_euclidean_distances(embeddings1, embeddings2)
-        dot_products = [np.dot(emb1, emb2) for emb1, emb2 in zip(embeddings1, embeddings2)]
-
+        dot_products = [
+            np.dot(emb1, emb2) for emb1, emb2 in zip(embeddings1, embeddings2)
+        ]
 
         eval_pearson_cosine, _ = pearsonr(labels, cosine_scores)
         eval_spearman_cosine, _ = spearmanr(labels, cosine_scores)
@@ -102,26 +136,51 @@ class EmbeddingSimilarityEvaluator(SentenceEvaluator):
         eval_pearson_dot, _ = pearsonr(labels, dot_products)
         eval_spearman_dot, _ = spearmanr(labels, dot_products)
 
-        logging.info("Cosine-Similarity :\tPearson: {:.4f}\tSpearman: {:.4f}".format(
-            eval_pearson_cosine, eval_spearman_cosine))
-        logging.info("Manhattan-Distance:\tPearson: {:.4f}\tSpearman: {:.4f}".format(
-            eval_pearson_manhattan, eval_spearman_manhattan))
-        logging.info("Euclidean-Distance:\tPearson: {:.4f}\tSpearman: {:.4f}".format(
-            eval_pearson_euclidean, eval_spearman_euclidean))
-        logging.info("Dot-Product-Similarity:\tPearson: {:.4f}\tSpearman: {:.4f}".format(
-            eval_pearson_dot, eval_spearman_dot))
+        logging.info(
+            "Cosine-Similarity :\tPearson: {:.4f}\tSpearman: {:.4f}".format(
+                eval_pearson_cosine, eval_spearman_cosine
+            )
+        )
+        logging.info(
+            "Manhattan-Distance:\tPearson: {:.4f}\tSpearman: {:.4f}".format(
+                eval_pearson_manhattan, eval_spearman_manhattan
+            )
+        )
+        logging.info(
+            "Euclidean-Distance:\tPearson: {:.4f}\tSpearman: {:.4f}".format(
+                eval_pearson_euclidean, eval_spearman_euclidean
+            )
+        )
+        logging.info(
+            "Dot-Product-Similarity:\tPearson: {:.4f}\tSpearman: {:.4f}".format(
+                eval_pearson_dot, eval_spearman_dot
+            )
+        )
 
         if output_path is not None:
             csv_path = os.path.join(output_path, self.csv_file)
             output_file_exists = os.path.isfile(csv_path)
-            with open(csv_path, mode="a" if output_file_exists else 'w', encoding="utf-8") as f:
+            with open(
+                csv_path, mode="a" if output_file_exists else "w", encoding="utf-8"
+            ) as f:
                 writer = csv.writer(f)
                 if not output_file_exists:
                     writer.writerow(self.csv_headers)
 
-                writer.writerow([epoch, steps, eval_pearson_cosine, eval_spearman_cosine, eval_pearson_euclidean,
-                                 eval_spearman_euclidean, eval_pearson_manhattan, eval_spearman_manhattan, eval_pearson_dot, eval_spearman_dot])
-
+                writer.writerow(
+                    [
+                        epoch,
+                        steps,
+                        eval_pearson_cosine,
+                        eval_spearman_cosine,
+                        eval_pearson_euclidean,
+                        eval_spearman_euclidean,
+                        eval_pearson_manhattan,
+                        eval_spearman_manhattan,
+                        eval_pearson_dot,
+                        eval_spearman_dot,
+                    ]
+                )
 
         if self.main_similarity == SimilarityFunction.COSINE:
             return eval_spearman_cosine
@@ -132,6 +191,11 @@ class EmbeddingSimilarityEvaluator(SentenceEvaluator):
         elif self.main_similarity == SimilarityFunction.DOT_PRODUCT:
             return eval_spearman_dot
         elif self.main_similarity is None:
-            return max(eval_spearman_cosine, eval_spearman_manhattan, eval_spearman_euclidean, eval_spearman_dot)
+            return max(
+                eval_spearman_cosine,
+                eval_spearman_manhattan,
+                eval_spearman_euclidean,
+                eval_spearman_dot,
+            )
         else:
             raise ValueError("Unknown main_similarity value")

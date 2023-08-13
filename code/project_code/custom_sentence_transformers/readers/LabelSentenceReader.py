@@ -3,10 +3,12 @@ import csv
 import gzip
 import os
 
+
 class LabelSentenceReader:
     """Reads in a file that has at least two columns: a label and a sentence.
     This reader can for example be used with the BatchHardTripletLoss.
     Maps labels automatically to integers"""
+
     def __init__(self, folder, label_col_idx=0, sentence_col_idx=1):
         self.folder = folder
         self.label_map = {}
@@ -18,7 +20,7 @@ class LabelSentenceReader:
 
         id = 0
         for line in open(os.path.join(self.folder, filename), encoding="utf-8"):
-            splits = line.strip().split('\t')
+            splits = line.strip().split("\t")
             label = splits[self.label_col_idx]
             sentence = splits[self.sentence_col_idx]
 

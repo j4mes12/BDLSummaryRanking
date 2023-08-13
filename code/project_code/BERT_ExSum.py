@@ -70,12 +70,10 @@ class BertRanker(nn.Module):
 
         self.relu = ReLU()
 
-    def forward(
-        self, input_ids1, attention_mask1, input_ids2, attention_mask2
-    ):
-        sequence_emb = self.bert(
-            input_ids=input_ids1, attention_mask=attention_mask1
-        )[0]
+    def forward(self, input_ids1, attention_mask1, input_ids2, attention_mask2):
+        sequence_emb = self.bert(input_ids=input_ids1, attention_mask=attention_mask1)[
+            0
+        ]
         sequence_emb = sequence_emb.transpose(1, 2)
         pooled_output_1 = self.pooling(sequence_emb)
         pooled_output_1 = pooled_output_1.transpose(2, 1)
@@ -84,9 +82,9 @@ class BertRanker(nn.Module):
         h2_1 = self.relu(self.W2(h1_1))
         scores_1 = self.out(h2_1)
 
-        sequence_emb = self.bert(
-            input_ids=input_ids2, attention_mask=attention_mask2
-        )[0]
+        sequence_emb = self.bert(input_ids=input_ids2, attention_mask=attention_mask2)[
+            0
+        ]
         sequence_emb = sequence_emb.transpose(1, 2)
         pooled_output_2 = self.pooling(sequence_emb)
         pooled_output_2 = pooled_output_2.transpose(2, 1)
@@ -98,9 +96,7 @@ class BertRanker(nn.Module):
         return scores_1, scores_2
 
     def forward_single_item(self, input_ids, attention_mask):
-        sequence_emb = self.bert(
-            input_ids=input_ids, attention_mask=attention_mask
-        )[0]
+        sequence_emb = self.bert(input_ids=input_ids, attention_mask=attention_mask)[0]
         sequence_emb = sequence_emb.transpose(1, 2)
         pooled_output = self.pooling(sequence_emb)
         pooled_output = pooled_output.transpose(2, 1)
@@ -118,12 +114,10 @@ class MCDBertRanker(BertRanker):
         self.dropout_w1 = nn.Dropout(dropout_prob)
         self.dropout_w2 = nn.Dropout(dropout_prob)
 
-    def forward(
-        self, input_ids1, attention_mask1, input_ids2, attention_mask2
-    ):
-        sequence_emb = self.bert(
-            input_ids=input_ids1, attention_mask=attention_mask1
-        )[0]
+    def forward(self, input_ids1, attention_mask1, input_ids2, attention_mask2):
+        sequence_emb = self.bert(input_ids=input_ids1, attention_mask=attention_mask1)[
+            0
+        ]
         sequence_emb = sequence_emb.transpose(1, 2)
         pooled_output_1 = self.pooling(sequence_emb)
         pooled_output_1 = pooled_output_1.transpose(2, 1)
@@ -134,9 +128,9 @@ class MCDBertRanker(BertRanker):
         h2_1 = self.dropout_w2(h2_1)
         scores_1 = self.out(h2_1)
 
-        sequence_emb = self.bert(
-            input_ids=input_ids2, attention_mask=attention_mask2
-        )[0]
+        sequence_emb = self.bert(input_ids=input_ids2, attention_mask=attention_mask2)[
+            0
+        ]
         sequence_emb = sequence_emb.transpose(1, 2)
         pooled_output_2 = self.pooling(sequence_emb)
         pooled_output_2 = pooled_output_2.transpose(2, 1)
@@ -150,9 +144,7 @@ class MCDBertRanker(BertRanker):
         return scores_1, scores_2
 
     def forward_single_item(self, input_ids, attention_mask):
-        sequence_emb = self.bert(
-            input_ids=input_ids, attention_mask=attention_mask
-        )[0]
+        sequence_emb = self.bert(input_ids=input_ids, attention_mask=attention_mask)[0]
         sequence_emb = sequence_emb.transpose(1, 2)
         pooled_output = self.pooling(sequence_emb)
         pooled_output = pooled_output.transpose(2, 1)
@@ -335,30 +327,21 @@ def predict_bert_exsum(model, data_loader, device):
         print(f"batch_vctor shape: {str(batch_vectors.shape)}")
         print(f"vectors shape: {str(vectors.shape)}")
 
-        scores = np.append(
-            scores, batch_scores.cpu().detach().numpy().flatten()
-        )
+        scores = np.append(scores, batch_scores.cpu().detach().numpy().flatten())
         batch_vectors = batch_vectors.cpu().numpy()
         if batch_vectors.ndim == 1:
             batch_vectors = batch_vectors[None, :]
         vectors = np.concatenate((vectors, batch_vectors), axis=0)
         qids = np.append(qids, batch["qid"].detach().numpy().flatten())
-        ismatch = np.append(
-            ismatch, batch["ismatch"].detach().numpy().flatten()
-        )
+        ismatch = np.append(ismatch, batch["ismatch"].detach().numpy().flatten())
 
-    print(
-        "Outputting an embedding vector with shape "
-        + str(np.array(vectors).shape)
-    )
+    print("Outputting an embedding vector with shape " + str(np.array(vectors).shape))
 
     return scores, vectors, qids, ismatch
 
 
 def evaluate_accuracy(model, data_loader, device):
-    scores, vectors, qids, matches = predict_bert_exsum(
-        model, data_loader, device
-    )
+    scores, vectors, qids, matches = predict_bert_exsum(model, data_loader, device)
 
     unique_questions = np.unique(qids)
 
@@ -380,9 +363,7 @@ def evaluate_accuracy(model, data_loader, device):
 # Create the dataset class
 class SEPairwiseDataset(Dataset):
     def __init__(self, summ_pairs: list):
-        self.tokenizer = DistilBertTokenizer.from_pretrained(
-            "distilbert-base-cased"
-        )
+        self.tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-cased")
         # BertTokenizer.from_pretrained('bert-base-cased')
         self.summ_pairs = summ_pairs
         self.max_len = 512
@@ -425,9 +406,7 @@ class SEPairwiseDataset(Dataset):
 
 class SESingleDataset(Dataset):
     def __init__(self, qas: list, qids: list, aids: list, goldids: dict):
-        self.tokenizer = DistilBertTokenizer.from_pretrained(
-            "distilbert-base-cased"
-        )
+        self.tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-cased")
         # BertTokenizer.from_pretrained('bert-base-cased')
         self.qas = qas
         self.qids = qids
@@ -756,9 +735,7 @@ if __name__ == "__main__":
     ) = construct_single_item_dataset(testdata)
 
     print("Evaluating on test set:")
-    _, te_scores, te_vectors = evaluate_accuracy(
-        bertcqa_model, te_data_loader, device
-    )
+    _, te_scores, te_vectors = evaluate_accuracy(bertcqa_model, te_data_loader, device)
 
     # Output predictions in the right format for the GPPL experiments ---------
     # Save predictions for the test data

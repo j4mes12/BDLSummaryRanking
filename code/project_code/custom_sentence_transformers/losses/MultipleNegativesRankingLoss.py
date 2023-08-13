@@ -10,7 +10,10 @@ class MultipleNegativesRankingLoss(nn.Module):
         self.sentence_embedder = sentence_embedder
 
     def forward(self, sentence_features: Iterable[Dict[str, Tensor]], labels: Tensor):
-        reps = [self.sentence_embedder(sentence_feature)['sentence_embedding'] for sentence_feature in sentence_features]
+        reps = [
+            self.sentence_embedder(sentence_feature)["sentence_embedding"]
+            for sentence_feature in sentence_features
+        ]
 
         reps_a, reps_b = reps
         return self.multiple_negatives_ranking_loss(reps_a, reps_b)
@@ -19,7 +22,9 @@ class MultipleNegativesRankingLoss(nn.Module):
     # Paper: https://arxiv.org/pdf/1705.00652.pdf
     #   Efficient Natural Language Response Suggestion for Smart Reply
     #   Section 4.4
-    def multiple_negatives_ranking_loss(self, embeddings_a: Tensor, embeddings_b: Tensor):
+    def multiple_negatives_ranking_loss(
+        self, embeddings_a: Tensor, embeddings_b: Tensor
+    ):
         """
         Compute the loss over a batch with two embeddings per example.
 

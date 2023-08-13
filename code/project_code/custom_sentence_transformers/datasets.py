@@ -21,20 +21,31 @@ class SentencesDataset(Dataset):
     The SentenceBertEncoder.smart_batching_collate is required for this to work.
     SmartBatchingDataset does *not* work without it.
     """
+
     tokens: List[List[List[str]]]
     labels: Tensor
 
-    def __init__(self, examples: List[InputExample], model: SentenceTransformer, show_progress_bar: bool = None):
+    def __init__(
+        self,
+        examples: List[InputExample],
+        model: SentenceTransformer,
+        show_progress_bar: bool = None,
+    ):
         """
         Create a new SentencesDataset with the tokenized texts and the labels as Tensor
         """
         if show_progress_bar is None:
-            show_progress_bar = (logging.getLogger().getEffectiveLevel() == logging.INFO or logging.getLogger().getEffectiveLevel() == logging.DEBUG)
+            show_progress_bar = (
+                logging.getLogger().getEffectiveLevel() == logging.INFO
+                or logging.getLogger().getEffectiveLevel() == logging.DEBUG
+            )
         self.show_progress_bar = show_progress_bar
 
         self.convert_input_examples(examples, model)
 
-    def convert_input_examples(self, examples: List[InputExample], model: SentenceTransformer):
+    def convert_input_examples(
+        self, examples: List[InputExample], model: SentenceTransformer
+    ):
         """
         Converts input examples to a SmartBatchingDataset usable to train the model with
         SentenceTransformer.smart_batching_collate as the collate_fn for the DataLoader
@@ -66,7 +77,12 @@ class SentencesDataset(Dataset):
             tokenized_texts = [model.tokenize(text) for text in example.texts]
 
             for i, token in enumerate(tokenized_texts):
-                if hasattr(model, 'max_seq_length') and model.max_seq_length is not None and model.max_seq_length > 0 and len(token) >= model.max_seq_length:
+                if (
+                    hasattr(model, "max_seq_length")
+                    and model.max_seq_length is not None
+                    and model.max_seq_length > 0
+                    and len(token) >= model.max_seq_length
+                ):
                     too_long[i] += 1
 
             labels.append(example.label)
@@ -77,13 +93,17 @@ class SentencesDataset(Dataset):
 
         logging.info("Num sentences: %d" % (len(examples)))
         for i in range(num_texts):
-            logging.info("Sentences {} longer than max_seqence_length: {}".format(i, too_long[i]))
+            logging.info(
+                "Sentences {} longer than max_seqence_length: {}".format(i, too_long[i])
+            )
 
         self.tokens = inputs
         self.labels = tensor_labels
 
     def __getitem__(self, item):
-        return [self.tokens[i][item] for i in range(len(self.tokens))], self.labels[item]
+        return [self.tokens[i][item] for i in range(len(self.tokens))], self.labels[
+            item
+        ]
 
     def __len__(self):
         return len(self.tokens[0])
@@ -101,13 +121,19 @@ class SentenceLabelDataset(Dataset):
 
     This also uses smart batching like SentenceDataset.
     """
+
     tokens: List[List[str]]
     labels: Tensor
     num_labels: int
     labels_right_border: List[int]
 
-    def __init__(self, examples: List[InputExample], model: SentenceTransformer, provide_positive: bool = True,
-                 provide_negative: bool = True):
+    def __init__(
+        self,
+        examples: List[InputExample],
+        model: SentenceTransformer,
+        provide_positive: bool = True,
+        provide_negative: bool = True,
+    ):
         """
         Converts input examples to a SentenceLabelDataset usable to train the model with
         SentenceTransformer.smart_batching_collate as the collate_fn for the DataLoader
@@ -134,7 +160,9 @@ class SentenceLabelDataset(Dataset):
         self.positive = provide_positive
         self.negative = provide_negative
 
-    def convert_input_examples(self, examples: List[InputExample], model: SentenceTransformer):
+    def convert_input_examples(
+        self, examples: List[InputExample], model: SentenceTransformer
+    ):
         """
         Converts input examples to a SentenceLabelDataset.
 
@@ -164,7 +192,12 @@ class SentenceLabelDataset(Dataset):
                     label_type = torch.float
             tokenized_text = model.tokenize(example.texts[0])
 
-            if hasattr(model, 'max_seq_length') and model.max_seq_length is not None and model.max_seq_length > 0 and len(tokenized_text) >= model.max_seq_length:
+            if (
+                hasattr(model, "max_seq_length")
+                and model.max_seq_length is not None
+                and model.max_seq_length > 0
+                and len(tokenized_text) >= model.max_seq_length
+            ):
                 too_long += 1
             if example.label in label_sent_mapping:
                 label_sent_mapping[example.label].append(ex_index)
@@ -193,10 +226,16 @@ class SentenceLabelDataset(Dataset):
             return [self.tokens[item]], self.labels[item]
 
         label = bisect.bisect_right(self.labels_right_border, item)
-        left_border = 0 if label == 0 else self.labels_right_border[label-1]
+        left_border = 0 if label == 0 else self.labels_right_border[label - 1]
         right_border = self.labels_right_border[label]
-        positive_item = np.random.choice(np.concatenate([self.idxs[left_border:item], self.idxs[item+1:right_border]]))
-        negative_item = np.random.choice(np.concatenate([self.idxs[0:left_border], self.idxs[right_border:]]))
+        positive_item = np.random.choice(
+            np.concatenate(
+                [self.idxs[left_border:item], self.idxs[item + 1 : right_border]]
+            )
+        )
+        negative_item = np.random.choice(
+            np.concatenate([self.idxs[0:left_border], self.idxs[right_border:]])
+        )
 
         if self.positive:
             positive = [self.tokens[positive_item]]
@@ -207,7 +246,7 @@ class SentenceLabelDataset(Dataset):
         else:
             negative = []
 
-        return [self.tokens[item]]+positive+negative, self.labels[item]
+        return [self.tokens[item]] + positive + negative, self.labels[item]
 
     def __len__(self):
         return len(self.tokens)

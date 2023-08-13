@@ -16,9 +16,9 @@ def batch_to_device(batch, target_device: device):
     features = batch["features"]
     for paired_sentence_idx in range(len(features)):
         for feature_name in features[paired_sentence_idx]:
-            features[paired_sentence_idx][feature_name] = features[
-                paired_sentence_idx
-            ][feature_name].to(target_device)
+            features[paired_sentence_idx][feature_name] = features[paired_sentence_idx][
+                feature_name
+            ].to(target_device)
 
     labels = batch["labels"].to(target_device)
     return features, labels

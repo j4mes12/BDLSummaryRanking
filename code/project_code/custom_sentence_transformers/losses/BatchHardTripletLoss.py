@@ -10,16 +10,22 @@ class BatchHardTripletLoss(nn.Module):
         self.triplet_margin = triplet_margin
 
     def forward(self, sentence_features: Iterable[Dict[str, Tensor]], labels: Tensor):
-        reps = [self.sentence_embedder(sentence_feature)['sentence_embedding'] for sentence_feature in sentence_features]
+        reps = [
+            self.sentence_embedder(sentence_feature)["sentence_embedding"]
+            for sentence_feature in sentence_features
+        ]
 
-        return BatchHardTripletLoss.batch_hard_triplet_loss(labels, reps[0], margin=self.triplet_margin)
-
+        return BatchHardTripletLoss.batch_hard_triplet_loss(
+            labels, reps[0], margin=self.triplet_margin
+        )
 
     # Hard Triplet Loss
     # Source: https://github.com/NegatioN/OnlineMiningTripletLoss/blob/master/triplet_loss.py
     # Paper: In Defense of the Triplet Loss for Person Re-Identification, https://arxiv.org/abs/1703.07737
     @staticmethod
-    def batch_hard_triplet_loss(labels: Tensor, embeddings: Tensor, margin: float, squared: bool = False) -> Tensor:
+    def batch_hard_triplet_loss(
+        labels: Tensor, embeddings: Tensor, margin: float, squared: bool = False
+    ) -> Tensor:
         """Build the triplet loss over a batch of embeddings.
         For each anchor, we get the hardest positive and hardest negative to form a triplet.
         Args:
@@ -32,11 +38,15 @@ class BatchHardTripletLoss(nn.Module):
             Label_Sentence_Triplet: scalar tensor containing the triplet loss
         """
         # Get the pairwise distance matrix
-        pairwise_dist = BatchHardTripletLoss._pairwise_distances(embeddings, squared=squared)
+        pairwise_dist = BatchHardTripletLoss._pairwise_distances(
+            embeddings, squared=squared
+        )
 
         # For each anchor, get the hardest positive
         # First, we need to get a mask for every valid positive (they should have same label)
-        mask_anchor_positive = BatchHardTripletLoss._get_anchor_positive_triplet_mask(labels).float()
+        mask_anchor_positive = BatchHardTripletLoss._get_anchor_positive_triplet_mask(
+            labels
+        ).float()
 
         # We put to 0 any element where (a, p) is not valid (valid if a != p and label(a) == label(p))
         anchor_positive_dist = mask_anchor_positive * pairwise_dist
@@ -46,11 +56,15 @@ class BatchHardTripletLoss(nn.Module):
 
         # For each anchor, get the hardest negative
         # First, we need to get a mask for every valid negative (they should have different labels)
-        mask_anchor_negative = BatchHardTripletLoss._get_anchor_negative_triplet_mask(labels).float()
+        mask_anchor_negative = BatchHardTripletLoss._get_anchor_negative_triplet_mask(
+            labels
+        ).float()
 
         # We add the maximum value in each row to the invalid negatives (label(a) == label(n))
         max_anchor_negative_dist, _ = pairwise_dist.max(1, keepdim=True)
-        anchor_negative_dist = pairwise_dist + max_anchor_negative_dist * (1.0 - mask_anchor_negative)
+        anchor_negative_dist = pairwise_dist + max_anchor_negative_dist * (
+            1.0 - mask_anchor_negative
+        )
 
         # shape (batch_size,)
         hardest_negative_dist, _ = anchor_negative_dist.min(1, keepdim=True)
@@ -99,7 +113,9 @@ class BatchHardTripletLoss(nn.Module):
         num_positive_triplets = valid_triplets.size(0)
         num_valid_triplets = mask.sum()
 
-        fraction_positive_triplets = num_positive_triplets / (num_valid_triplets.float() + 1e-16)
+        fraction_positive_triplets = num_positive_triplets / (
+            num_valid_triplets.float() + 1e-16
+        )
 
         # Get final mean triplet loss over the positive valid triplets
         triplet_loss = triplet_loss.sum() / (num_positive_triplets + 1e-16)
@@ -126,7 +142,9 @@ class BatchHardTripletLoss(nn.Module):
         # Compute the pairwise distance matrix as we have:
         # ||a - b||^2 = ||a||^2  - 2 <a, b> + ||b||^2
         # shape (batch_size, batch_size)
-        distances = square_norm.unsqueeze(0) - 2.0 * dot_product + square_norm.unsqueeze(1)
+        distances = (
+            square_norm.unsqueeze(0) - 2.0 * dot_product + square_norm.unsqueeze(1)
+        )
 
         # Because of computation errors, some distances might be negative so we put everything >= 0.0
         distances[distances < 0] = 0
@@ -159,7 +177,7 @@ class BatchHardTripletLoss(nn.Module):
 
         distinct_indices = (i_not_equal_j & i_not_equal_k) & j_not_equal_k
 
-        label_equal = labels.unsqueeze(0)==labels.unsqueeze(1)
+        label_equal = labels.unsqueeze(0) == labels.unsqueeze(1)
         i_equal_j = label_equal.unsqueeze(2)
         i_equal_k = label_equal.unsqueeze(1)
 
@@ -177,13 +195,13 @@ class BatchHardTripletLoss(nn.Module):
         """
         # Check that i and j are distinct
 
-        device = 'cuda' if labels.is_cuda else 'cpu'
+        device = "cuda" if labels.is_cuda else "cpu"
         indices_equal = torch.eye(labels.size(0)).byte().to(device)
         indices_not_equal = ~indices_equal
 
         # Check if labels[i] == labels[j]
         # Uses broadcasting where the 1st argument has shape (1, batch_size) and the 2nd (batch_size, 1)
-        labels_equal = labels.unsqueeze(0)==labels.unsqueeze(1)
+        labels_equal = labels.unsqueeze(0) == labels.unsqueeze(1)
 
         return labels_equal & indices_not_equal
 
@@ -198,4 +216,4 @@ class BatchHardTripletLoss(nn.Module):
         # Check if labels[i] != labels[k]
         # Uses broadcasting where the 1st argument has shape (1, batch_size) and the 2nd (batch_size, 1)
 
-        return ~(labels.unsqueeze(0)==labels.unsqueeze(1))
+        return ~(labels.unsqueeze(0) == labels.unsqueeze(1))

@@ -60,10 +60,7 @@ class RandomQuerier:
         return first_item, second_item
 
     def getQuery(self, log):
-        if (
-            self.reward_learner.n_labels_seen == 0
-            and not self.random_initial_sample
-        ):
+        if self.reward_learner.n_labels_seen == 0 and not self.random_initial_sample:
             return self._get_good_and_dissimilar_pair()
 
         summary_num = len(self.summary_vectors)

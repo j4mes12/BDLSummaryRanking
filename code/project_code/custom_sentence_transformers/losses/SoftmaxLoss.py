@@ -4,14 +4,17 @@ from typing import Union, Tuple, List, Iterable, Dict
 from ..SentenceTransformer import SentenceTransformer
 import logging
 
+
 class SoftmaxLoss(nn.Module):
-    def __init__(self,
-                 model: SentenceTransformer,
-                 sentence_embedding_dimension: int,
-                 num_labels: int,
-                 concatenation_sent_rep: bool = True,
-                 concatenation_sent_difference: bool = True,
-                 concatenation_sent_multiplication: bool = False):
+    def __init__(
+        self,
+        model: SentenceTransformer,
+        sentence_embedding_dimension: int,
+        num_labels: int,
+        concatenation_sent_rep: bool = True,
+        concatenation_sent_difference: bool = True,
+        concatenation_sent_multiplication: bool = False,
+    ):
         super(SoftmaxLoss, self).__init__()
         self.model = model
         self.num_labels = num_labels
@@ -26,11 +29,18 @@ class SoftmaxLoss(nn.Module):
             num_vectors_concatenated += 1
         if concatenation_sent_multiplication:
             num_vectors_concatenated += 1
-        logging.info("Softmax loss: #Vectors concatenated: {}".format(num_vectors_concatenated))
-        self.classifier = nn.Linear(num_vectors_concatenated * sentence_embedding_dimension, num_labels)
+        logging.info(
+            "Softmax loss: #Vectors concatenated: {}".format(num_vectors_concatenated)
+        )
+        self.classifier = nn.Linear(
+            num_vectors_concatenated * sentence_embedding_dimension, num_labels
+        )
 
     def forward(self, sentence_features: Iterable[Dict[str, Tensor]], labels: Tensor):
-        reps = [self.model(sentence_feature)['sentence_embedding'] for sentence_feature in sentence_features]
+        reps = [
+            self.model(sentence_feature)["sentence_embedding"]
+            for sentence_feature in sentence_features
+        ]
         rep_a, rep_b = reps
 
         vectors_concat = []

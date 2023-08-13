@@ -58,20 +58,14 @@ if __name__ == "__main__":
             os.makedirs(dir_path)
         vec = Vectoriser(docs, summary_len)
         if start <= topic_count < end:
-            print(
-                f"-----Generate samples for topic {topic_count}: {topic}-----"
-            )
+            print(f"-----Generate samples for topic {topic_count}: {topic}-----")
             (
                 action_list,
                 heuristic_rewards,
                 rouge_rewards,
             ) = vec.sampleRandomReviews(summary_num, True, True, models)
 
-            assert (
-                len(action_list)
-                == len(heuristic_rewards)
-                == len(rouge_rewards)
-            )
+            assert len(action_list) == len(heuristic_rewards) == len(rouge_rewards)
 
             for action_index in range(len(action_list)):
                 writeSample(
