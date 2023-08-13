@@ -1,7 +1,7 @@
 import json
 import argparse
 import os
-from datetime import datetime
+import warnings
 import pandas as pd
 import torch
 from obtain_summary_text import SummaryTextGenerator
@@ -17,9 +17,6 @@ from summariser.querier.reward_learner import (
     TinyBertDeepLearnerWithMCDropoutInLayer,
 )
 
-# from summariser.querier.expected_improvement_querier import (
-#     ExpectedImprovementQuerier,
-# )
 from resources import PROCESSED_PATH
 from summariser.utils.reader import readSampleSummaries
 from summariser.utils.evaluator import evaluateReward
@@ -38,7 +35,7 @@ def process_cmd_line_args():
     # Adding optional arguments with default values
     parser.add_argument("--dataset", default=None)
     parser.add_argument(
-        "--learner_type_str", default="TBDL_IB", choice=["TBDL_IB", "TBDL_IL"]
+        "--learner_type_str", default="TBDL_IB", choices=["TBDL_IB", "TBDL_IL"]
     )
     parser.add_argument("--temp", type=float, default=2.5)
     parser.add_argument("--dropout_rate", default=0.1, type=float)
@@ -51,8 +48,7 @@ def process_cmd_line_args():
     )
     parser.add_argument("--n_inter_rounds", type=int, default=None)
     parser.add_argument("--n_debug", type=int, default=0)
-    parser.add_argument("--reps", type=int, default=1)
-    parser.add_argument("--output_folder_name_in", default=-1)
+    parser.add_argument("--n_reps", type=int, default=1)
     parser.add_argument("--root_dir", default=".")
     parser.add_argument("--res_dir", default="results")
 
@@ -71,9 +67,8 @@ def process_cmd_line_args():
         # Experiment params
         args.n_inter_rounds,
         args.n_debug,
-        args.reps,
+        args.n_reps,
         # Directories
-        args.output_folder_name_in,
         args.root_dir,
         args.res_dir,
     )
@@ -111,7 +106,7 @@ def learn_dl_model(
     ref_values_dic,  # dict of rouge scores keys are models
     all_result_dic,
     output_path,
-    n_inter_rounds,  # num loops
+    n_iter_rounds,  # num loops
     n_debug,
     learner_type_str: str,
     n_samples: int,  # number of dropout samples
@@ -155,13 +150,20 @@ def learn_dl_model(
             [f"dr-{dropout_rate}", f"dl-{dropout_layers}"]
         )
 
-    reward_file = os.path.join(output_path, f"rewards_{reward_information}.json")
+    reward_file = os.path.join(
+        output_path, f"rewards_{reward_information}.json"
+    )
+
+    loss_file = os.path.join(
+        output_path, f"model_losses_{reward_information}.json"
+    )
 
     # if this has already been done, skip it!
-    if os.path.exists(reward_file):
+    if os.path.exists(reward_file) and os.path.exists(loss_file):
         print("Reloading previously computed results.")
         # reload the pre-computed rewards
         learnt_rewards = load_json(reward_file)
+        model_losses = load_json(loss_file)
     else:
         oracle = SimulatedUser(rouge_values, m=temp)
 
@@ -185,11 +187,13 @@ def learn_dl_model(
             )
 
         log = []
+        model_losses = []
 
         device = get_torch_training_device()
 
         print("Selecting device -- using CPU")
-        for round in range(n_inter_rounds):
+        for round in range(n_iter_rounds):
+            print(f"Starting round {round} of {n_iter_rounds}.")
             print("Getting DeepLearner similarity distributions.")
             reward_learner.get_scores_with_dropout(summaries)
 
@@ -206,7 +210,7 @@ def learn_dl_model(
 
             # train deep ranker
             print("Perform incremental train on DeepLearner.")
-            reward_learner.train_incremental(
+            iteration_loss = reward_learner.train_incremental(
                 device=device,
                 training_summaries=[
                     summaries[summ_idx1],
@@ -215,6 +219,8 @@ def learn_dl_model(
                 preference_score=pref,
                 loss_margin=0.1,
             )
+
+            model_losses.append(iteration_loss)
 
         print("Active learning complete. Now getting mixed rewards")
         # Score all summaries with most up-to-date weights
@@ -225,6 +231,8 @@ def learn_dl_model(
 
         print("Saving the rewards for this model...")
         save_json(reward_file, learnt_rewards)
+        print("Saving the losses for this model...")
+        save_json(loss_file, model_losses)
 
     print("Computing metrics...")
     if n_debug:
@@ -264,7 +272,9 @@ def load_candidate_summaries(summaries, dataset, topic, root_dir, docs):
     )
 
     if os.path.exists(summary_text_cache_file):
-        print("Warning: reloading text for summaries from cache")
+        warnings.warn(
+            "reloading text for summaries from cache", ResourceWarning
+        )
         summary_text = np.genfromtxt(
             summary_text_cache_file, delimiter="#####", dtype=str
         )
@@ -274,7 +284,9 @@ def load_candidate_summaries(summaries, dataset, topic, root_dir, docs):
 
     summary_text = text_generator.getSummaryText(summaries)
 
-    np.savetxt(summary_text_cache_file, summary_text, fmt="%s", delimiter="#####")
+    np.savetxt(
+        summary_text_cache_file, summary_text, fmt="%s", delimiter="#####"
+    )
     print(f"Cached summary vectors to {summary_text_cache_file}")
 
     return summary_text
@@ -300,12 +312,16 @@ def save_result_dic(
     for metric, values in all_result_dic.items():
         print(f"{metric} : {np.mean(values)}")
 
-    file_name = f"metrics_{querier_type}_{learner_type_str}_{n_inter_rounds}.json"
+    file_name = (
+        f"metrics_{querier_type}_{learner_type_str}_{n_inter_rounds}.json"
+    )
     with open(os.path.join(output_path, file_name), "w") as fh:
         json.dump(all_result_dic, fh)
 
 
-def create_dataframe_and_save(method_names, data_means, data_vars, metrics, filename):
+def create_dataframe_and_save(
+    method_names, data_means, data_vars, metrics, filename
+):
     """
     This function creates a pandas DataFrame using provided means and
     variances, and saves the DataFrame into a CSV file.
@@ -344,6 +360,8 @@ def save_selected_results(
     all_result_dic,
     selected_means,
     selected_vars,
+    selected_means_allreps,
+    selected_vars_allreps,
     chosen_metrics,
     method_names,
     this_method_idx,
@@ -355,8 +373,18 @@ def save_selected_results(
 
     # Compute means and variances
     for metric_index, metric in enumerate(chosen_metrics):
-        selected_means[this_method_idx, metric_index] = np.mean(all_result_dic[metric])
-        selected_vars[this_method_idx, metric_index] = np.var(all_result_dic[metric])
+        selected_means[this_method_idx, metric_index] = np.mean(
+            all_result_dic[metric]
+        )
+        selected_vars[this_method_idx, metric_index] = np.var(
+            all_result_dic[metric]
+        )
+        selected_means_allreps[
+            this_method_idx, metric_index
+        ] += selected_means[this_method_idx, metric_index]
+        selected_vars_allreps[this_method_idx, metric_index] += selected_vars[
+            this_method_idx, metric_index
+        ]
 
     filename = os.path.join(output_path, "table.csv")
 
@@ -396,17 +424,15 @@ def save_selected_results_allreps(
     )
 
 
-def make_output_dir(root_dir, res_dir, output_folder_name, rep):
+def make_output_dir(output_folder_name, rep):
     """
     Create an output directory based on provided root directory,
     results directory, output folder name, and repetition index.
     """
-    if output_folder_name == -1:
-        output_folder_name = datetime.now().strftime(r"started-%Y-%m-%d-%H-%M-%S")
-    else:
-        output_folder_name = f"{output_folder_name}_rep{rep}"
 
-    output_path = os.path.join(root_dir, res_dir, output_folder_name)
+    output_path = os.path.join(
+        root_dir, res_dir, output_folder_name, f"rep{rep}"
+    )
 
     if not os.path.exists(output_path):
         os.makedirs(output_path)
@@ -495,9 +521,8 @@ if __name__ == "__main__":
         # Experiment params
         n_inter_rounds,
         n_debug,
-        reps,
+        n_reps,
         # Directories
-        output_folder_name,
         root_dir,
         res_dir,
     ) = process_cmd_line_args()
@@ -506,9 +531,15 @@ if __name__ == "__main__":
     if dataset is None:
         dataset = "DUC2001"  # 'DUC2001'  # DUC2001, DUC2002, 'DUC2004'#
 
+    output_folder_name = "_".join(
+        [dataset.lower(), "ExpImpForDL", learner_type_str]
+    )
+
+    output_folder_path = os.path.join(root_dir, res_dir, output_folder_name)
+
     print(
         f"Running stage1 summary preference learning with {dataset}, "
-        + f"writing to {root_dir}/{res_dir}/{output_folder_name}"
+        + f"writing to {output_folder_path}"
     )
 
     # set to greater than zero to use a subset of topics for debugging
@@ -526,11 +557,11 @@ if __name__ == "__main__":
     selected_means_allreps = np.zeros((1, len(chosen_metrics)))
     selected_vars_allreps = np.zeros((1, len(chosen_metrics)))
 
-    for rep in reps:
+    for rep in range(n_reps):
         selected_means = np.zeros((1, len(chosen_metrics)))
         selected_vars = np.zeros((1, len(chosen_metrics)))
 
-        output_path = make_output_dir(root_dir, res_dir, output_folder_name, rep)
+        output_path = make_output_dir(output_folder_path, rep)
 
         # saves a list of result folders containing repeats from the same run
         folders.append(output_path)
@@ -569,7 +600,7 @@ if __name__ == "__main__":
                 ref_values_dic,
                 heuristic_list,
             ) = readSampleSummaries(dataset, topic, "supert")
-            print(f"num of summaries read: {summaries}")
+            print(f"num of summaries read: {len(summaries)}")
 
             summary_text = load_candidate_summaries(
                 summaries, dataset, topic, root_dir, docs
@@ -594,7 +625,7 @@ if __name__ == "__main__":
                     # Path params
                     output_path=output_path,
                     # Experimental params
-                    n_inter_rounds=n_inter_rounds,
+                    n_iter_rounds=n_inter_rounds,
                     n_debug=n_debug,
                     # Model params
                     learner_type_str=learner_type_str,
@@ -643,5 +674,5 @@ if __name__ == "__main__":
         selected_vars_allreps,
         chosen_metrics,
         querier_types,
-        len(reps),
+        n_reps,
     )
