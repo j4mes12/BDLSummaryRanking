@@ -46,6 +46,7 @@ def process_cmd_line_args():
         type=str,
         choices=["both", "first", "second"],
     )
+    parser.add_argument("--margin", default=0.1, type=float)
     parser.add_argument("--n_inter_rounds", type=int, default=None)
     parser.add_argument("--n_debug", type=int, default=0)
     parser.add_argument("--n_reps", type=int, default=1)
@@ -64,6 +65,7 @@ def process_cmd_line_args():
         args.dropout_rate,
         args.n_samples,
         args.dropout_layers,
+        args.margin,
         # Experiment params
         args.n_inter_rounds,
         args.n_debug,
@@ -113,6 +115,7 @@ def learn_dl_model(
     temp=2.5,
     dropout_layers: str = "both",
     dropout_rate=0.1,
+    margin=0.1,
 ):
     """
     This function learns a model based on the provided parameters.
@@ -217,7 +220,7 @@ def learn_dl_model(
                     summaries[summ_idx2],
                 ],
                 preference_score=pref,
-                loss_margin=0.1,
+                loss_margin=margin,
             )
 
             model_losses.append(iteration_loss)
@@ -518,6 +521,7 @@ if __name__ == "__main__":
         dropout_rate,
         n_samples,
         dropout_layers,
+        margin,
         # Experiment params
         n_inter_rounds,
         n_debug,
@@ -633,6 +637,7 @@ if __name__ == "__main__":
                     temp=temp,
                     dropout_layers=dropout_layers,
                     dropout_rate=dropout_rate,
+                    margin=margin,
                 )
 
                 # The following selects the highest rewarded set of
