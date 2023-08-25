@@ -23,17 +23,13 @@
                 "--dropout_layers",
                 "both",
                 "--n_samples",
-                "5",
-                "--n_inter_rounds",
-                "5",
-                "--n_debug",
                 "10",
-                "--n_reps",
-                "1",
-                "--root_dir",
-                "./project_code",
-                "--res_dir",
-                "results_1",
+                "--margin",
+                "0.1",
+                "--n_inter_rounds",
+                "10",
+                "--n_debug",
+                "2",
             ]
         }
     ]

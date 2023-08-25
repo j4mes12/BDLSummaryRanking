@@ -1,8 +1,5 @@
 import numpy as np
 from summariser.querier.pairwise_uncertainty_querier import PairUncQuerier
-from summariser.querier.reward_learner import (
-    TinyBertDeepLearnerWithMCDropoutInBert,
-)
 from scipy.stats import norm
 from summariser.utils.misc import normaliseList
 
@@ -50,10 +47,7 @@ class ExpectedImprovementQuerier(PairUncQuerier):
         f_best = f[best_idx]
 
         sigma = (
-            Cov[best_idx, best_idx]
-            + np.diag(Cov)
-            - Cov[best_idx, :]
-            - Cov[:, best_idx]
+            Cov[best_idx, best_idx] + np.diag(Cov) - Cov[best_idx, :] - Cov[:, best_idx]
         )
         sigma[
             best_idx
@@ -107,10 +101,7 @@ class ExpImpQuerierForDeepLearner:
         f_best = f[best_idx]
 
         sigma = (
-            Cov[best_idx, best_idx]
-            + np.diag(Cov)
-            - Cov[best_idx, :]
-            - Cov[:, best_idx]
+            Cov[best_idx, best_idx] + np.diag(Cov) - Cov[best_idx, :] - Cov[:, best_idx]
         )
         sigma[
             best_idx
@@ -155,19 +146,14 @@ class ExpImpQuerierForDeepLearner:
 
     def getQuery(
         self,
-        reward_learner: TinyBertDeepLearnerWithMCDropoutInBert,
+        f,
+        Cov,
+        candidate_idxs,
         log: tuple,
     ):
         # get the current best estimate
-        f = reward_learner.get_similarity_rewards(return_tensor=False)
 
-        candidate_idxs = self._get_candidates(f)
-
-        Cov = reward_learner.predictive_cov(
-            candidate_idxs, full_cov=self.full_cov
-        )
-
-        pairwise_scores = self._compute_pairwise_scores(f[candidate_idxs], Cov)
+        pairwise_scores = self._compute_pairwise_scores(f, Cov)
 
         # Find out which of our candidates have been compared already
         for data_point in log:
@@ -181,9 +167,7 @@ class ExpImpQuerierForDeepLearner:
             pairwise_scores[dp0, dp1] = -np.inf
             pairwise_scores[dp1, dp0] = -np.inf
 
-        selected = np.unravel_index(
-            np.argmax(pairwise_scores), pairwise_scores.shape
-        )
+        selected = np.unravel_index(np.argmax(pairwise_scores), pairwise_scores.shape)
         pe_selected = pairwise_scores[selected[0], selected[1]]
         selected = (candidate_idxs[selected[0]], candidate_idxs[selected[1]])
 

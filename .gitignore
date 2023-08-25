@@ -134,3 +134,8 @@ ext_code
 **/writeups
 **/test_artifacts.py
 **/run_scripts.sh
+**/experiments/
+**/shells/
+**/test_*.py
+**/get_top_summs.py
+**.out

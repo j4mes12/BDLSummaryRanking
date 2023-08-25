@@ -1,0 +1,40 @@
+<mxfile host="Electron" modified="2023-08-25T11:03:55.181Z" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.6.8 Chrome/114.0.5735.289 Electron/25.5.0 Safari/537.36" etag="bK23HckfNOKJHgR_l6gm" version="21.6.8" type="device">
+  <diagram name="Page-1" id="s0sKdbPhdxVmIitYbO0h">
+    <mxGraphModel dx="906" dy="674" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="1" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="cL9Ay9SM4F4dzmY68NZg-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="cL9Ay9SM4F4dzmY68NZg-1" target="cL9Ay9SM4F4dzmY68NZg-2" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cL9Ay9SM4F4dzmY68NZg-1" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;Machine Learning Model&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="335" y="190" width="210" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cL9Ay9SM4F4dzmY68NZg-2" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;$$\text{Unlabelled pool: }\mathcal{D}_{unlab}$$&lt;/font&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="550" y="250" width="200" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="cL9Ay9SM4F4dzmY68NZg-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="cL9Ay9SM4F4dzmY68NZg-9" target="cL9Ay9SM4F4dzmY68NZg-10" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cL9Ay9SM4F4dzmY68NZg-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;entryPerimeter=0;startArrow=classic;startFill=1;endArrow=none;endFill=0;" parent="1" source="cL9Ay9SM4F4dzmY68NZg-9" target="cL9Ay9SM4F4dzmY68NZg-2" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cL9Ay9SM4F4dzmY68NZg-9" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;Oracle/User&lt;/font&gt;" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#232F3D;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.user;" parent="1" vertex="1">
+          <mxGeometry x="401" y="320" width="78" height="78" as="geometry" />
+        </mxCell>
+        <mxCell id="cL9Ay9SM4F4dzmY68NZg-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="cL9Ay9SM4F4dzmY68NZg-10" target="cL9Ay9SM4F4dzmY68NZg-1" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cL9Ay9SM4F4dzmY68NZg-10" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;$$\text{Labelled pool: }&lt;br&gt;\mathcal{D}_{lab}$$&lt;/font&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="130" y="250" width="200" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="cL9Ay9SM4F4dzmY68NZg-17" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;Training&lt;/font&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="200" y="190" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="cL9Ay9SM4F4dzmY68NZg-18" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;Query Samples&lt;/font&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="590" y="360" width="130" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

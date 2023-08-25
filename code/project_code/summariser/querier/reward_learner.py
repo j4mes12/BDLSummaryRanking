@@ -24,6 +24,7 @@ class MCDTinyBertDeepLearner(nn.Module):
         original_document,
         model_name: str = "huawei-noah/TinyBERT_General_4L_312D",
         n_samples: int = 10,
+        full_cov: bool = True,
     ):
         super().__init__()
         self.base_model = BertModel.from_pretrained(model_name)
@@ -35,6 +36,7 @@ class MCDTinyBertDeepLearner(nn.Module):
         # Set MCD params
         self.n_samples = n_samples
         self.training_mode_layers = []
+        self.full_cov = full_cov
 
     def set_layers_to_training_mode(self):
         for module in self.training_mode_layers:
@@ -77,7 +79,7 @@ class MCDTinyBertDeepLearner(nn.Module):
             with torch.no_grad():
                 output = self.base_model(window_ids_tensor)
                 # switch approach since we want to take into account entire emb
-                window_embedding = output.last_hidden_state.mean(dim=1)
+                window_embedding = output[0].mean(dim=1)
                 embeddings.append(window_embedding)
 
         return torch.stack(embeddings).mean(axis=0)
@@ -113,7 +115,7 @@ class MCDTinyBertDeepLearner(nn.Module):
         if full_cov:
             # rowvar = False ensures columns are treated as variables
             return np.cov(
-                self.similarity_scores.detach().numpy(), rowvar=False
+                self.similarity_scores[:, idxs].detach().numpy(), rowvar=False
             )
         else:
             reward_variance = self.predictive_var(return_tensor=False)
@@ -282,7 +284,7 @@ class TinyBertDeepLearnerWithMCDropoutInBert(MCDTinyBertDeepLearner):
             truncation=True,
             max_length=512,
         )
-        embeddings = self.base_model(**encodings).last_hidden_state
+        embeddings = self.base_model(**encodings)[0]
         # use cls token as it is more robust to padding
         return embeddings[:, 0, :]
 
