@@ -164,9 +164,13 @@ def learn_dl_model(
             [f"dr-{dropout_rate}", f"dl-{dropout_layers}"]
         )
 
-    reward_file = os.path.join(output_path, f"rewards_{reward_information}.json")
+    reward_file = os.path.join(
+        output_path, f"rewards_{reward_information}.json"
+    )
 
-    loss_file = os.path.join(output_path, f"model_losses_{reward_information}.json")
+    loss_file = os.path.join(
+        output_path, f"model_losses_{reward_information}.json"
+    )
 
     # if this has already been done, skip it!
     if os.path.exists(reward_file) and os.path.exists(loss_file):
@@ -293,7 +297,9 @@ def load_candidate_summaries(summaries, dataset, topic, root_dir, docs):
     )
 
     if os.path.exists(summary_text_cache_file):
-        warnings.warn("reloading text for summaries from cache", ResourceWarning)
+        warnings.warn(
+            "reloading text for summaries from cache", ResourceWarning
+        )
         summary_text = np.genfromtxt(
             summary_text_cache_file, delimiter="#####", dtype=str
         )
@@ -303,7 +309,9 @@ def load_candidate_summaries(summaries, dataset, topic, root_dir, docs):
 
     summary_text = text_generator.getSummaryText(summaries)
 
-    np.savetxt(summary_text_cache_file, summary_text, fmt="%s", delimiter="#####")
+    np.savetxt(
+        summary_text_cache_file, summary_text, fmt="%s", delimiter="#####"
+    )
     print(f"Cached summary vectors to {summary_text_cache_file}")
 
     return summary_text
@@ -329,12 +337,16 @@ def save_result_dic(
     for metric, values in all_result_dic.items():
         print(f"{metric} : {np.mean(values)}")
 
-    file_name = f"metrics_{querier_type}_{learner_type_str}_{n_inter_rounds}.json"
+    file_name = (
+        f"metrics_{querier_type}_{learner_type_str}_{n_inter_rounds}.json"
+    )
     with open(os.path.join(output_path, file_name), "w") as fh:
         json.dump(all_result_dic, fh)
 
 
-def create_dataframe_and_save(method_names, data_means, data_vars, metrics, filename):
+def create_dataframe_and_save(
+    method_names, data_means, data_vars, metrics, filename
+):
     """
     This function creates a pandas DataFrame using provided means and
     variances, and saves the DataFrame into a CSV file.
@@ -378,6 +390,7 @@ def save_selected_results(
     chosen_metrics,
     method_names,
     this_method_idx,
+    table_savename,
 ):
     """
     This function calculates means and variances for selected metrics and
@@ -386,50 +399,24 @@ def save_selected_results(
 
     # Compute means and variances
     for metric_index, metric in enumerate(chosen_metrics):
-        selected_means[this_method_idx, metric_index] = np.mean(all_result_dic[metric])
-        selected_vars[this_method_idx, metric_index] = np.var(all_result_dic[metric])
-        selected_means_allreps[this_method_idx, metric_index] += selected_means[
+        selected_means[this_method_idx, metric_index] = np.mean(
+            all_result_dic[metric]
+        )
+        selected_vars[this_method_idx, metric_index] = np.var(
+            all_result_dic[metric]
+        )
+        selected_means_allreps[
             this_method_idx, metric_index
-        ]
+        ] += selected_means[this_method_idx, metric_index]
         selected_vars_allreps[this_method_idx, metric_index] += selected_vars[
             this_method_idx, metric_index
         ]
 
-    filename = os.path.join(output_path, "table.csv")
+    filename = os.path.join(output_path, "{}.csv".format(table_savename))
 
     # Create DataFrame and save to CSV
     create_dataframe_and_save(
         method_names, selected_means, selected_vars, chosen_metrics, filename
-    )
-
-
-def save_selected_results_allreps(
-    output_path,
-    selected_means_allreps,
-    selected_vars_allreps,
-    chosen_metrics,
-    method_names,
-    nreps,
-):
-    """
-    This function calculates average means and variances over all repetitions
-    for selected metrics and saves them into a csv file along with method
-    names.
-    """
-
-    # Compute average means and variances
-    average_means_allreps = selected_means_allreps / float(nreps)
-    average_vars_allreps = selected_vars_allreps / float(nreps)
-
-    filename = os.path.join(output_path, "table_all_reps.csv")
-
-    # Create DataFrame and save to CSV
-    create_dataframe_and_save(
-        method_names,
-        average_means_allreps,
-        average_vars_allreps,
-        chosen_metrics,
-        filename,
     )
 
 
@@ -439,7 +426,9 @@ def make_output_dir(output_folder_name, rep):
     results directory, output folder name, and repetition index.
     """
 
-    output_path = os.path.join(root_dir, res_dir, output_folder_name, f"rep{rep}")
+    output_path = os.path.join(
+        root_dir, res_dir, output_folder_name, f"rep{rep}"
+    )
 
     if not os.path.exists(output_path):
         os.makedirs(output_path)
@@ -546,7 +535,9 @@ if __name__ == "__main__":
     if dataset is None:
         dataset = "DUC2001"  # 'DUC2001'  # DUC2001, DUC2002, 'DUC2004'#
 
-    output_folder_name = "_".join([dataset.lower(), "ExpImpForDL", learner_type_str])
+    output_folder_name = "_".join(
+        [dataset.lower(), "ExpImpForDL", learner_type_str]
+    )
 
     output_folder_path = os.path.join(root_dir, res_dir, output_folder_name)
 
@@ -558,6 +549,7 @@ if __name__ == "__main__":
     # set to greater than zero to use a subset of topics for debugging
     max_topics = -1
     folders = []
+    rep = 0
 
     chosen_metrics = [
         "ndcg_at_1%",
@@ -570,123 +562,117 @@ if __name__ == "__main__":
     selected_means_allreps = np.zeros((1, len(chosen_metrics)))
     selected_vars_allreps = np.zeros((1, len(chosen_metrics)))
 
-    for rep in range(n_reps):
-        selected_means = np.zeros((1, len(chosen_metrics)))
-        selected_vars = np.zeros((1, len(chosen_metrics)))
+    selected_means = np.zeros((1, len(chosen_metrics)))
+    selected_vars = np.zeros((1, len(chosen_metrics)))
 
-        output_path = make_output_dir(output_folder_path, rep)
+    output_path = make_output_dir(output_folder_path, rep)
 
-        # saves a list of result folders containing repeats from the same run
-        folders.append(output_path)
-        with open(output_path + "/folders.txt", "w") as fh:
-            for folder_name in folders:
-                fh.write(folder_name + "\n")
+    # saves a list of result folders containing repeats from the same run
+    folders.append(output_path)
+    with open(output_path + "/folders.txt", "w") as fh:
+        for folder_name in folders:
+            fh.write(folder_name + "\n")
 
-        figs = avg_figs = []
+    figs = avg_figs = []
 
-        np.random.seed(1238549)
+    np.random.seed(1238549)
 
-        # read documents and ref. summaries
-        reader = CorpusReader(PROCESSED_PATH)
-        data = reader.get_data(dataset)
+    # read documents and ref. summaries
+    reader = CorpusReader(PROCESSED_PATH)
+    data = reader.get_data(dataset)
 
-        # store all results
-        all_result_dic = {}
-        topic_cnt = 0
+    # store all results
+    all_result_dic = {}
+    topic_cnt = 0
 
-        querier_types = ["ExpImpForDL"]
-        querier_type = querier_types[0]
+    querier_types = ["ExpImpForDL"]
+    querier_type = querier_types[0]
 
-        for topic, docs, models in data:
-            print(
-                f"\n=====(repeat {rep}) TOPIC {topic}, "
-                + "QUERIER ExpImpForDL, "
-                + f"INTER ROUND {n_inter_rounds}====="
+    for topic, docs, models in data:
+        print(
+            f"\n=====(repeat {rep}) TOPIC {topic}, "
+            + "QUERIER ExpImpForDL, "
+            + f"INTER ROUND {n_inter_rounds}====="
+        )
+
+        topic_cnt += 1
+        if 0 < max_topics < topic_cnt or (n_debug and topic_cnt > 1):
+            continue
+
+        (
+            summaries,
+            ref_values_dic,
+            heuristic_list,
+        ) = readSampleSummaries(dataset, topic, "supert")
+        print(f"num of summaries read: {len(summaries)}")
+
+        summary_text = load_candidate_summaries(
+            summaries, dataset, topic, root_dir, docs
+        )
+
+        topic_documents = load_topic_articles(docs)
+
+        if n_debug:
+            heuristic_list = heuristic_list[:n_debug]
+            summary_text = summary_text[:n_debug]
+
+        for model in models:
+            learnt_rewards = learn_dl_model(
+                # Data params
+                topic=topic,
+                model=model,
+                original_document=topic_documents,
+                summaries=summary_text.tolist(),
+                heuristic_list=heuristic_list,
+                ref_values_dic=ref_values_dic,
+                all_result_dic=all_result_dic,
+                # Path params
+                output_path=output_path,
+                # Experimental params
+                n_iter_rounds=n_inter_rounds,
+                n_debug=n_debug,
+                # Model params
+                learner_type_str=learner_type_str,
+                n_samples=n_samples,
+                temp=temp,
+                dropout_layers=dropout_layers,
+                dropout_rate=dropout_rate,
+                margin=margin,
             )
 
-            topic_cnt += 1
-            if 0 < max_topics < topic_cnt or (n_debug and topic_cnt > 1):
-                continue
-
-            (
-                summaries,
-                ref_values_dic,
-                heuristic_list,
-            ) = readSampleSummaries(dataset, topic, "supert")
-            print(f"num of summaries read: {len(summaries)}")
-
-            summary_text = load_candidate_summaries(
-                summaries, dataset, topic, root_dir, docs
+            # The following selects the highest rewarded set of
+            # sentences from a list of documents and prints them
+            # out as a summary.
+            print("SUMMARY: ")
+            highest_rewarded_summary_text = generate_summary(
+                summary_index=np.argmax(learnt_rewards),
+                summaries=summaries,
+                docs=docs,
             )
+            print(highest_rewarded_summary_text)
 
-            topic_documents = load_topic_articles(docs)
+        save_result_dic(
+            all_result_dic,
+            output_path,
+            rep,
+            topic_cnt,
+            querier_type,
+            learner_type_str,
+            n_inter_rounds,
+        )
 
-            if n_debug:
-                heuristic_list = heuristic_list[:n_debug]
-                summary_text = summary_text[:n_debug]
-
-            for model in models:
-                learnt_rewards = learn_dl_model(
-                    # Data params
-                    topic=topic,
-                    model=model,
-                    original_document=topic_documents,
-                    summaries=summary_text.tolist(),
-                    heuristic_list=heuristic_list,
-                    ref_values_dic=ref_values_dic,
-                    all_result_dic=all_result_dic,
-                    # Path params
-                    output_path=output_path,
-                    # Experimental params
-                    n_iter_rounds=n_inter_rounds,
-                    n_debug=n_debug,
-                    # Model params
-                    learner_type_str=learner_type_str,
-                    n_samples=n_samples,
-                    temp=temp,
-                    dropout_layers=dropout_layers,
-                    dropout_rate=dropout_rate,
-                    margin=margin,
-                )
-
-                # The following selects the highest rewarded set of
-                # sentences from a list of documents and prints them
-                # out as a summary.
-                print("SUMMARY: ")
-                highest_rewarded_summary_text = generate_summary(
-                    summary_index=np.argmax(learnt_rewards),
-                    summaries=summaries,
-                    docs=docs,
-                )
-                print(highest_rewarded_summary_text)
-
-            save_result_dic(
-                all_result_dic,
-                output_path,
-                rep,
-                topic_cnt,
-                querier_type,
-                learner_type_str,
-                n_inter_rounds,
-            )
-
-            save_selected_results(
-                output_path,
-                all_result_dic,
-                selected_means,
-                selected_vars,
-                selected_means_allreps,
-                selected_vars_allreps,
-                chosen_metrics,
-                querier_types,
-                0,
-            )
-
-    save_selected_results_allreps(
-        output_path,
-        selected_means_allreps,
-        selected_vars_allreps,
-        chosen_metrics,
-        querier_types,
-        n_reps,
-    )
+        save_selected_results(
+            output_path,
+            all_result_dic,
+            selected_means,
+            selected_vars,
+            selected_means_allreps,
+            selected_vars_allreps,
+            chosen_metrics,
+            querier_types,
+            0,
+            table_savename="table_of_metrics_"
+            + "topic-{}_nsamples-{}_margin-{}_temp-{}_dr-{}_dl-{}".format(
+                topic, n_samples, margin, temp, dropout_rate, dropout_layers
+            ),
+        )
