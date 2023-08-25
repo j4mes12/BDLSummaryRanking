@@ -29,30 +29,38 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 def process_cmd_line_args():
+    print("processing args...")
     # Initialize parser
     parser = argparse.ArgumentParser()
 
     # Adding optional arguments with default values
-    parser.add_argument("--dataset", default=None)
-    parser.add_argument("--use_lorem_summs", default=False, type=bool)
     parser.add_argument(
-        "--learner_type_str", default="TBDL_IB", choices=["TBDL_IB", "TBDL_IL"]
+        "--dataset",
+        default="DUC2001",
+        type=str,
+        choices=["DUC2001", "DUC2002", "DUC2004"],
     )
-    parser.add_argument("--temp", type=float, default=2.5)
+    parser.add_argument(
+        "--learner_type_str",
+        default="TBDL_IB",
+        type=str,
+        choices=["TBDL_IB", "TBDL_IL"],
+    )
+    parser.add_argument("--temp", default=1, type=float)
     parser.add_argument("--dropout_rate", default=0.1, type=float)
-    parser.add_argument("--n_samples", default=5, type=int)
+    parser.add_argument("--n_samples", default=10, type=int)
     parser.add_argument(
         "--dropout_layers",
         default="both",
         type=str,
         choices=["both", "first", "second"],
     )
-    parser.add_argument("--margin", default=0.1, type=float)
-    parser.add_argument("--n_inter_rounds", type=int, default=None)
+    parser.add_argument("--margin", type=float, default=0.1)
+    parser.add_argument("--n_inter_rounds", type=int, default=10)
     parser.add_argument("--n_debug", type=int, default=0)
     parser.add_argument("--n_reps", type=int, default=1)
-    parser.add_argument("--root_dir", default=".")
-    parser.add_argument("--res_dir", default="results")
+    parser.add_argument("--root_dir", type=str, default="./project_code")
+    parser.add_argument("--res_dir", type=str, default="experiments/results")
 
     # Parse the arguments
     args = parser.parse_args()
@@ -60,7 +68,6 @@ def process_cmd_line_args():
     return (
         # Data variables
         args.dataset,
-        args.use_lorem_summs,
         # Model params
         args.learner_type_str,
         args.temp,
@@ -219,7 +226,9 @@ def learn_dl_model(
             )
             # Limit scoring pool for later iterations to top 400
             if round == 0:
-                candidate_summaries = candidate_summaries[candidate_idxs]
+                candidate_summaries = np.array(candidate_summaries)[
+                    candidate_idxs
+                ].tolist()
 
             summ_idx1, summ_idx2 = querier.getQuery(
                 f[candidate_idxs], Cov, candidate_idxs, log
@@ -479,12 +488,6 @@ def load_topic_articles(docs):
     return " ".join(topic_sentences)
 
 
-def load_lorem_summaries(filepath):
-    summaries = np.genfromtxt(filepath, delimiter="#####", dtype=str)
-
-    return summaries
-
-
 if __name__ == "__main__":
     """
     Command line arguments:
@@ -514,7 +517,6 @@ if __name__ == "__main__":
     (
         # Data variables
         dataset,
-        use_lorem_summs,
         # Model params
         learner_type_str,
         temp,
@@ -530,10 +532,6 @@ if __name__ == "__main__":
         root_dir,
         res_dir,
     ) = process_cmd_line_args()
-
-    # parameters
-    if dataset is None:
-        dataset = "DUC2001"  # 'DUC2001'  # DUC2001, DUC2002, 'DUC2004'#
 
     output_folder_name = "_".join(
         [dataset.lower(), "ExpImpForDL", learner_type_str]
@@ -577,6 +575,8 @@ if __name__ == "__main__":
 
     np.random.seed(1238549)
 
+    print("loading dataset...")
+
     # read documents and ref. summaries
     reader = CorpusReader(PROCESSED_PATH)
     data = reader.get_data(dataset)
@@ -606,16 +606,19 @@ if __name__ == "__main__":
         ) = readSampleSummaries(dataset, topic, "supert")
         print(f"num of summaries read: {len(summaries)}")
 
+        print("loading summary texts...")
         summary_text = load_candidate_summaries(
             summaries, dataset, topic, root_dir, docs
         )
 
+        print("loading topic articles..")
         topic_documents = load_topic_articles(docs)
 
         if n_debug:
             heuristic_list = heuristic_list[:n_debug]
             summary_text = summary_text[:n_debug]
 
+        print("framework started.")
         for model in models:
             learnt_rewards = learn_dl_model(
                 # Data params
