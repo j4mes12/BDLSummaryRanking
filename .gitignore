@@ -139,3 +139,4 @@ ext_code
 **/test_*.py
 **/get_top_summs.py
 **.out
+**/experi_outfiles
