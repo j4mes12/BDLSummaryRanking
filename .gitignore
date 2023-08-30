@@ -144,3 +144,4 @@ experi_outfiles
 *.docx
 *.pptx
 **/shh_keys.py
+writing/

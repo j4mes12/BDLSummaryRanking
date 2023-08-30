@@ -30,9 +30,7 @@ def extract_info_from_filename(filename):
 async def fetch_csv_data_from_all_dirs_via_ssh(
     hostname, username, password, base_directory_path, pattern
 ):
-    async with asyncssh.connect(
-        hostname, username=username, password=password
-    ) as conn:
+    async with asyncssh.connect(hostname, username=username, password=password) as conn:
         dir_result = await conn.run(f"find {base_directory_path} -type d")
 
         if dir_result.stderr:
