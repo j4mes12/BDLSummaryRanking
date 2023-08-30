@@ -142,3 +142,4 @@ ext_code
 experi_outfiles
 *.bkp
 *.docx
+**/shh_keys.py
