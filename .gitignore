@@ -138,4 +138,8 @@ ext_code
 **/shells/
 **/test_*.py
 **/get_top_summs.py
-**.out
+# **.out
+experi_outfiles
+*.bkp
+*.docx
+**/shh_keys.py
