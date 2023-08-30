@@ -174,13 +174,9 @@ def learn_dl_model(
             [f"dr-{dropout_rate}", f"dl-{dropout_layers}"]
         )
 
-    reward_file = os.path.join(
-        output_path, f"rewards_{reward_information}.json"
-    )
+    reward_file = os.path.join(output_path, f"rewards_{reward_information}.json")
 
-    loss_file = os.path.join(
-        output_path, f"model_losses_{reward_information}.json"
-    )
+    loss_file = os.path.join(output_path, f"model_losses_{reward_information}.json")
 
     # if this has already been done, skip it!
     if os.path.exists(reward_file) and os.path.exists(loss_file):
@@ -309,9 +305,7 @@ def load_candidate_summaries(summaries, dataset, topic, root_dir, docs):
     )
 
     if os.path.exists(summary_text_cache_file):
-        warnings.warn(
-            "reloading text for summaries from cache", ResourceWarning
-        )
+        warnings.warn("reloading text for summaries from cache", ResourceWarning)
         summary_text = np.genfromtxt(
             summary_text_cache_file, delimiter="#####", dtype=str
         )
@@ -321,9 +315,7 @@ def load_candidate_summaries(summaries, dataset, topic, root_dir, docs):
 
     summary_text = text_generator.getSummaryText(summaries)
 
-    np.savetxt(
-        summary_text_cache_file, summary_text, fmt="%s", delimiter="#####"
-    )
+    np.savetxt(summary_text_cache_file, summary_text, fmt="%s", delimiter="#####")
     print(f"Cached summary vectors to {summary_text_cache_file}")
 
     return summary_text
@@ -349,16 +341,12 @@ def save_result_dic(
     for metric, values in all_result_dic.items():
         print(f"{metric} : {np.mean(values)}")
 
-    file_name = (
-        f"metrics_{querier_type}_{learner_type_str}_{n_inter_rounds}.json"
-    )
+    file_name = f"metrics_{querier_type}_{learner_type_str}_{n_inter_rounds}.json"
     with open(os.path.join(output_path, file_name), "w") as fh:
         json.dump(all_result_dic, fh)
 
 
-def create_dataframe_and_save(
-    method_names, data_means, data_vars, metrics, filename
-):
+def create_dataframe_and_save(method_names, data_means, data_vars, metrics, filename):
     """
     This function creates a pandas DataFrame using provided means and
     variances, and saves the DataFrame into a CSV file.
@@ -411,15 +399,11 @@ def save_selected_results(
 
     # Compute means and variances
     for metric_index, metric in enumerate(chosen_metrics):
-        selected_means[this_method_idx, metric_index] = np.mean(
-            all_result_dic[metric]
-        )
-        selected_vars[this_method_idx, metric_index] = np.var(
-            all_result_dic[metric]
-        )
-        selected_means_allreps[
+        selected_means[this_method_idx, metric_index] = np.mean(all_result_dic[metric])
+        selected_vars[this_method_idx, metric_index] = np.var(all_result_dic[metric])
+        selected_means_allreps[this_method_idx, metric_index] += selected_means[
             this_method_idx, metric_index
-        ] += selected_means[this_method_idx, metric_index]
+        ]
         selected_vars_allreps[this_method_idx, metric_index] += selected_vars[
             this_method_idx, metric_index
         ]
@@ -438,9 +422,7 @@ def make_output_dir(output_folder_name, rep):
     results directory, output folder name, and repetition index.
     """
 
-    output_path = os.path.join(
-        root_dir, res_dir, output_folder_name, f"rep{rep}"
-    )
+    output_path = os.path.join(root_dir, res_dir, output_folder_name, f"rep{rep}")
 
     if not os.path.exists(output_path):
         os.makedirs(output_path)
@@ -536,9 +518,7 @@ if __name__ == "__main__":
         res_dir,
     ) = process_cmd_line_args()
 
-    output_folder_name = "_".join(
-        [dataset.lower(), "ExpImpForDL", learner_type_str]
-    )
+    output_folder_name = "_".join([dataset.lower(), "ExpImpForDL", learner_type_str])
 
     output_folder_path = os.path.join(root_dir, res_dir, output_folder_name)
 

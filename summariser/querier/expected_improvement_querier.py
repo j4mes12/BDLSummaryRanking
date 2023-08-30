@@ -34,10 +34,7 @@ class ExpImpQuerierForDeepLearner:
         f_best = f[best_idx]
 
         sigma = (
-            Cov[best_idx, best_idx]
-            + np.diag(Cov)
-            - Cov[best_idx, :]
-            - Cov[:, best_idx]
+            Cov[best_idx, best_idx] + np.diag(Cov) - Cov[best_idx, :] - Cov[:, best_idx]
         )
         sigma[
             best_idx
@@ -103,9 +100,7 @@ class ExpImpQuerierForDeepLearner:
             pairwise_scores[dp0, dp1] = -np.inf
             pairwise_scores[dp1, dp0] = -np.inf
 
-        selected = np.unravel_index(
-            np.argmax(pairwise_scores), pairwise_scores.shape
-        )
+        selected = np.unravel_index(np.argmax(pairwise_scores), pairwise_scores.shape)
         pe_selected = pairwise_scores[selected[0], selected[1]]
         selected = (candidate_idxs[selected[0]], candidate_idxs[selected[1]])
 

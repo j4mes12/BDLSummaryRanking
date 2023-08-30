@@ -9,8 +9,6 @@ ROUGE_DIR = os.path.join(
 )  # do not delete the '/' at the end
 PROCESSED_PATH = os.path.join(BASE_DIR, "data", "summaries_processed_data")
 SUMMARY_DB_DIR = os.path.join(BASE_DIR, "data", "sampled_summaries")
-DOC_SEQUENCE_PATH = os.path.join(
-    BASE_DIR, "summariser", "utils", "DocsSequence.txt"
-)
+DOC_SEQUENCE_PATH = os.path.join(BASE_DIR, "summariser", "utils", "DocsSequence.txt")
 
 LANGUAGE = "english"

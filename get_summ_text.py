@@ -55,7 +55,5 @@ for dataset in ["DUC2001", "DUC2002", "DUC2004"]:
         text_generator = SummaryTextGenerator(docs)
         summary_text = text_generator.getSummaryText(summaries)
 
-        np.savetxt(
-            summary_text_cache_file, summary_text, fmt="%s", delimiter="#####"
-        )
+        np.savetxt(summary_text_cache_file, summary_text, fmt="%s", delimiter="#####")
         print(f"Cached summary vectors to {summary_text_cache_file}")
