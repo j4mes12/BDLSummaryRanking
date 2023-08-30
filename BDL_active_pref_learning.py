@@ -1,4 +1,5 @@
-# The structure and underlying framework of this code is strongly inspired by Simpson et al. [1], but much of this code is new.
+# The structure and underlying framework of this code is strongly inspired by
+# Simpson et al. [1], but much of this code is new.
 
 import json
 import argparse
