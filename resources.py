@@ -1,3 +1,5 @@
+# This was taken from [1]
+
 import os
 
 BASE_DIR = os.path.abspath(".")

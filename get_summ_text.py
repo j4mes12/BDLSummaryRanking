@@ -1,3 +1,7 @@
+# This code was inspired by Simpson et al. when extracting summary vectors [1].
+# However, this implementation is new and is to save summary text within the HPC.
+
+
 from summariser.utils.reader import readSampleSummaries
 from summariser.utils.corpus_reader import CorpusReader
 from summariser.vector.vector_generator import Vectoriser
@@ -51,5 +55,7 @@ for dataset in ["DUC2001", "DUC2002", "DUC2004"]:
         text_generator = SummaryTextGenerator(docs)
         summary_text = text_generator.getSummaryText(summaries)
 
-        np.savetxt(summary_text_cache_file, summary_text, fmt="%s", delimiter="#####")
+        np.savetxt(
+            summary_text_cache_file, summary_text, fmt="%s", delimiter="#####"
+        )
         print(f"Cached summary vectors to {summary_text_cache_file}")

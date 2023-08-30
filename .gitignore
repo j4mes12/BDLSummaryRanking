@@ -130,18 +130,8 @@ dmypy.json
 
 ext_code
 **/sp.ipynb
-**/data/
-**/writeups
-**/test_artifacts.py
-**/run_scripts.sh
-**/experiments/
-**/shells/
-**/test_*.py
-**/get_top_summs.py
-# **.out
-experi_outfiles
-*.bkp
-*.docx
-*.pptx
-**/shh_keys.py
+data/
+test_artifacts.py
+get_top_summs.py
+shh_keys.py
 writing/

@@ -1,3 +1,6 @@
+# This pulls strong inspiration from Simpson et al. [1], but this function has
+# undergone a structureal refresh to perform differently.
+
 import numpy as np
 from scipy.stats import norm
 from summariser.utils.misc import normaliseList
