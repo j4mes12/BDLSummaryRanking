@@ -62,8 +62,8 @@ def process_cmd_line_args():
     parser.add_argument("--n_inter_rounds", type=int, default=10)
     parser.add_argument("--n_debug", type=int, default=0)
     parser.add_argument("--n_reps", type=int, default=1)
-    parser.add_argument("--root_dir", type=str, default="./project_code")
-    parser.add_argument("--res_dir", type=str, default="experiments/results")
+    parser.add_argument("--root_dir", type=str, default=".")
+    parser.add_argument("--res_dir", type=str, default="results")
 
     # Parse the arguments
     args = parser.parse_args()
@@ -324,7 +324,6 @@ def load_candidate_summaries(summaries, dataset, topic, root_dir, docs):
 def save_result_dic(
     all_result_dic,
     output_path,
-    rep,
     topic_cnt,
     querier_type,
     learner_type_str,
@@ -334,7 +333,7 @@ def save_result_dic(
     Compute and save metrics for a given topic.
     """
     print(
-        f"=== (rep={rep}) RESULTS UNTIL TOPIC {topic_cnt}, "
+        f"=== RESULTS UNTIL TOPIC {topic_cnt}, "
         f"QUERIER {querier_type.upper()}, LEARNER {learner_type_str}, "
         f"INTER ROUND {n_inter_rounds} ===\n"
     )
@@ -416,18 +415,16 @@ def save_selected_results(
     )
 
 
-def make_output_dir(output_folder_name, rep):
+def make_output_dir(output_folder_name):
     """
     Create an output directory based on provided root directory,
-    results directory, output folder name, and repetition index.
+    results directory, output folder name.
     """
 
-    output_path = os.path.join(root_dir, res_dir, output_folder_name, f"rep{rep}")
+    if not os.path.exists(output_folder_name):
+        os.makedirs(output_folder_name)
 
-    if not os.path.exists(output_path):
-        os.makedirs(output_path)
-
-    return output_path
+    return output_folder_name
 
 
 def generate_summary(summary_index, summaries, docs):
@@ -530,7 +527,6 @@ if __name__ == "__main__":
     # set to greater than zero to use a subset of topics for debugging
     max_topics = -1
     folders = []
-    rep = 0
 
     chosen_metrics = [
         "ndcg_at_1%",
@@ -546,7 +542,7 @@ if __name__ == "__main__":
     selected_means = np.zeros((1, len(chosen_metrics)))
     selected_vars = np.zeros((1, len(chosen_metrics)))
 
-    output_path = make_output_dir(output_folder_path, rep)
+    output_path = make_output_dir(output_folder_path)
 
     # saves a list of result folders containing repeats from the same run
     folders.append(output_path)
@@ -573,7 +569,7 @@ if __name__ == "__main__":
 
     for topic, docs, models in data:
         print(
-            f"\n=====(repeat {rep}) TOPIC {topic}, "
+            f"\n===== TOPIC {topic}, "
             + "QUERIER ExpImpForDL, "
             + f"INTER ROUND {n_inter_rounds}====="
         )
@@ -640,7 +636,6 @@ if __name__ == "__main__":
         save_result_dic(
             all_result_dic,
             output_path,
-            rep,
             topic_cnt,
             querier_type,
             learner_type_str,
